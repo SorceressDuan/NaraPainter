@@ -1,0 +1,16 @@
+Dotnet toolchain lives in .tools/ and must never be committed.
+.tools/
+
+# Build output
+bin/
+obj/
+
+# Local editor state
+.vs/
+.vscode/
+*.user
+
+# Upstream reference checkout is fetched separately
+.upstream-compositor/
+
+*.log
