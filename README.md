@@ -1,5 +1,7 @@
 # Compositor for Windows（非官方移植版）
 
+> **运行方式：双击根目录的 `Compositor.exe`，无需安装 .NET 或 Windows App SDK。**
+
 本项目基于 [robbietilton/Compositor](https://github.com/robbietilton/Compositor)。
 原项目版权归 Robbie Tilton 所有，采用 MIT 许可证。
 本项目是非官方 Windows 移植版，与原作者无隶属或背书关系。

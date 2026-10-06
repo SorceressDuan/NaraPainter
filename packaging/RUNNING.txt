@@ -1,0 +1,9 @@
+Compositor for Windows（非官方移植版）
+
+运行方式：双击本目录下的 Compositor.exe，无需安装 .NET 或 Windows App SDK。
+
+本目录里的其它 .exe（createdump.exe、RestartAgent.exe）属于运行时，请勿单独运行。
+不要把 Compositor.exe 单独复制到别处，它需要同目录的 DLL 才能启动。
+首次运行如果出现 SmartScreen 提示，选择「更多信息」，再选「仍要运行」。
+
+详细说明见同目录 README.md，许可证见 LICENSE。
