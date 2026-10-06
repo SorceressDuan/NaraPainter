@@ -447,6 +447,15 @@ public static class Strings
     public static IReadOnlyList<string> RangeNames =>
         [RangeMaster, RangeReds, RangeYellows, RangeGreens, RangeCyans, RangeBlues, RangeMagentas];
 
+    // Language picker. The two language names are not translated on purpose: a picker is only usable
+    // if each entry reads in its own language, whichever one is currently active.
+    public static string StatusLanguageChanged => Localization.Get("Status_LanguageChanged");
+
+    public static string LanguageLabel => Localization.Get("Language_Label");
+
+    public static string LanguageChinese => Localization.Get("Language_Chinese");
+
+    public static string LanguageEnglish => Localization.Get("Language_English");
     public static IReadOnlyList<string> ShapeNames => [ShapeRectangle, ShapeEllipse];
 
     public static IReadOnlyList<string> BlendModeNames =>

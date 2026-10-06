@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using NaraDreamPainter.App.ViewModels;
@@ -41,6 +42,7 @@ public static class SmokeTest
             log.Add($"options image={imagePath} export={exportPath} log={logPath} cwd={Environment.CurrentDirectory}");
             CheckResources(log);
             await CheckChrome(window, log);
+            await CheckLanguageSwitch(window, log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -287,6 +289,109 @@ public static class SmokeTest
         if (missing.Length > 0)
         {
             throw new InvalidOperationException($"These labels are not showing in the window: {string.Join(" / ", missing)}");
+        }
+    }
+
+    /// <summary>
+    /// Switches the language the way the picker does and back again, checking the parts that have a
+    /// dependable signal: the culture, the window title, the toolbar, the values behind the pickers,
+    /// and the flyouts that live outside the visual tree.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately not a whole-tree snapshot comparison. A closed ComboBox does not reliably redraw
+    /// the text of its current selection when its items change language, so that comparison reports
+    /// blanks that say nothing about whether the switch worked. The values behind those pickers are
+    /// checked instead, and the display side is covered by the per-language chrome check above.
+    /// </remarks>
+    private static async Task CheckLanguageSwitch(Views.MainWindow window, List<string> log)
+    {
+        CultureInfo original = Localization.Culture;
+        CultureInfo other = original.Name.StartsWith("zh", StringComparison.OrdinalIgnoreCase)
+            ? new CultureInfo("en")
+            : new CultureInfo("zh-CN");
+
+        string titleBefore = window.Title;
+        var toolbarBefore = ToolbarLabels(window);
+
+        Localization.Culture = other;
+        await Settle(window);
+
+        var toolbarOther = ToolbarLabels(window);
+        string titleOther = window.Title;
+        log.Add($"language {original.Name}->{other.Name} title='{titleOther}' toolbar={toolbarOther.Count}");
+
+        if (Localization.Culture.Name != other.Name)
+        {
+            throw new InvalidOperationException($"Setting the culture to {other.Name} did not take.");
+        }
+
+        if (titleOther.Contains('!') || titleOther == titleBefore)
+        {
+            throw new InvalidOperationException($"The window title did not follow the switch: '{titleBefore}' -> '{titleOther}'.");
+        }
+
+        int moved = toolbarOther.Count(label => !toolbarBefore.Contains(label));
+        if (moved == 0)
+        {
+            throw new InvalidOperationException($"None of the {toolbarBefore.Count} toolbar labels changed language.");
+        }
+
+        List<string> modes = window.Document.SelectedLayer?.BlendModeNames.ToList() ?? [];
+        List<string> shapes = [.. window.Document.Selection.ShapeNames];
+        log.Add($"language {other.Name} blendModes={modes.Count} firstMode='{modes.FirstOrDefault()}' firstShape='{shapes.FirstOrDefault()}'");
+
+        if (modes.Count == 0 || shapes.Count == 0)
+        {
+            throw new InvalidOperationException("A picker lost its values on the switch.");
+        }
+
+        if (modes.First().Contains('!') || shapes.First().Contains('!'))
+        {
+            throw new InvalidOperationException("A picker value came back as a resource placeholder.");
+        }
+
+        Localization.Culture = original;
+        await Settle(window);
+
+        log.Add($"language {other.Name}->{original.Name} title='{window.Title}' restored={window.Title == titleBefore}");
+        if (window.Title != titleBefore)
+        {
+            throw new InvalidOperationException($"The window title did not go back to '{titleBefore}'.");
+        }
+
+        var toolbarBack = ToolbarLabels(window);
+        string[] lost = [.. toolbarBefore.Where(label => !toolbarBack.Contains(label))];
+        if (lost.Length > 0)
+        {
+            throw new InvalidOperationException($"The toolbar did not go back to {original.Name}: {string.Join(" / ", lost.Take(4))}");
+        }
+    }
+
+    private static List<string> ToolbarLabels(Views.MainWindow window)
+    {
+        var labels = new List<string>();
+        CommandBar? bar = FindCommandBar(window.Content as DependencyObject);
+        if (bar is null) return labels;
+
+        foreach (ICommandBarElement element in bar.PrimaryCommands)
+        {
+            switch (element)
+            {
+                case AppBarButton button: labels.Add(button.Label); break;
+                case AppBarToggleButton toggle: labels.Add(toggle.Label); break;
+            }
+        }
+
+        return labels;
+    }
+
+    /// <summary>Lets the dispatcher run the work a language change queued before looking at the result.</summary>
+    private static async Task Settle(Views.MainWindow window)
+    {
+        for (int attempt = 0; attempt < 20; attempt++)
+        {
+            await Task.Delay(50);
+            (window.Content as UIElement)?.UpdateLayout();
         }
     }
 

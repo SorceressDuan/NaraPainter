@@ -659,4 +659,16 @@
   <data name="Drop_OpenImage" xml:space="preserve">
     <value>打开图片</value>
   </data>
+  <data name="Language_Label" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Language_Chinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Status_LanguageChanged" xml:space="preserve">
+    <value>界面语言已切换</value>
+  </data>
 </root>

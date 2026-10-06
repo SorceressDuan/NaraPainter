@@ -30,10 +30,10 @@ public sealed class AdjustmentViewModel : ObservableObject
     private int _session;
 
     /// <summary>Rebuilt on each read so a language change is picked up; order matches ColorRange.</summary>
-    public IReadOnlyList<string> RangeNames => Strings.RangeNames;
+    public IReadOnlyList<string> RangeNames => LocalizedLists.RangeNames;
 
     /// <summary>Order matches LevelsChannel and CurvesSettings' channel order.</summary>
-    public IReadOnlyList<string> ChannelNames => Strings.ChannelNames;
+    public IReadOnlyList<string> ChannelNames => LocalizedLists.ChannelNames;
 
     public LayerViewModel? Target
     {

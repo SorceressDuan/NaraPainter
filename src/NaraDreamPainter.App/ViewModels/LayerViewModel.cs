@@ -91,7 +91,11 @@ public sealed class LayerViewModel : ObservableObject
         }
     }
 
-    public IReadOnlyList<string> BlendModeNames => BlendModeCatalog.Names;
+    /// <summary>
+    /// Its own instance rather than a shared one. Two panels show this picker at the same time, and a
+    /// list bound into two controls at once leaves one of them without a selection.
+    /// </summary>
+    public IReadOnlyList<string> BlendModeNames => Strings.BlendModeNames;
 
     public int BlendModeIndex
     {

@@ -165,6 +165,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock
@@ -177,19 +178,41 @@
                     Grid.Column="1"
                     Text="{x:Bind Document.SizeLabel, Mode=OneWay}"
                     Style="{StaticResource CaptionTextBlockStyle}"
-                    FontFamily="{StaticResource AppFontFamily}" />
+                    FontFamily="{StaticResource AppFontFamily}"
+                    VerticalAlignment="Center" />
                 <TextBlock
                     Grid.Column="2"
                     Text="{x:Bind Document.LayerCountLabel, Mode=OneWay}"
                     Style="{StaticResource CaptionTextBlockStyle}"
-                    FontFamily="{StaticResource AppFontFamily}" />
+                    FontFamily="{StaticResource AppFontFamily}"
+                    VerticalAlignment="Center" />
                 <TextBlock
                     Grid.Column="3"
                     MinWidth="56"
                     TextAlignment="Right"
                     Text="{x:Bind Document.ZoomLabel, Mode=OneWay}"
                     Style="{StaticResource CaptionTextBlockStyle}"
-                    FontFamily="{StaticResource AppFontFamily}" />
+                    FontFamily="{StaticResource AppFontFamily}"
+                    VerticalAlignment="Center" />
+
+                <!-- The language picker lives here rather than in a settings page: it takes one
+                     selection, and the status bar is always on screen. -->
+                <StackPanel
+                    Grid.Column="4"
+                    Orientation="Horizontal"
+                    Spacing="6"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        Text="{x:Bind Text.LanguageLabel, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        VerticalAlignment="Center" />
+                    <ComboBox
+                        x:Name="LanguagePicker"
+                        MinWidth="132"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        SelectionChanged="OnLanguageChanged" />
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Globalization;
 using NaraDreamPainter.App.Services;
 using NaraDreamPainter.App.ViewModels;
 using NaraDreamPainter.Imaging.Services;
@@ -40,13 +41,49 @@ public sealed partial class MainWindow : Window
         Properties.Attach(Document);
 
         LabelFlyouts();
-        _cultureChanged = (_, _) => LabelFlyouts();
+        _cultureChanged = (_, _) => OnCultureChanged();
         Localization.CultureChanged += _cultureChanged;
+
+        // Built after the handler is wired, so filling the list does not read as a user selection.
+        FillLanguagePicker();
+        LanguagePicker.SelectedIndex = LanguageCatalog.IndexOf(Localization.Culture);
 
         Document.Changed += (_, _) => Canvas.Refresh();
         Document.DocumentReplaced += OnDocumentReplaced;
         Document.PropertyChanged += OnDocumentPropertyChanged;
         Closed += OnClosed;
+    }
+
+    /// <summary>
+    /// Everything a language change has to touch beyond the declarative bindings: the flyouts that
+    /// live outside the visual tree, the view models that compose their own labels, and the title.
+    /// </summary>
+    private void OnCultureChanged()
+    {
+        LabelFlyouts();
+        Document.RefreshLocalization();
+        Title = Document.WindowTitle;
+
+        int index = LanguageCatalog.IndexOf(Localization.Culture);
+        if (LanguagePicker.SelectedIndex != index) LanguagePicker.SelectedIndex = index;
+    }
+
+    private void FillLanguagePicker()
+    {
+        LanguagePicker.Items.Clear();
+        foreach (LanguageOption option in LanguageCatalog.Options)
+        {
+            LanguagePicker.Items.Add(new ComboBoxItem { Content = option.DisplayName });
+        }
+    }
+
+    private void OnLanguageChanged(object sender, SelectionChangedEventArgs args)
+    {
+        int index = LanguagePicker.SelectedIndex;
+        if (index < 0 || index >= LanguageCatalog.Options.Count) return;
+
+        Localization.Culture = new CultureInfo(LanguageCatalog.Options[index].Name);
+        Document.Status = Strings.StatusLanguageChanged;
     }
 
     /// <summary>

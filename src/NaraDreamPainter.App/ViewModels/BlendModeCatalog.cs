@@ -1,13 +1,13 @@
 namespace NaraDreamPainter.App.ViewModels;
 
 /// <summary>
-/// Display names for the 24 modes, one per enum value in enum order. The blend picker binds its
-/// SelectedIndex straight to the mode, so the list order has to stay the enum order. The text itself
-/// comes from the resource files, which is why this is a pass-through rather than a name generator.
+/// How many blend modes there are. The list order is the enum order, which is what lets the picker
+/// bind its selection straight to the mode; the names themselves come from the resource files, so
+/// each layer view model builds its own list rather than sharing one.
 /// </summary>
 public static class BlendModeCatalog
 {
-    public static IReadOnlyList<string> Names => Strings.BlendModeNames;
-
+    // Read from the resources rather than from a list: this guards the index setters, and it has to be
+    // right before any list has been built.
     public static int Count => Strings.BlendModeNames.Count;
 }

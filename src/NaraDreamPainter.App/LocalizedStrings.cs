@@ -454,6 +454,14 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string DropOpenImage => Strings.DropOpenImage;
 
+    public string StatusLanguageChanged => Strings.StatusLanguageChanged;
+
+    public string LanguageLabel => Strings.LanguageLabel;
+
+    public string LanguageChinese => Strings.LanguageChinese;
+
+    public string LanguageEnglish => Strings.LanguageEnglish;
+
     /// <summary>Tells every binding it has a new value. Called by the constructor on a culture change.</summary>
     public void Refresh()
     {

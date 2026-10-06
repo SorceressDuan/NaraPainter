@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Resources;
+using NaraDreamPainter.App.Services;
 
 namespace NaraDreamPainter.App;
 
@@ -7,10 +8,10 @@ namespace NaraDreamPainter.App;
 /// Resolves UI text from Resources/Strings.resx and its satellite cultures.
 /// </summary>
 /// <remarks>
-/// The app ships Simplified Chinese as its default language rather than following the system, because
-/// that is who this build is for; an English system falls back to the neutral English resources
-/// instead of showing Chinese. Adding a language means adding a Strings.&lt;culture&gt;.resx and
-/// nothing else - the lookups below go through ResourceManager, so no code has to know the list.
+/// Chinese unless the system says otherwise; a saved choice from the language picker wins over both.
+/// Changing <see cref="Culture"/> raises <see cref="CultureChanged"/>, which is what the bound labels
+/// listen to - no window is rebuilt and no restart is needed. Adding a language is a
+/// <c>Strings.&lt;culture&gt;.resx</c> plus an entry in <see cref="LanguageCatalog"/>.
 /// </remarks>
 public static class Localization
 {
@@ -18,7 +19,11 @@ public static class Localization
         "NaraDreamPainter.App.Resources.Strings",
         typeof(Localization).Assembly);
 
-    private static CultureInfo _culture = PickStartupCulture();
+    private static readonly LanguagePreference Preference = new();
+
+    private static CultureInfo _culture = LanguageCatalog.StartupCulture(Preference.Load());
+
+    static Localization() => CultureInfo.CurrentUICulture = _culture;
 
     /// <summary>Raised after the language changes, so open windows can re-read their text.</summary>
     public static event EventHandler? CultureChanged;
@@ -30,28 +35,17 @@ public static class Localization
         {
             ArgumentNullException.ThrowIfNull(value);
             if (_culture.Name == value.Name) return;
+
             _culture = value;
             CultureInfo.CurrentUICulture = value;
+            Preference.Save(value);
             CultureChanged?.Invoke(null, EventArgs.Empty);
         }
     }
 
     /// <summary>
-    /// Chinese by default, English when the system is not Chinese. A system set to any other language
-    /// gets English, which is the neutral resource file.
-    /// </summary>
-    private static CultureInfo PickStartupCulture()
-    {
-        string system = CultureInfo.CurrentUICulture.Name;
-        bool chinese = system.StartsWith("zh", StringComparison.OrdinalIgnoreCase);
-        var culture = new CultureInfo(chinese ? "zh-CN" : "en");
-        CultureInfo.CurrentUICulture = culture;
-        return culture;
-    }
-
-    /// <summary>
-    /// Looked up by name. Prefer the generated properties on <see cref="Strings"/>; this exists for
-    /// the few places that build a key at runtime, such as the language menu.
+    /// Looked up by name. Prefer the typed accessors on <see cref="Strings"/>; this exists for the few
+    /// places that need a key built at runtime.
     /// </summary>
     public static string Get(string key)
     {

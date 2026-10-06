@@ -24,8 +24,8 @@ public sealed class SelectionViewModel : ObservableObject
         _masks = masks;
     }
 
-    /// <summary>Rebuilt on each read so a language change is picked up; order matches SelectionShape.</summary>
-    public IReadOnlyList<string> ShapeNames => Strings.ShapeNames;
+    /// <summary>Kept as one instance so a language change does not disturb the picker's selection.</summary>
+    public IReadOnlyList<string> ShapeNames => LocalizedLists.ShapeNames;
 
     public SelectionShape Shape => (SelectionShape)_shapeIndex;
 

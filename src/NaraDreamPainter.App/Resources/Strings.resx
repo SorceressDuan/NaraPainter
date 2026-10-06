@@ -661,4 +661,16 @@
   <data name="Drop_OpenImage" xml:space="preserve">
     <value>Open image</value>
   </data>
+  <data name="Language_Label" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_Chinese" xml:space="preserve">
+    <value>Chinese (Simplified)</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Status_LanguageChanged" xml:space="preserve">
+    <value>Language changed</value>
+  </data>
 </root>
