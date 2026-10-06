@@ -116,6 +116,27 @@ public sealed class CanvasView : Microsoft.UI.Xaml.Controls.UserControl
 
 命名空间用 `Microsoft.UI.Xaml.*`，禁止 `Windows.UI.Xaml.*`。
 
+### 可执行文件名与发布布局
+
+发布的根目录必须是这个形状，`packaging/pack.ps1` 会自己断言，`tools/verify/verify.ps1`
+的 `PACKAGE` 一段也会复核：
+
+- zip 内**不套层文件夹**：解压后内容直接落在用户选的目标目录
+- `Compositor.exe` 在发布根目录，`Compositor.dll`、`Compositor.deps.json`、
+  `Compositor.runtimeconfig.json` 等依赖与它同级（宿主就是按 exe 所在目录解析依赖的）
+- `LICENSE`、`README.md`、`RUNNING.txt`（给普通用户的运行说明）在根目录
+
+`Compositor.exe` 这个名字来自 App csproj 的 `<AssemblyName>Compositor</AssemblyName>`，
+不是事后重命名。**改名是安全的**：代码里没有任何一处从进程名推导路径——窗口标题是
+`DocumentViewModel.WindowTitle` 里拼的字符串，用户数据与日志固定写
+`AppContext.BaseDirectory` 和 `%TEMP%`（`StartupLog`、`SmokeTest`、`App.Report`）。
+真要改，改 `AssemblyName` 与 `package/Package.appxmanifest` 里的 `Executable` 即可。
+
+**构建脚本必须是纯 ASCII。** Windows PowerShell 把无 BOM 的 `.ps1` 按 ANSI 解码，脚本里的中文
+字面量在解析阶段就已经是乱码——`pack.ps1` 曾经因此发布出一个文件名乱码的说明文件。中文内容
+一律放独立的 UTF-8 文件，用 `[System.IO.File]::ReadAllText(path, [System.Text.Encoding]::UTF8)`
+读进来，再用 `UTF8Encoding($false)` 写出去。
+
 ### Compositor.Tests — xUnit
 
 `tests/Compositor.Tests/`。`Compositor.Models` 和 `Compositor.Imaging` 都要覆盖到：
