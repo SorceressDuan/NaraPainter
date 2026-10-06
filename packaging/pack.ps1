@@ -78,9 +78,13 @@ Copy-Item "README.md" (Join-Path $publishDir "README.md") -Force
 
 # The Windows App SDK payload is several hundred files deep in the folder. A tiny plain-text note
 # next to the executable is what a user actually reads, so it ships with the payload.
-# The text lives in packaging/RUNNING.txt rather than inline: Windows PowerShell reads a BOM-less
-# script as ANSI, which mangles its CJK content badly enough to trip the parser.
-Copy-Item "packaging\RUNNING.txt" (Join-Path $publishDir "运行说明.txt") -Force
+#
+# Neither the text nor the file name may be a literal in this script. Windows PowerShell decodes a
+# BOM-less .ps1 as ANSI, so CJK literals here are already mojibake by the time they are used - an
+# earlier revision shipped a note whose own name was garbled for exactly that reason. The content
+# comes from packaging/RUNNING.txt and is written back out as explicit UTF-8.
+$noteText = [System.IO.File]::ReadAllText((Join-Path $root "packaging\RUNNING.txt"), [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText((Join-Path $publishDir "RUNNING.txt"), $noteText, (New-Object System.Text.UTF8Encoding($false)))
 
 if (-not $SkipZip) {
     $zip = Join-Path $root "dist\Compositor-$version-$RuntimeIdentifier.zip"
@@ -128,7 +132,7 @@ if (-not $SkipZip) {
         $names = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         foreach ($entry in $probe.Entries) { [void]$names.Add($entry.FullName) }
 
-        $required = @("Compositor.exe", "Compositor.dll", "Compositor.deps.json", "LICENSE", "README.md", "运行说明.txt")
+        $required = @("Compositor.exe", "Compositor.dll", "Compositor.deps.json", "LICENSE", "README.md", "RUNNING.txt")
         $missing = @($required | Where-Object { -not $names.Contains($_) })
         if ($missing.Count -gt 0) { throw "The zip is missing top-level entries: $($missing -join ', ')" }
 
