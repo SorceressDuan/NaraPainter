@@ -101,7 +101,7 @@
   <data name="Toolbar_DuplicateHint" xml:space="preserve">
     <value>复制选中的图层</value>
   </data>
-  <data name="Toolbar_Delete" xml:space="preserve">
+  <data name="Toolbar_DeleteLayer" xml:space="preserve">
     <value>删除图层</value>
   </data>
   <data name="Toolbar_DeleteHint" xml:space="preserve">
@@ -137,8 +137,14 @@
   <data name="Toolbar_ActualSizeHint" xml:space="preserve">
     <value>以 100% 显示画布</value>
   </data>
+  <data name="Toolbar_MaskBrush" xml:space="preserve">
+    <value>蒙版画笔</value>
+  </data>
   <data name="Toolbar_MaskBrushHint" xml:space="preserve">
     <value>在选中图层的蒙版上涂抹</value>
+  </data>
+  <data name="Toolbar_ContentAwareFill" xml:space="preserve">
+    <value>内容感知填充</value>
   </data>
   <data name="Toolbar_ContentAwareFillHint" xml:space="preserve">
     <value>用周围内容填充选区</value>
@@ -486,9 +492,6 @@
 
   <!-- Mask brush. -->
   <data name="Mask_Brush" xml:space="preserve">
-    <value>蒙版画笔</value>
-  </data>
-  <data name="Mask_BrushTool" xml:space="preserve">
     <value>蒙版画笔</value>
   </data>
   <data name="Mask_BrushOn" xml:space="preserve">

@@ -13,12 +13,12 @@
         </Grid.RowDefinitions>
 
         <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
-            <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenClick">
+            <AppBarButton Icon="OpenFile" Label="{x:Bind Text.ToolbarOpen, Mode=OneWay}" Click="OnOpenClick">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="O" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Icon="Save" Label="Export" Click="OnExportClick">
+            <AppBarButton Icon="Save" Label="{x:Bind Text.ToolbarExport, Mode=OneWay}" Click="OnExportClick">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="E" />
                 </AppBarButton.KeyboardAccelerators>
@@ -26,7 +26,7 @@
             <AppBarSeparator />
             <AppBarButton
                 Icon="Undo"
-                Label="Undo"
+                Label="{x:Bind Text.ToolbarUndo, Mode=OneWay}"
                 Click="OnUndoClick"
                 IsEnabled="{x:Bind Document.CanUndo, Mode=OneWay}">
                 <AppBarButton.KeyboardAccelerators>
@@ -35,7 +35,7 @@
             </AppBarButton>
             <AppBarButton
                 Icon="Redo"
-                Label="Redo"
+                Label="{x:Bind Text.ToolbarRedo, Mode=OneWay}"
                 Click="OnRedoClick"
                 IsEnabled="{x:Bind Document.CanRedo, Mode=OneWay}">
                 <AppBarButton.KeyboardAccelerators>
@@ -43,28 +43,30 @@
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
             <AppBarSeparator />
-            <AppBarButton Icon="Add" Label="New Layer" Click="OnNewLayerClick">
+            <AppBarButton Icon="Add" Label="{x:Bind Text.ToolbarNewLayer, Mode=OneWay}" Click="OnNewLayerClick">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
             <AppBarButton
                 Icon="Copy"
-                Label="Duplicate"
+                Label="{x:Bind Text.ToolbarDuplicate, Mode=OneWay}"
                 Click="OnDuplicateLayerClick"
                 IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
             <AppBarButton
                 Icon="Delete"
-                Label="Delete Layer"
+                Label="{x:Bind Text.ToolbarDeleteLayer, Mode=OneWay}"
                 Click="OnDeleteLayerClick"
                 IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
-            <AppBarButton Icon="Edit" Label="Adjustment Layer">
+            <AppBarButton Icon="Edit" Label="{x:Bind Text.ToolbarAdjustmentLayer, Mode=OneWay}">
                 <AppBarButton.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="Brightness / Contrast" Tag="BrightnessContrast" Click="OnAddAdjustmentLayerClick" />
-                        <MenuFlyoutItem Text="Hue / Saturation" Tag="HueSaturation" Click="OnAddAdjustmentLayerClick" />
-                        <MenuFlyoutItem Text="Levels" Tag="Levels" Click="OnAddAdjustmentLayerClick" />
-                        <MenuFlyoutItem Text="Curves" Tag="Curves" Click="OnAddAdjustmentLayerClick" />
+                    <!-- A flyout is not part of the page's visual tree, so the compiled bindings above
+                         do not reach inside it; these are labelled in code-behind instead. -->
+                    <MenuFlyout x:Name="AdjustmentFlyout">
+                        <MenuFlyoutItem Tag="BrightnessContrast" Click="OnAddAdjustmentLayerClick" />
+                        <MenuFlyoutItem Tag="HueSaturation" Click="OnAddAdjustmentLayerClick" />
+                        <MenuFlyoutItem Tag="Levels" Click="OnAddAdjustmentLayerClick" />
+                        <MenuFlyoutItem Tag="Curves" Click="OnAddAdjustmentLayerClick" />
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
@@ -72,24 +74,24 @@
             <AppBarToggleButton
                 x:Name="MaskBrushButton"
                 Icon="Edit"
-                Label="Mask Brush"
+                Label="{x:Bind Text.ToolbarMaskBrush, Mode=OneWay}"
                 Click="OnMaskBrushClick" />
-            <AppBarButton Icon="Repair" Label="Content-Aware Fill" Click="OnContentAwareFillClick">
+            <AppBarButton Icon="Repair" Label="{x:Bind Text.ToolbarContentAwareFill, Mode=OneWay}" Click="OnContentAwareFillClick">
                 <AppBarButton.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="Fill Selection" Click="OnContentAwareFillClick" />
+                    <MenuFlyout x:Name="FillFlyout">
+                        <MenuFlyoutItem Click="OnContentAwareFillClick" />
                         <MenuFlyoutSeparator />
-                        <MenuFlyoutItem Text="Feather Mask" Click="OnFeatherMaskClick" />
-                        <MenuFlyoutItem Text="Invert Mask" Click="OnInvertMaskClick" />
-                        <MenuFlyoutItem Text="Clear Mask" Click="OnClearMaskClick" />
+                        <MenuFlyoutItem Click="OnFeatherMaskClick" />
+                        <MenuFlyoutItem Click="OnInvertMaskClick" />
+                        <MenuFlyoutItem Click="OnClearMaskClick" />
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
             <AppBarSeparator />
-            <AppBarButton Icon="ZoomOut" Label="Zoom Out" Click="OnZoomOutClick" />
-            <AppBarButton Icon="ZoomIn" Label="Zoom In" Click="OnZoomInClick" />
-            <AppBarButton Icon="Zoom" Label="Fit" Click="OnFitClick" />
-            <AppBarButton Label="100%" Click="OnActualSizeClick" />
+            <AppBarButton Icon="ZoomOut" Label="{x:Bind Text.ToolbarZoomOut, Mode=OneWay}" Click="OnZoomOutClick" />
+            <AppBarButton Icon="ZoomIn" Label="{x:Bind Text.ToolbarZoomIn, Mode=OneWay}" Click="OnZoomInClick" />
+            <AppBarButton Icon="Zoom" Label="{x:Bind Text.ToolbarFit, Mode=OneWay}" Click="OnFitClick" />
+            <AppBarButton Label="{x:Bind Text.ToolbarActualSize, Mode=OneWay}" Click="OnActualSizeClick" />
         </CommandBar>
 
         <Grid Grid.Row="1">

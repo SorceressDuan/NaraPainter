@@ -25,7 +25,11 @@ public sealed class CurvePointViewModel : ObservableObject
     /// <summary>The two ends stay pinned at 0 and 255; only interior handles can be moved sideways.</summary>
     public bool CanEditX => !IsEndpoint;
 
-    public string Label => IsEndpoint ? (_x <= 0 ? "Shadows" : "Highlights") : $"Point {_x:0}";
+    public string Label => IsEndpoint
+        ? (_x <= 0 ? Strings.CurveShadows : Strings.CurveHighlights)
+        : Localization.Format(Strings.CurvePointFormat, Math.Round(_x));
+
+    internal void RefreshLocalization() => OnPropertyChanged(nameof(Label));
 
     public double X
     {

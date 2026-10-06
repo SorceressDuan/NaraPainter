@@ -34,7 +34,12 @@ Set-Location $root
 $TestsProject = "tests\NaraDreamPainter.Tests\NaraDreamPainter.Tests.csproj"
 $TestAssembly = "tests\NaraDreamPainter.Tests\bin\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.Tests.dll"
 $RunnerProject = "tools\verify\NaraDreamPainter.TestRunner\NaraDreamPainter.TestRunner.csproj"
-$RunnerAssembly = "tools\verify\NaraDreamPainter.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\NaraDreamPainter.TestRunner.dll"
+# The runner is self-contained and pinned to x64, so its output sits one level deeper than a plain
+# framework-dependent build.
+$RunnerAssembly = "tools\verify\NaraDreamPainter.TestRunner\bin\x64\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.TestRunner.dll"
+if (-not (Test-Path (Join-Path $root $RunnerAssembly))) {
+    $RunnerAssembly = "tools\verify\NaraDreamPainter.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\NaraDreamPainter.TestRunner.dll"
+}
 $FallbackNote = "tools/verify/NaraDreamPainter.TestRunner, because vstest cannot keep its test host alive here (the host opens a handle to the vstest process and the sandbox denies it)"
 $script:VstestBlocked = $false
 

@@ -24,7 +24,8 @@ public sealed class SelectionViewModel : ObservableObject
         _masks = masks;
     }
 
-    public IReadOnlyList<string> ShapeNames { get; } = ["Rectangle", "Ellipse"];
+    /// <summary>Rebuilt on each read so a language change is picked up; order matches SelectionShape.</summary>
+    public IReadOnlyList<string> ShapeNames => Strings.ShapeNames;
 
     public SelectionShape Shape => (SelectionShape)_shapeIndex;
 
@@ -80,15 +81,15 @@ public sealed class SelectionViewModel : ObservableObject
 
     public bool HasMask => _owner.SelectedLayer?.IsMasked == true;
 
-    public string MaskLabel => HasMask ? Localization.Get("Selection_MaskApplied") : Localization.Get("Selection_NoMask");
+    public string MaskLabel => HasMask ? Strings.SelectionMaskApplied : Strings.SelectionNoMask;
 
     /// <summary>Whether the typed region or a painted mask gives the fill something to work on.</summary>
     public string SelectionLabel
     {
         get
         {
-            if (HasRegion) return Localization.Get("Selection_Active");
-            return HasMask ? Localization.Get("Selection_FromMask") : Localization.Get("Selection_None");
+            if (HasRegion) return Strings.SelectionActive;
+            return HasMask ? Strings.SelectionFromMask : Strings.SelectionNone;
         }
     }
 
@@ -115,19 +116,19 @@ public sealed class SelectionViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null)
         {
-            _owner.Status = Localization.Get("Status_SelectLayerForMask");
+            _owner.Status = Strings.StatusSelectLayerForMask;
             return;
         }
 
         var region = new SelectionRegion((SelectionShape)_shapeIndex, (int)_x, (int)_y, (int)_width, (int)_height);
         if (region.IsEmpty)
         {
-            _owner.Status = Localization.Get("Status_SelectionEmpty");
+            _owner.Status = Strings.StatusSelectionEmpty;
             return;
         }
 
-        SetMask(layer, _masks.Build(region, _owner.Document.Width, _owner.Document.Height, _feather), Localization.Get("Undo_ApplyMask"));
-        _owner.Status = Localization.Format("Status_MaskApplied", layer.Name);
+        SetMask(layer, _masks.Build(region, _owner.Document.Width, _owner.Document.Height, _feather), Strings.UndoApplyMask);
+        _owner.Status = Localization.Format(Strings.StatusMaskApplied, layer.Name);
     }
 
     public void SelectAll()
@@ -135,12 +136,12 @@ public sealed class SelectionViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null)
         {
-            _owner.Status = Localization.Get("Status_SelectLayerForMask");
+            _owner.Status = Strings.StatusSelectLayerForMask;
             return;
         }
 
-        SetMask(layer, _masks.Full(_owner.Document.Width, _owner.Document.Height), Localization.Get("Undo_SelectAll"));
-        _owner.Status = Localization.Format("Status_SelectAll", layer.Name);
+        SetMask(layer, _masks.Full(_owner.Document.Width, _owner.Document.Height), Strings.UndoSelectAll);
+        _owner.Status = Localization.Format(Strings.StatusSelectAll, layer.Name);
     }
 
     public void ClearMask()
@@ -148,8 +149,8 @@ public sealed class SelectionViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null || !layer.IsMasked) return;
 
-        SetMask(layer, null, Localization.Get("Undo_ClearMask"));
-        _owner.Status = Localization.Format("Status_MaskCleared", layer.Name);
+        SetMask(layer, null, Strings.UndoClearMask);
+        _owner.Status = Localization.Format(Strings.StatusMaskCleared, layer.Name);
     }
 
     public void Refresh()
@@ -158,6 +159,13 @@ public sealed class SelectionViewModel : ObservableObject
         OnPropertyChanged(nameof(MaskLabel));
         OnPropertyChanged(nameof(HasRegion));
         OnPropertyChanged(nameof(SelectionLabel));
+    }
+
+    /// <summary>Re-reads the labels that come from resources after a language change.</summary>
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(ShapeNames));
+        Refresh();
     }
 
     private void SetMask(LayerViewModel layer, byte[]? mask, string label)

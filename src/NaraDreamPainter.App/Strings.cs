@@ -69,7 +69,7 @@ public static class Strings
 
     public static string ToolbarDuplicateHint => Localization.Get("Toolbar_DuplicateHint");
 
-    public static string ToolbarDelete => Localization.Get("Toolbar_Delete");
+    public static string ToolbarDeleteLayer => Localization.Get("Toolbar_DeleteLayer");
 
     public static string ToolbarDeleteHint => Localization.Get("Toolbar_DeleteHint");
 
@@ -93,7 +93,11 @@ public static class Strings
 
     public static string ToolbarActualSizeHint => Localization.Get("Toolbar_ActualSizeHint");
 
+    public static string ToolbarMaskBrush => Localization.Get("Toolbar_MaskBrush");
+
     public static string ToolbarMaskBrushHint => Localization.Get("Toolbar_MaskBrushHint");
+
+    public static string ToolbarContentAwareFill => Localization.Get("Toolbar_ContentAwareFill");
 
     public static string ToolbarContentAwareFillHint => Localization.Get("Toolbar_ContentAwareFillHint");
 
@@ -324,8 +328,6 @@ public static class Strings
 
     // Mask brush.
     public static string MaskBrush => Localization.Get("Mask_Brush");
-
-    public static string MaskBrushTool => Localization.Get("Mask_BrushTool");
 
     public static string MaskBrushOn => Localization.Get("Mask_BrushOn");
 

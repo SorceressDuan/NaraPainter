@@ -24,7 +24,7 @@ public sealed class DocumentViewModel : ObservableObject
 
     private CanvasDocument _document;
     private LayerViewModel? _selectedLayer;
-    private string _status = "Ready";
+    private string _status = Strings.StatusReady;
     private double _zoom = 1;
 
     public DocumentViewModel(ImageImporter importer, IImageCodec codec, IAdjustmentFilter filter, ISelectionMaskBuilder masks)
@@ -82,20 +82,24 @@ public sealed class DocumentViewModel : ObservableObject
 
     public bool HasSelection => _selectedLayer is not null;
 
-    public string Title => _document.FilePath is null ? "Untitled" : Path.GetFileName(_document.FilePath);
+    public string Title => _document.FilePath is null ? Strings.AppUntitled : Path.GetFileName(_document.FilePath);
 
-    public string WindowTitle => $"NaraDreamPainter — {Title}{(_document.IsDirty ? " *" : string.Empty)}";
+    public string WindowTitle => Localization.Format(Strings.AppWindowTitle, Strings.AppTitle, Title)
+        + (_document.IsDirty ? Strings.AppModifiedMark : string.Empty);
 
     public string SizeLabel => $"{_document.Width} × {_document.Height}";
 
-    public string LayerCountLabel => Layers.Count == 1 ? "1 layer" : $"{Layers.Count} layers";
+    public string LayerCountLabel => Layers.Count == 1
+        ? Strings.StatusOneLayer
+        : Localization.Format(Strings.StatusLayerCount, Layers.Count);
 
     public string ZoomLabel => $"{_zoom * 100:0}%";
 
     /// <summary>1.0 is 100%. Mirrors the canvas view, which owns the real zoom level.</summary>
     public double Zoom => _zoom;
 
-    public string SuggestedExportName => $"{Path.GetFileNameWithoutExtension(_document.FilePath) ?? "Untitled"}-export";
+    public string SuggestedExportName =>
+        $"{Path.GetFileNameWithoutExtension(_document.FilePath) ?? Strings.AppUntitled}-export";
 
     public string Status
     {
@@ -133,31 +137,35 @@ public sealed class DocumentViewModel : ObservableObject
         _document = document;
         History.Clear();
         ReloadLayers();
-        Status = $"Opened {Path.GetFileName(path)} · {SizeLabel} · {stopwatch.ElapsedMilliseconds} ms";
+        Status = Localization.Format(Strings.StatusOpened, Path.GetFileName(path), SizeLabel, stopwatch.ElapsedMilliseconds);
     }
 
     public LayerViewModel AddLayer()
     {
-        Layer layer = _document.AddBlank($"Layer {_document.Layers.Count + 1}");
+        Layer layer = _document.AddBlank(Localization.Format(Strings.LayersNameFormat, _document.Layers.Count + 1));
         var view = new LayerViewModel(layer, this, _filter);
         Layers.Insert(0, view);
         SelectedLayer = view;
-        History.Push(new DelegateAction("New Layer", () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
+        History.Push(new DelegateAction(Strings.UndoNewLayer, () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
         NotifyChanged();
-        Status = $"Added {layer.Name}";
+        Status = Localization.Format(Strings.StatusLayerAdded, layer.Name);
         return view;
     }
 
     public LayerViewModel AddAdjustmentLayer(AdjustmentKind kind)
     {
         AdjustmentSettings settings = AdjustmentKinds.Create(kind);
-        Layer layer = _document.Add(new Layer(settings.DisplayName) { Adjustment = settings });
+        string name = AdjustmentKinds.Name(kind);
+        Layer layer = _document.Add(new Layer(name) { Adjustment = settings });
         var view = new LayerViewModel(layer, this, _filter);
         Layers.Insert(0, view);
         SelectedLayer = view;
-        History.Push(new DelegateAction($"New {settings.DisplayName} Layer", () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
+        History.Push(new DelegateAction(
+            Localization.Format(Strings.UndoNewAdjustmentLayer, name),
+            () => RemoveLayerCore(view),
+            () => InsertLayerCore(view, 0)));
         NotifyChanged();
-        Status = $"Added {settings.DisplayName} layer";
+        Status = Localization.Format(Strings.StatusAdjustmentLayerAdded, name);
         return view;
     }
 
@@ -172,9 +180,9 @@ public sealed class DocumentViewModel : ObservableObject
         var view = new LayerViewModel(layer, this, _filter);
         Layers.Insert(0, view);
         SelectedLayer = view;
-        History.Push(new DelegateAction($"Import {layer.Name}", () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
+        History.Push(new DelegateAction(Strings.UndoImportLayer, () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
         NotifyChanged();
-        Status = $"Imported {Path.GetFileName(path)} as a layer";
+        Status = Localization.Format(Strings.StatusImported, Path.GetFileName(path));
         return view;
     }
 
@@ -183,7 +191,7 @@ public sealed class DocumentViewModel : ObservableObject
         if (layer is null) return null;
 
         Layer clone = layer.Model.Clone();
-        clone.Name = $"{layer.Model.Name} copy";
+        clone.Name = Localization.Format(Strings.LayersCopyNameFormat, layer.Model.Name);
 
         // The copy keeps the original pixels and re-runs the same adjustment stack over them.
         clone.Pixels = layer.Source?.Clone();
@@ -196,9 +204,9 @@ public sealed class DocumentViewModel : ObservableObject
         _document.Move(clone, DocumentIndex(panelIndex));
         Layers.Insert(panelIndex, view);
         SelectedLayer = view;
-        History.Push(new DelegateAction($"Duplicate {layer.Name}", () => RemoveLayerCore(view), () => InsertLayerCore(view, panelIndex)));
+        History.Push(new DelegateAction(Strings.UndoDuplicateLayer, () => RemoveLayerCore(view), () => InsertLayerCore(view, panelIndex)));
         NotifyChanged();
-        Status = $"Duplicated {layer.Name}";
+        Status = Localization.Format(Strings.StatusLayerDuplicated, layer.Name);
         return view;
     }
 
@@ -210,8 +218,8 @@ public sealed class DocumentViewModel : ObservableObject
         if (panelIndex < 0) return;
 
         RemoveLayerCore(layer);
-        History.Push(new DelegateAction($"Delete {layer.Name}", () => InsertLayerCore(layer, panelIndex), () => RemoveLayerCore(layer)));
-        Status = $"Deleted {layer.Name}";
+        History.Push(new DelegateAction(Strings.UndoDeleteLayer, () => InsertLayerCore(layer, panelIndex), () => RemoveLayerCore(layer)));
+        Status = Localization.Format(Strings.StatusLayerDeleted, layer.Name);
     }
 
     /// <summary>Takes the order the layers panel ended up in, top first, and records the move.</summary>
@@ -222,8 +230,8 @@ public sealed class DocumentViewModel : ObservableObject
 
         var after = panelOrder.ToList();
         ApplyPanelOrder(after);
-        History.Push(new DelegateAction("Reorder Layers", () => ApplyPanelOrder(before), () => ApplyPanelOrder(after)));
-        Status = "Layers reordered";
+        History.Push(new DelegateAction(Strings.UndoReorderLayers, () => ApplyPanelOrder(before), () => ApplyPanelOrder(after)));
+        Status = Strings.StatusLayersReordered;
     }
 
     public PixelBuffer Flatten() => _document.Flatten(RunAdjustment);
@@ -236,12 +244,27 @@ public sealed class DocumentViewModel : ObservableObject
 
         _document.IsDirty = false;
         OnPropertyChanged(nameof(WindowTitle));
-        Status = $"Exported {Path.GetFileName(path)} · {pixels.Width} × {pixels.Height}";
+        Status = Localization.Format(Strings.StatusExported, Path.GetFileName(path), pixels.Width, pixels.Height);
     }
 
     public void Undo() => History.Undo();
 
     public void Redo() => History.Redo();
+
+    /// <summary>
+    /// Re-reads every label that comes from the resources. Nothing calls this yet: the app follows the
+    /// system language at startup and has no language menu, but the hook is what a switch would need.
+    /// </summary>
+    public void RefreshLocalization()
+    {
+        foreach (LayerViewModel layer in Layers) layer.RefreshLocalization();
+
+        Adjustment.RefreshLocalization();
+        Selection.RefreshLocalization();
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(WindowTitle));
+        OnPropertyChanged(nameof(LayerCountLabel));
+    }
 
     internal void NotifyChanged()
     {
@@ -257,7 +280,7 @@ public sealed class DocumentViewModel : ObservableObject
     private static CanvasDocument CreateDocument(int width, int height)
     {
         var document = new CanvasDocument(width, height);
-        document.AddBlank("Layer 1");
+        document.AddBlank(Localization.Format(Strings.LayersNameFormat, 1));
         document.IsDirty = false;
         return document;
     }

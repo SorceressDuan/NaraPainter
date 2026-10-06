@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Reflection;
 
 namespace NaraDreamPainter.App;
 
@@ -14,8 +15,13 @@ namespace NaraDreamPainter.App;
 /// </remarks>
 public sealed class LocalizedStrings : INotifyPropertyChanged
 {
+    // Instance properties only: a static member such as Instance itself is not a resource key.
     private static readonly string[] Names =
-        [.. typeof(LocalizedStrings).GetProperties().Select(property => property.Name)];
+    [
+        .. typeof(LocalizedStrings)
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Select(property => property.Name)
+    ];
 
     private LocalizedStrings() => Localization.CultureChanged += (_, _) => Refresh();
 
@@ -79,7 +85,7 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string ToolbarDuplicateHint => Strings.ToolbarDuplicateHint;
 
-    public string ToolbarDelete => Strings.ToolbarDelete;
+    public string ToolbarDeleteLayer => Strings.ToolbarDeleteLayer;
 
     public string ToolbarDeleteHint => Strings.ToolbarDeleteHint;
 
@@ -103,7 +109,11 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string ToolbarActualSizeHint => Strings.ToolbarActualSizeHint;
 
+    public string ToolbarMaskBrush => Strings.ToolbarMaskBrush;
+
     public string ToolbarMaskBrushHint => Strings.ToolbarMaskBrushHint;
+
+    public string ToolbarContentAwareFill => Strings.ToolbarContentAwareFill;
 
     public string ToolbarContentAwareFillHint => Strings.ToolbarContentAwareFillHint;
 
@@ -334,8 +344,6 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     // Mask brush.
     public string MaskBrush => Strings.MaskBrush;
-
-    public string MaskBrushTool => Strings.MaskBrushTool;
 
     public string MaskBrushOn => Strings.MaskBrushOn;
 

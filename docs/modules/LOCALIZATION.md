@@ -18,8 +18,7 @@
 `Localization.PickStartupCulture`：系统是 `zh-*` 用 `zh-CN`，其余一律英文——中文是这个构建的目标语言，
 英文系统不该看到中文。加一门语言就是加一个 `Strings.<culture>.resx`，代码不用动。
 
-`Localization.Culture` 可以在运行时改，改完抛 `CultureChanged`。语言菜单挂在工具栏上
-（`Toolbar_Language`），两项用各自语言的自称。
+`Localization.Culture` 可以在运行时改，改完抛 `CultureChanged`；本轮没有接运行时切换菜单，见文末。
 
 ## XAML 取文案的约定
 
@@ -29,6 +28,12 @@
 <TextBlock Text="{x:Bind Text.LayersTitle, Mode=OneWay}" />
 <AppBarButton Label="{x:Bind Text.ToolbarUndo, Mode=OneWay}" />
 ```
+
+> **最容易写错的一条：属性名是资源键去掉下划线。** `Toolbar_Open` → `Text.ToolbarOpen`，
+> `Mask_BrushTool` → `Text.MaskBrushTool`，`Undo_ContentFill` → `Text.UndoContentFill`。
+> 写成 `Text.Toolbar_Open` 编译不过（`LocalizedStrings` 没有这个属性），但这正是要的效果——
+> 键写错是构建错误，不是运行时空标签。`Strings.cs` 里的静态属性同理，规则由
+> `LocalizationTests` 断言。
 
 - `Text` 是每个视图 code-behind 上的属性，值就是 `LocalizedStrings.Instance`。
 - `DataTemplate` 里绑的是数据项，所以走视图模型基类上的同一个属性：
@@ -82,8 +87,6 @@
 - `Models` / `Imaging` 抛出的异常消息：错误对话框的正文用的是 `error.Message`，目前是英文。
   要汉化得在那两个项目里另建资源文件，超出本次范围。
 - 自检日志（`selftest.log`、`startup.log`）：保持 ASCII，方便脚本比对。
-- 语言菜单项：用各语言的自称（「简体中文」/「English」），两份 resx 里都是这两个词——
-  语言选择器不翻译语言名。
 - 撤销历史条目的名字：在记录那一刻按当时的语言定格，切换语言不会改写已经发生的那一步
   （`UndoStack` 存的是字符串）。
 
@@ -99,13 +102,19 @@ WinUI 3 没有承诺；整串被当成一个非法族名时会**静默**落回�
 - `Views/MainWindow.xaml` 的 `CommandBar` 与状态栏文本；
 - 错误对话框 `ContentDialog`：它不在窗口视觉树里，继承不到，必须单独设。
 
-## 切语言时刷新什么
+## 运行时切换语言（本轮未接菜单）
 
-- `LocalizedStrings` 在构造函数里订阅 `CultureChanged`，切换时对自己的每个属性发一次
-  `PropertyChanged`，XAML 的 `Mode=OneWay` 绑定随之更新——不重建窗口（重建会丢掉当前文档）。
-- 视图模型里的文案（图层行标签、调整名、选区状态）由 `DocumentViewModel.RefreshLocalization()`
-  逐级 `OnPropertyChanged` 通知。
-- 窗口标题在 `MainWindow` 里重设（`Title = Document.WindowTitle`）。
+资源结构本身已经支持多语言，缺的只是一个入口。V0.2 不做语言菜单，因为它要动三个面板与视图模型，
+而这一轮的交付重点是主线功能；加一个新语言仍然只需要加一个 `Strings.<culture>.resx`。
+
+将来接入时的位置：
+
+- `Localization.Culture` 的 setter 已经会抛 `CultureChanged`，切过去之后所有取文案的地方都会读到新语言。
+- `LocalizedStrings` 在构造函数里订阅了 `CultureChanged`，切换时对自己的每个属性发一次
+  `PropertyChanged`，XAML 的 `Mode=OneWay` 绑定随之更新——不需要重建窗口（重建会丢掉当前文档）。
+- 视图模型里的文案（图层行标签、调整名、选区状态）由一个 `DocumentViewModel.RefreshLocalization()`
+  逐级 `OnPropertyChanged` 通知；窗口标题在 `MainWindow` 里重设（`Title = Document.WindowTitle`）。
+- `MenuFlyout` 里的项是 code-behind 赋值的，同样订阅 `CultureChanged` 重设。
 
 ## 验证
 

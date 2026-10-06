@@ -37,14 +37,58 @@ public sealed partial class MainWindow : Window
         Layers.Attach(Document);
         Properties.Attach(Document);
 
+        LabelFlyouts();
+
         Document.Changed += (_, _) => Canvas.Refresh();
         Document.DocumentReplaced += OnDocumentReplaced;
         Document.PropertyChanged += OnDocumentPropertyChanged;
         Closed += OnClosed;
     }
 
+    /// <summary>
+    /// Flyout content is not part of the window's visual tree, so the compiled bindings used elsewhere
+    /// in the XAML do not reach it. These few items are labelled here instead, and relabelled on a
+    /// language change.
+    /// </summary>
+    private void LabelFlyouts()
+    {
+        LocalizedStrings text = Text;
+
+        string[] adjustments =
+        [
+            text.AdjustBrightnessContrast,
+            text.AdjustHueSaturation,
+            text.AdjustLevels,
+            text.AdjustCurves
+        ];
+
+        for (int i = 0; i < AdjustmentFlyout.Items.Count && i < adjustments.Length; i++)
+        {
+            if (AdjustmentFlyout.Items[i] is MenuFlyoutItem item) item.Text = adjustments[i];
+        }
+
+        string[] fill =
+        [
+            text.ToolbarFillSelection,
+            text.ToolbarFeatherMask,
+            text.ToolbarInvertMask,
+            text.ToolbarClearMask
+        ];
+
+        int index = 0;
+        foreach (object entry in FillFlyout.Items)
+        {
+            if (entry is MenuFlyoutItem item && index < fill.Length) item.Text = fill[index++];
+        }
+
+        Localization.CultureChanged += (_, _) => LabelFlyouts();
+    }
+
     /// <summary>Initialized before InitializeComponent so the compiled bindings in the XAML have a document.</summary>
     public DocumentViewModel Document { get; } = CreateDocument();
+
+    /// <summary>The localisation surface the compiled bindings in this window read their text from.</summary>
+    public LocalizedStrings Text => LocalizedStrings.Instance;
 
     private bool _paintingMask;
 

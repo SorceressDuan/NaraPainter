@@ -48,8 +48,8 @@ public class RepositoryStructureTests
     public void TheLicenseFileCarriesTheUpstreamText()
     {
         string root = RepositoryRoot();
-        string license = File.ReadAllText(Path.Combine(root, "LICENSE"));
-        string upstream = File.ReadAllText(Path.Combine(root, "legacy", "LICENSE.upstream"));
+        string license = TestFiles.ReadText(Path.Combine(root, "LICENSE"));
+        string upstream = TestFiles.ReadText(Path.Combine(root, "legacy", "LICENSE.upstream"));
 
         Assert.Equal(Normalize(upstream), Normalize(license));
     }
@@ -57,7 +57,7 @@ public class RepositoryStructureTests
     [Fact]
     public void TheReadmeCallsThisAnUnofficialPortWithNoAffiliation()
     {
-        string readme = File.ReadAllText(Path.Combine(RepositoryRoot(), "README.md"));
+        string readme = TestFiles.ReadText(Path.Combine(RepositoryRoot(), "README.md"));
 
         Assert.Contains("非官方", readme, StringComparison.Ordinal);
         Assert.Contains("无隶属", readme, StringComparison.Ordinal);
@@ -74,7 +74,7 @@ public class RepositoryStructureTests
         var found = new List<string>();
         foreach (string file in SourceFiles(root))
         {
-            string[] lines = File.ReadAllLines(file);
+            string[] lines = TestFiles.ReadLines(file);
             for (int i = 0; i < lines.Length; i++)
             {
                 if (pattern.IsMatch(lines[i]))

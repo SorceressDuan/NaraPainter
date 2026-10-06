@@ -33,5 +33,12 @@ public static class AdjustmentKinds
         _ => throw new ArgumentOutOfRangeException(nameof(kind))
     };
 
-    public static string Name(AdjustmentKind kind) => Create(kind).DisplayName;
+    public static string Name(AdjustmentKind kind) => kind switch
+    {
+        AdjustmentKind.BrightnessContrast => Strings.AdjustBrightnessContrast,
+        AdjustmentKind.HueSaturation => Strings.AdjustHueSaturation,
+        AdjustmentKind.Levels => Strings.AdjustLevels,
+        AdjustmentKind.Curves => Strings.AdjustCurves,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind))
+    };
 }

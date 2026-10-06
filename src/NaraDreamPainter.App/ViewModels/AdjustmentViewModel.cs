@@ -29,9 +29,11 @@ public sealed class AdjustmentViewModel : ObservableObject
     private int _selectedCurvePointIndex = -1;
     private int _session;
 
-    public IReadOnlyList<string> RangeNames { get; } = Enum.GetNames<ColorRange>();
+    /// <summary>Rebuilt on each read so a language change is picked up; order matches ColorRange.</summary>
+    public IReadOnlyList<string> RangeNames => Strings.RangeNames;
 
-    public IReadOnlyList<string> ChannelNames { get; } = ["RGB", "Red", "Green", "Blue"];
+    /// <summary>Order matches LevelsChannel and CurvesSettings' channel order.</summary>
+    public IReadOnlyList<string> ChannelNames => Strings.ChannelNames;
 
     public LayerViewModel? Target
     {
@@ -45,7 +47,7 @@ public sealed class AdjustmentViewModel : ObservableObject
         }
     }
 
-    public string TargetLabel => _target is null ? "No layer selected" : $"{_target.Name} · {_target.ContentLabel}";
+    public string TargetLabel => _target is null ? Strings.PropertiesNoLayer : $"{_target.Name} · {_target.ContentLabel}";
 
     public bool CanEditBrightnessContrast => CanEdit(AdjustmentKind.BrightnessContrast);
 
@@ -237,7 +239,7 @@ public sealed class AdjustmentViewModel : ObservableObject
         if (!CanEdit(kind) || _target is null) return;
 
         AdjustmentSettings? settings = _target.IsAdjustment ? AdjustmentKinds.Create(kind) : null;
-        Store(kind, settings, $"Reset {AdjustmentKinds.Name(kind)}");
+        Store(kind, settings, Localization.Format(Strings.UndoResetAdjustment, AdjustmentKinds.Name(kind)));
         Reload();
     }
 
@@ -344,13 +346,13 @@ public sealed class AdjustmentViewModel : ObservableObject
     private void ApplyBrightnessContrast()
     {
         var settings = new BrightnessContrastSettings(_brightness, _contrast);
-        Store(AdjustmentKind.BrightnessContrast, settings.IsIdentity ? null : settings, "Brightness/Contrast");
+        Store(AdjustmentKind.BrightnessContrast, settings.IsIdentity ? null : settings, Strings.AdjustBrightnessContrast);
     }
 
     private void ApplyHueSaturation()
     {
         HueSaturationSettings settings = BuildHueSaturation();
-        Store(AdjustmentKind.HueSaturation, !_colorize && settings.IsIdentity ? null : settings, "Hue/Saturation");
+        Store(AdjustmentKind.HueSaturation, !_colorize && settings.IsIdentity ? null : settings, Strings.AdjustHueSaturation);
     }
 
     private HueSaturationSettings BuildHueSaturation()
@@ -366,7 +368,7 @@ public sealed class AdjustmentViewModel : ObservableObject
     private void ApplyLevels()
     {
         var settings = new LevelsSettings(_levels[0], _levels[1], _levels[2], _levels[3]);
-        Store(AdjustmentKind.Levels, settings.IsIdentity ? null : settings, "Levels");
+        Store(AdjustmentKind.Levels, settings.IsIdentity ? null : settings, Strings.AdjustLevels);
     }
 
     private bool ApplyCurve(IReadOnlyList<CurvePoint> points)
@@ -375,7 +377,7 @@ public sealed class AdjustmentViewModel : ObservableObject
         {
             CurvesSettings updated = _curves.With((LevelsChannel)_curveChannelIndex, points);
             _curves = updated;
-            Store(AdjustmentKind.Curves, updated.IsIdentity ? null : updated, "Curves");
+            Store(AdjustmentKind.Curves, updated.IsIdentity ? null : updated, Strings.AdjustCurves);
             return true;
         }
         catch (ArgumentException)
@@ -438,6 +440,13 @@ public sealed class AdjustmentViewModel : ObservableObject
         _curves = _target?.Adjustment(AdjustmentKind.Curves) as CurvesSettings ?? new CurvesSettings();
         LoadCurvePoints();
 
+        OnPropertyChanged(string.Empty);
+    }
+
+    /// <summary>Re-reads the labels that come from resources after a language change.</summary>
+    public void RefreshLocalization()
+    {
+        foreach (CurvePointViewModel point in _curvePoints) point.RefreshLocalization();
         OnPropertyChanged(string.Empty);
     }
 }

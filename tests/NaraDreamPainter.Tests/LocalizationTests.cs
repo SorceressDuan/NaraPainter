@@ -38,7 +38,7 @@ public class LocalizationTests
     {
         HashSet<string> neutral = ResourceKeys("Strings.resx");
         HashSet<string> chinese = ResourceKeys("Strings.zh-CN.resx");
-        string source = File.ReadAllText(Path.Combine(AppRoot(), "Strings.cs"));
+        string source = TestFiles.ReadText(Path.Combine(AppRoot(), "Strings.cs"));
 
         MatchCollection properties = Regex.Matches(source,
             @"public\s+static\s+string\s+(?<name>\w+)\s*=>\s*Localization\.Get\(""(?<key>[^""]+)""\)");
@@ -64,7 +64,7 @@ public class LocalizationTests
 
         foreach (string file in AppFiles(".cs"))
         {
-            string text = File.ReadAllText(file);
+            string text = TestFiles.ReadText(file);
             foreach (Match match in Regex.Matches(text, @"Localization\.(?:Get|Format)\(""(?<key>[^""]+)"""))
             {
                 string key = match.Groups["key"].Value;
@@ -79,7 +79,7 @@ public class LocalizationTests
     [Fact]
     public void TheReadmeNamesTheProjectAndTheDisclaimer()
     {
-        string readme = File.ReadAllText(Path.Combine(RepositoryRoot(), "README.md"));
+        string readme = TestFiles.ReadText(Path.Combine(RepositoryRoot(), "README.md"));
 
         Assert.Contains("Nara Dream Painter", readme, StringComparison.Ordinal);
         Assert.Contains("NaraDreamPainter.exe", readme, StringComparison.Ordinal);
@@ -90,10 +90,7 @@ public class LocalizationTests
     private static HashSet<string> ResourceKeys(string fileName)
     {
         var document = new XmlDocument();
-        using (var reader = new StreamReader(Path.Combine(AppRoot(), "Resources", fileName), System.Text.Encoding.UTF8))
-        {
-            document.Load(reader);
-        }
+        document.LoadXml(TestFiles.ReadText(Path.Combine(AppRoot(), "Resources", fileName)));
 
         return [.. document.SelectNodes("/root/data")!.Cast<XmlNode>().Select(node => node.Attributes!["name"]!.Value)];
     }
@@ -102,7 +99,7 @@ public class LocalizationTests
     {
         foreach (string file in AppFiles(".cs").Concat(AppFiles(".xaml")))
         {
-            string[] lines = File.ReadAllLines(file);
+            string[] lines = TestFiles.ReadLines(file);
             for (int i = 0; i < lines.Length; i++)
             {
                 if (ChineseCharacters.IsMatch(lines[i]))

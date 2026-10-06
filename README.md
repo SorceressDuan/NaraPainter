@@ -50,6 +50,8 @@ src/NaraDreamPainter.App/Resources/Strings.zh-CN.resx 简体中文
 ```
 
 加一门语言就是加一个 `Strings.<culture>.resx`，代码不用动。
+界面里怎么取文案（XAML 的 `{x:Bind Text.X}` 约定、加键步骤、字体与不翻译清单）见
+[docs/modules/LOCALIZATION.md](docs/modules/LOCALIZATION.md)。
 
 
 ## 构建

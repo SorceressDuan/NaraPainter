@@ -43,7 +43,7 @@ public sealed class MaskBrushViewModel : ObservableObject
         {
             if (!SetProperty(ref _isActive, value)) return;
             if (!value) CancelStroke();
-            _owner.Status = value ? Localization.Get("Mask_BrushOn") : Localization.Get("Status_Ready");
+            _owner.Status = value ? Strings.MaskBrushOn : Strings.StatusReady;
         }
     }
 
@@ -90,7 +90,7 @@ public sealed class MaskBrushViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null || layer.IsAdjustment)
         {
-            _owner.Status = Localization.Get("Mask_SelectPixelLayer");
+            _owner.Status = Strings.MaskSelectPixelLayer;
             return;
         }
 
@@ -139,7 +139,7 @@ public sealed class MaskBrushViewModel : ObservableObject
         _before = null;
         if (before is not null && before.AsSpan().SequenceEqual(after)) return;
 
-        _owner.History.Push(new PropertyChange<byte[]?>(Localization.Get("Undo_PaintMask"), before, after, layer.AssignMask));
+        _owner.History.Push(new PropertyChange<byte[]?>(Strings.UndoPaintMask, before, after, layer.AssignMask));
         Refresh();
     }
 
@@ -162,7 +162,7 @@ public sealed class MaskBrushViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer?.Model.Mask is not { } mask)
         {
-            _owner.Status = Localization.Get("Mask_NoMaskToFeather");
+            _owner.Status = Strings.MaskNoMaskToFeather;
             return;
         }
 
@@ -171,10 +171,10 @@ public sealed class MaskBrushViewModel : ObservableObject
         var before = (byte[])mask.Clone();
         MaskService.Feather(mask, _owner.Document.Width, _owner.Document.Height, radius);
         var after = layer.Model.Mask;
-        _owner.History.Push(new PropertyChange<byte[]?>(Localization.Get("Undo_FeatherMask"), before, after, layer.AssignMask));
+        _owner.History.Push(new PropertyChange<byte[]?>(Strings.UndoFeatherMask, before, after, layer.AssignMask));
         layer.RefreshMaskState();
         _owner.NotifyChanged();
-        _owner.Status = Localization.Get("Mask_Feathered");
+        _owner.Status = Strings.MaskFeathered;
     }
 
     public void Invert()
@@ -182,17 +182,17 @@ public sealed class MaskBrushViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer?.Model.Mask is not { } mask)
         {
-            _owner.Status = Localization.Get("Mask_NoMaskToInvert");
+            _owner.Status = Strings.MaskNoMaskToInvert;
             return;
         }
 
         var before = (byte[])mask.Clone();
         MaskService.Invert(mask);
         var after = layer.Model.Mask;
-        _owner.History.Push(new PropertyChange<byte[]?>(Localization.Get("Undo_InvertMask"), before, after, layer.AssignMask));
+        _owner.History.Push(new PropertyChange<byte[]?>(Strings.UndoInvertMask, before, after, layer.AssignMask));
         layer.RefreshMaskState();
         _owner.NotifyChanged();
-        _owner.Status = Localization.Get("Mask_Inverted");
+        _owner.Status = Strings.MaskInverted;
     }
 
     public void Refresh() => OnPropertyChanged(nameof(HasMask));

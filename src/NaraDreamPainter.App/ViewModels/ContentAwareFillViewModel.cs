@@ -44,20 +44,20 @@ public sealed class ContentAwareFillViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null || layer.IsAdjustment || layer.Source is null)
         {
-            _owner.Status = Localization.Get("Fill_SelectPixelLayer");
+            _owner.Status = Strings.FillSelectPixelLayer;
             return;
         }
 
         byte[]? holes = BuildHoles();
         if (holes is null)
         {
-            _owner.Status = Localization.Get("Fill_NeedsTarget");
+            _owner.Status = Strings.FillNeedsTarget;
             return;
         }
 
         if (!HasHoles(holes))
         {
-            _owner.Status = Localization.Get("Fill_NothingToFill");
+            _owner.Status = Strings.FillNothingToFill;
             return;
         }
 
@@ -65,9 +65,9 @@ public sealed class ContentAwareFillViewModel : ObservableObject
         PixelBuffer after = ContentAwareFill.Fill(before, holes, _radius, _useNikolai ? 1 : 0);
         layer.ReplacePixels(after);
 
-        _owner.History.Push(new PropertyChange<PixelBuffer>(Localization.Get("Undo_ContentFill"), before, after, layer.ReplacePixels));
+        _owner.History.Push(new PropertyChange<PixelBuffer>(Strings.UndoContentFill, before, after, layer.ReplacePixels));
         _owner.NotifyChanged();
-        _owner.Status = Localization.Get("Fill_Done");
+        _owner.Status = Strings.FillDone;
     }
 
     public void Refresh() => OnPropertyChanged(nameof(CanFill));

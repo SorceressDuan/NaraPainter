@@ -44,20 +44,20 @@ public sealed class LayerViewModel : ObservableObject
     public AdjustmentKind? LayerKind => _layer.Adjustment is null ? null : AdjustmentKinds.Of(_layer.Adjustment);
 
     public string ContentLabel => _layer.Adjustment is not null
-        ? _layer.Adjustment.DisplayName
-        : _layer.Pixels is null ? "Empty" : $"{_layer.Pixels.Width} × {_layer.Pixels.Height}";
+        ? AdjustmentKinds.Name(AdjustmentKinds.Of(_layer.Adjustment))
+        : _layer.Pixels is null ? Strings.LayersEmpty : $"{_layer.Pixels.Width} × {_layer.Pixels.Height}";
 
     public string Name
     {
         get => _layer.Name;
         set
         {
-            string name = string.IsNullOrWhiteSpace(value) ? "Layer" : value.Trim();
+            string name = string.IsNullOrWhiteSpace(value) ? Strings.LayersDefaultName : value.Trim();
             if (name == _layer.Name) return;
 
             string previous = _layer.Name;
             SetName(name);
-            _owner.History.Push(new PropertyChange<string>("Rename Layer", previous, name, SetName, $"layer:{_layer.Id}:name:{_nameSession}"));
+            _owner.History.Push(new PropertyChange<string>(Strings.UndoRenameLayer, previous, name, SetName, $"layer:{_layer.Id}:name:{_nameSession}"));
         }
     }
 
@@ -70,7 +70,7 @@ public sealed class LayerViewModel : ObservableObject
 
             bool previous = _layer.IsVisible;
             SetVisible(value);
-            _owner.History.Push(new PropertyChange<bool>(value ? "Show Layer" : "Hide Layer", previous, value, SetVisible));
+            _owner.History.Push(new PropertyChange<bool>(value ? Strings.UndoShowLayer : Strings.UndoHideLayer, previous, value, SetVisible));
         }
     }
 
@@ -87,7 +87,7 @@ public sealed class LayerViewModel : ObservableObject
             if (Math.Abs(previous - next) < 0.05) return;
 
             SetOpacity(next);
-            _owner.History.Push(new PropertyChange<double>("Layer Opacity", previous, next, SetOpacity, $"layer:{_layer.Id}:opacity:{_opacitySession}"));
+            _owner.History.Push(new PropertyChange<double>(Strings.UndoLayerOpacity, previous, next, SetOpacity, $"layer:{_layer.Id}:opacity:{_opacitySession}"));
         }
     }
 
@@ -98,20 +98,28 @@ public sealed class LayerViewModel : ObservableObject
         get => (int)_layer.BlendMode;
         set
         {
-            if (value < 0 || value >= BlendModeCatalog.Names.Count) return;
+            if (value < 0 || value >= BlendModeCatalog.Count) return;
 
             var mode = (BlendMode)value;
             if (mode == _layer.BlendMode) return;
 
             BlendMode previous = _layer.BlendMode;
             SetBlendMode(mode);
-            _owner.History.Push(new PropertyChange<BlendMode>("Blend Mode", previous, mode, SetBlendMode));
+            _owner.History.Push(new PropertyChange<BlendMode>(Strings.UndoBlendMode, previous, mode, SetBlendMode));
         }
     }
 
     public bool IsMasked => _layer.Mask is not null;
 
-    public string MaskLabel => _layer.Mask is null ? "No mask" : "Mask applied";
+    public string MaskLabel => _layer.Mask is null ? Strings.MaskNone : Strings.MaskApplied;
+
+    /// <summary>Re-reads the labels that come from resources after a language change.</summary>
+    internal void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(ContentLabel));
+        OnPropertyChanged(nameof(BlendModeNames));
+        OnPropertyChanged(nameof(MaskLabel));
+    }
 
     public void BeginOpacityEdit() => _opacitySession++;
 

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using NaraDreamPainter.App.ViewModels;
 using NaraDreamPainter.Models.Adjustments;
@@ -179,7 +180,7 @@ public static class SmokeTest
     private static void CheckResources(List<string> log)
     {
         var resolved = typeof(LocalizedStrings)
-            .GetProperties()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Select(property => (property.Name, Value: property.GetValue(LocalizedStrings.Instance) as string))
             .ToList();
 

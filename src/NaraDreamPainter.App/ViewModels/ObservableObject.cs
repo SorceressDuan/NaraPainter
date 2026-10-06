@@ -9,6 +9,12 @@ namespace NaraDreamPainter.App.ViewModels;
 /// </summary>
 public abstract class ObservableObject : INotifyPropertyChanged
 {
+    /// <summary>
+    /// The resource layer, so a data template can bind its own text without a named element:
+    /// <c>{x:Bind Text.LayersVisibilityHint}</c> with <c>x:DataType</c> set to the item type.
+    /// </summary>
+    public LocalizedStrings Text => LocalizedStrings.Instance;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>

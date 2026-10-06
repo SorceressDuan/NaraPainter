@@ -103,7 +103,7 @@
   <data name="Toolbar_DuplicateHint" xml:space="preserve">
     <value>Duplicate the selected layer</value>
   </data>
-  <data name="Toolbar_Delete" xml:space="preserve">
+  <data name="Toolbar_DeleteLayer" xml:space="preserve">
     <value>Delete Layer</value>
   </data>
   <data name="Toolbar_DeleteHint" xml:space="preserve">
@@ -139,8 +139,14 @@
   <data name="Toolbar_ActualSizeHint" xml:space="preserve">
     <value>Show the canvas at 100%</value>
   </data>
+  <data name="Toolbar_MaskBrush" xml:space="preserve">
+    <value>Mask Brush</value>
+  </data>
   <data name="Toolbar_MaskBrushHint" xml:space="preserve">
     <value>Paint on the selected layer's mask</value>
+  </data>
+  <data name="Toolbar_ContentAwareFill" xml:space="preserve">
+    <value>Content-Aware Fill</value>
   </data>
   <data name="Toolbar_ContentAwareFillHint" xml:space="preserve">
     <value>Fill the selection from its surroundings</value>
@@ -488,9 +494,6 @@
 
   <!-- Mask brush. -->
   <data name="Mask_Brush" xml:space="preserve">
-    <value>Mask Brush</value>
-  </data>
-  <data name="Mask_BrushTool" xml:space="preserve">
     <value>Mask Brush</value>
   </data>
   <data name="Mask_BrushOn" xml:space="preserve">
