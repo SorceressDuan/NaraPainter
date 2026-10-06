@@ -56,15 +56,50 @@ Swift 里的 `CGImage`/`CGContext` 对应 OpenCvSharp 的 `Mat`；
 
 `src/Compositor.Compositing/`。画布渲染。
 
-- `Controls/CanvasView.cs`：`CanvasControl` 子类，负责缩放、平移、`Invalidate`，
-  把 `CanvasDocument` 画出来。当前图层用 `CanvasRenderTarget`，
-  混合用 `CanvasBlend` 或 `BlendEffect`。
-- `BlendEffectFactory.cs`：把 `BlendMode` 映射到 Win2D 能力。
-  Win2D 原生只认 `CanvasBlend` 里的那几种，其余必须走
-  `PixelShaderEffect` 或退回 CPU。哪些走哪条路要在代码里写清楚。
+`Controls/CanvasView.cs` 对界面那边的公开表面，先按这个签名写，界面会直接调：
 
-**必须提供 CPU 回退**：任何一条 GPU 路径失效时，整条链路要能退化到
-`Compositor.Models.Blending` 的实现并给出同样的像素结果。这是可测试性的底线。
+```csharp
+public sealed class CanvasView : Microsoft.UI.Xaml.Controls.UserControl
+{
+    public CanvasDocument? Document { get; set; }
+    public double Zoom { get; set; }          // 1.0 = 100%
+    public double PanX { get; set; }
+    public double PanY { get; set; }
+    public bool ShowPixelGrid { get; set; }
+    public void FitToWindow();
+    public void ZoomTo(double zoom);          // 以画布中心为锚点
+    public void Refresh();                    // 文档改了之后调用
+    public event EventHandler? ViewChanged;   // 缩放/平移变化后触发，状态栏用
+}
+```
+
+**基类是 `UserControl` 而不是 `CanvasControl`**：Win2D 1.4.0 的 WinUI 3 投影里
+`CanvasControl`、`CanvasVirtualControl`、`CanvasAnimatedControl` 全是 sealed，
+继承不了（CS0509）。所以 `CanvasView` 自己是个 `UserControl`，
+内部 new 一个 `CanvasControl` 当 Content。外面用它的人别写 `is CanvasControl`。
+
+- `Rendering/DocumentRenderer.cs`：把 `CanvasDocument` 画到 `CanvasDrawingSession`：
+  自下而上逐图层，每层先画到 `CanvasRenderTarget` 再做混合。
+- `Blending/BlendEffectFactory.cs`：`BlendMode` → Win2D 能力映射。
+  Win2D 原生只认 `CanvasBlend` 里的那几种，其余必须显式处理：
+  能用 `BlendEffect` 的用，不能的退回 CPU。哪些模式走哪条路要写在代码注释里。
+- `Rendering/CpuCompositor.cs` — 回退路径，直接调
+  `Compositor.Models.Blending.BlendCompositor.Composite`，保证 GPU 不可用时输出与参考实现一致。
+
+### 界面与影像之间的接口
+
+契约接口在 `src/Compositor.Models/Services/`，命名空间 `Compositor.Models.Services`：
+
+- `IImageCodec` — 解码/编码，扩展名与格式（`ImageFileFormat` 枚举）
+- `IAdjustmentFilter` — 应用调整
+- `ISelectionMaskBuilder` — 选区覆盖度与按选区混合
+
+放 Models 而不是 App，是因为 App 引用 Imaging，而 Imaging 要实现这些接口；
+接口留在 App 里就会形成环，链接编译只是绕过。`Models` 没有人反向依赖，放这里环就没了。
+
+`Compositor.Imaging` 里的实现类名固定为 `ImageCodec`、`AdjustmentFilter`、
+`SelectionMaskBuilder`，构造函数无参，这样界面可以直接 `new`。
+
 
 ### Compositor.App — WinUI 3
 

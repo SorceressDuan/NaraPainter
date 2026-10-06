@@ -34,7 +34,7 @@ Compositor 原本是一个 macOS 上的图像合成与后期工具，用 Swift�
 
 ## 构建
 
-需要 .NET 8 SDK。仓库里没有 `.tools/`，那是本地开发用的工具链目录，已被 git 忽略。
+需要 .NET 8 SDK。
 
 ```powershell
 dotnet restore
@@ -44,11 +44,14 @@ dotnet build src/Compositor.App/Compositor.App.csproj -c Debug
 调试构建是自包含的（`SelfContained` + `WindowsAppSDKSelfContained`），
 所以产物目录里已经带了 .NET 运行时和 Windows App SDK，不需要另外装运行时，双击 `Compositor.exe` 就能跑。
 
-打包 MSIX：
+打包成可以直接发给别人的压缩包：
 
 ```powershell
-dotnet publish src/Compositor.App/Compositor.App.csproj -c Release -p:Platform=x64
+powershell -ExecutionPolicy Bypass -File packaging/pack.ps1
 ```
+
+产物在 `dist/`：一个是自包含的 zip，一个是摊平好的 MSIX 负载目录
+（要出 `.msix` 再对那个目录跑一次 `makeappx pack`，签名自备）。
 
 ## 测试
 
@@ -57,24 +60,29 @@ dotnet test tests/Compositor.Tests/Compositor.Tests.csproj
 ```
 
 测试集中在不依赖界面的部分：混合模式数值、调整算法、文件读写往返、图层模型操作。
+`tools/verify/verify.ps1` 会把构建、测试和几条结构性检查（比如「仓库里不能出现 Apple 框架引用」）
+一次跑完。
 
 ## 目录结构
 
 ```
 src/
-  Compositor.Core/         数据模型与混合数学，不引用任何 Windows API
+  Compositor.Models/       数据模型、混合数学、服务契约，不引用任何 Windows API
   Compositor.Imaging/      OpenCvSharp4 的图像读写与像素操作
   Compositor.Compositing/  Win2D 画布渲染与 GPU 合成
-  Compositor.App/          WinUI 3 界面
+  Compositor.App/          WinUI 3 界面（Views / ViewModels / Services / Controls）
 tests/
   Compositor.Tests/        xUnit 测试
+tools/
+  assets/                  测试图片与应用图标的生成器
+  verify/                  一次性跑完的验收脚本
+packaging/                 发布与 MSIX 打包
 legacy/                    原项目 Swift 源码（只读参考）
-docs/                      移植说明与格式文档
-assets/                    图标与测试图片
+docs/                      移植说明、构建说明、需求文档存档
 ```
 
-`Compositor.Core` 刻意不引用 Windows 相关的包，混合与调整的公式只有一处实现，
-界面和高分辨率导出走的是同一套代码。
+`Compositor.Models` 刻意不引用 Windows 相关的包，混合与调整的公式只有一处实现，
+界面预览和高分辨率导出走的是同一套代码。
 
 ## 许可
 

@@ -53,13 +53,12 @@ public sealed class Layer
     };
 
     /// <summary>
-    /// The coverage to composite this layer through, or null when nothing restricts it. A mask whose
-    /// size does not match the document is ignored rather than resampled.
+    /// The coverage to composite this layer through, or null when nothing restricts it. Layer opacity
+    /// is applied separately by the compositor, so it does not gate the mask here. A mask whose size
+    /// does not match the document is ignored rather than resampled.
     /// </summary>
     public byte[]? CoverageFor(int width, int height)
     {
-        if (Mask is null || Mask.Length != width * height) return null;
-        if (Opacity >= 1) return Mask;
-        return null;
+        return Mask is not null && Mask.Length == width * height ? Mask : null;
     }
 }

@@ -40,12 +40,26 @@ $env:NUGET_PACKAGES = "$root\.tools\nuget-packages"
 $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR = "$root\.tools\bundle-extract"
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = "1"
 $env:DOTNET_NOLOGO = "1"
+$env:DOTNET_CLI_UI_LANGUAGE = "en"     # 否则中文输出，脚本里难解析
 cd $root
 dotnet build Compositor.sln -c Debug
 ```
 
 `$env:APPDATA` 那行是必须的：NuGet 会去读 `%APPDATA%\NuGet\NuGet.Config`，
 不重定向就报「未授权访问」。
+
+### restore 必须单节点
+
+沙箱禁止命名管道，MSBuild 的 worker 节点连不回来。直接后果是
+`dotnet restore` 在跨项目引用时静默失败（只打印「Determining projects to restore...」
+然后 exit 1，**0 Errors 0 Warnings**，非常难查）。
+
+```powershell
+dotnet restore Compositor.sln -m:1 -nodeReuse:false
+```
+
+`dotnet build` 因为自己串起 restore 和编译，多数时候不受影响；一旦遇到
+「Build FAILED, 0 Error(s)」这种没有任何错误信息的失败，先加上 `-m:1 -nodeReuse:false` 重试。
 
 ## 加依赖
 
@@ -62,16 +76,16 @@ dotnet build Compositor.sln -c Debug
 
 SDK 自带的 `Microsoft.Windows.SDK.NET.Ref` 是 10.0.19041.53，
 上项目引用 OpenCvSharp4 4.13 会报 `CS9057`：「分析器引用了 4.14.0.0 版编译器，
-高于当前 4.11.0.0」。CI 开了 `TreatWarningsAsErrors` 就会挂。
+高于当前 4.11.0.0」。
 
-两条路，二选一：
+已经处理：根 `Directory.Build.props` 里用下面这行全局压掉，不用每个 csproj 各写一遍。
 
-- 升级到 .NET 9 或 10 SDK（分析器版本要求随之满足）。需要重新下载 SDK 和对应运行时包，
-  `fetch-packages.js` 那套流程照用，把 `BundledVersions.props` 里的版本号填进 `roots.json`。
-- 保持 .NET 8，在 `Directory.Build.props` 里显式关掉这个分析器：
-  `<PackageReference Include="OpenCvSharp4" ... ExcludeAssets="analyzers" />`。
+```xml
+<PackageReference Update="OpenCvSharp4" ExcludeAssets="analyzers" />
+```
 
-还没定，谁先碰到谁定，定完更新 README 的构建章节。
+OpenCvSharp4 的分析器只发警告，包本身的 targets 不受影响，所以丢掉 analyzers 是安全的。
+如果以后升级到 .NET 9/10，可以把这行删掉试试，分析器版本要求那时就满足了。
 
 ## 运行
 

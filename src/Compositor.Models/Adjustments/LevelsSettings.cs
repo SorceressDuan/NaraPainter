@@ -11,6 +11,13 @@ public enum LevelsChannel
 /// <summary>
 /// One channel's input and output range, in 0-255 as the Levels dialog shows them.
 /// </summary>
+/// <remarks>
+/// A record struct's primary-constructor defaults only apply when the constructor is actually called.
+/// <c>new LevelRange()</c>, <c>default</c> and zero-initialized arrays all produce Gamma 0 and White 0,
+/// which flattens the input range to nothing and maps everything to black. That is why
+/// <see cref="Identity"/> spells the values out and why <see cref="LevelsSettings"/> fills its four
+/// ranges instead of leaving them zeroed.
+/// </remarks>
 public readonly record struct LevelRange(
     double Black = 0,
     double Gamma = 1,
@@ -18,7 +25,7 @@ public readonly record struct LevelRange(
     double OutputBlack = 0,
     double OutputWhite = 255)
 {
-    public static LevelRange Identity => new();
+    public static LevelRange Identity => new(0, 1, 255, 0, 255);
 
     public bool IsIdentity => Normalized() == Identity;
 
@@ -56,16 +63,24 @@ public sealed class LevelsSettings : AdjustmentSettings
 {
     private readonly LevelRange[] _ranges = new LevelRange[4];
 
+    /// <summary>Every channel starts at its identity range, not at a zeroed struct.</summary>
     public LevelsSettings()
     {
+        Fill(LevelRange.Identity);
     }
 
     public LevelsSettings(LevelRange rgb, LevelRange? red = null, LevelRange? green = null, LevelRange? blue = null)
     {
+        Fill(LevelRange.Identity);
         _ranges[(int)LevelsChannel.Rgb] = rgb;
         _ranges[(int)LevelsChannel.Red] = red ?? LevelRange.Identity;
         _ranges[(int)LevelsChannel.Green] = green ?? LevelRange.Identity;
         _ranges[(int)LevelsChannel.Blue] = blue ?? LevelRange.Identity;
+    }
+
+    private void Fill(LevelRange range)
+    {
+        for (int i = 0; i < _ranges.Length; i++) _ranges[i] = range;
     }
 
     public override string DisplayName => "Levels";

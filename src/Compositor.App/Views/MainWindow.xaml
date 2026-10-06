@@ -1,0 +1,134 @@
+<Window
+    x:Class="Compositor.App.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:compositing="using:Compositor.Compositing.Controls"
+    xmlns:views="using:Compositor.App.Views">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
+            <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenClick">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="O" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton Icon="Save" Label="Export" Click="OnExportClick">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="E" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarSeparator />
+            <AppBarButton
+                Icon="Undo"
+                Label="Undo"
+                Click="OnUndoClick"
+                IsEnabled="{x:Bind Document.CanUndo, Mode=OneWay}">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="Z" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton
+                Icon="Redo"
+                Label="Redo"
+                Click="OnRedoClick"
+                IsEnabled="{x:Bind Document.CanRedo, Mode=OneWay}">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="Y" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarSeparator />
+            <AppBarButton Icon="Add" Label="New Layer" Click="OnNewLayerClick">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton
+                Icon="Copy"
+                Label="Duplicate"
+                Click="OnDuplicateLayerClick"
+                IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
+            <AppBarButton
+                Icon="Delete"
+                Label="Delete Layer"
+                Click="OnDeleteLayerClick"
+                IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
+            <AppBarButton Icon="Edit" Label="Adjustment Layer">
+                <AppBarButton.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="Brightness / Contrast" Tag="BrightnessContrast" Click="OnAddAdjustmentLayerClick" />
+                        <MenuFlyoutItem Text="Hue / Saturation" Tag="HueSaturation" Click="OnAddAdjustmentLayerClick" />
+                        <MenuFlyoutItem Text="Levels" Tag="Levels" Click="OnAddAdjustmentLayerClick" />
+                        <MenuFlyoutItem Text="Curves" Tag="Curves" Click="OnAddAdjustmentLayerClick" />
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarSeparator />
+            <AppBarButton Icon="ZoomOut" Label="Zoom Out" Click="OnZoomOutClick" />
+            <AppBarButton Icon="ZoomIn" Label="Zoom In" Click="OnZoomInClick" />
+            <AppBarButton Icon="Zoom" Label="Fit" Click="OnFitClick" />
+            <AppBarButton Label="100%" Click="OnActualSizeClick" />
+        </CommandBar>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="340" />
+            </Grid.ColumnDefinitions>
+
+            <views:LayersPanel x:Name="Layers" Grid.Column="0" />
+
+            <Border
+                Grid.Column="1"
+                Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+                AllowDrop="True"
+                DragOver="OnCanvasDragOver"
+                Drop="OnCanvasDrop">
+                <compositing:CanvasView x:Name="Canvas" SizeChanged="OnCanvasSizeChanged" />
+            </Border>
+
+            <views:PropertiesPanel x:Name="Properties" Grid.Column="2" />
+        </Grid>
+
+        <Border
+            Grid.Row="2"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            BorderThickness="0,1,0,0"
+            BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}">
+            <Grid Padding="12,6" ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    Text="{x:Bind Document.Status, Mode=OneWay}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    VerticalAlignment="Center"
+                    TextTrimming="CharacterEllipsis" />
+                <TextBlock
+                    Grid.Column="1"
+                    Text="{x:Bind Document.SizeLabel, Mode=OneWay}"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
+                <TextBlock
+                    Grid.Column="2"
+                    Text="{x:Bind Document.LayerCountLabel, Mode=OneWay}"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
+                <TextBlock
+                    Grid.Column="3"
+                    MinWidth="56"
+                    TextAlignment="Right"
+                    Text="{x:Bind Document.ZoomLabel, Mode=OneWay}"
+                    Style="{StaticResource CaptionTextBlockStyle}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

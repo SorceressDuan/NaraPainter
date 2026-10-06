@@ -108,20 +108,32 @@ public static class BlendFunctions
     {
         double d = lum - Lum(c);
         var shifted = (R: c.R + d, G: c.G + d, B: c.B + d);
+
+        // ClipColor brings an out-of-gamut result back by pulling each channel towards the luminance,
+        // scaled by how far that channel sits from the luminance on the other side. Each channel is
+        // divided by its own distance (lum - n at the dark end, x - lum at the light end), which is
+        // what keeps the hue intact; spreading by the saturation span instead visibly shifts it.
+        //
+        // Both branches run unconditionally. At lum == 0 the dark-end scale is 0 and the color collapses
+        // to black, at lum == 1 the light end collapses to white - that is the definition, not a
+        // degenerate case to guard against. Skipping either branch when its scale hits 0 leaves a
+        // half-clipped color behind.
         double low = Math.Min(shifted.R, Math.Min(shifted.G, shifted.B));
-        double high = Math.Max(shifted.R, Math.Max(shifted.G, shifted.B));
         if (low < 0)
         {
-            double denominator = high - low;
-            double scale = denominator > 0 ? (lum - 0) / denominator : 0;
+            double denominator = lum - low;
+            double scale = denominator > 0 ? lum / denominator : 0;
             shifted = (lum + ((shifted.R - lum) * scale), lum + ((shifted.G - lum) * scale), lum + ((shifted.B - lum) * scale));
         }
-        else if (high > 1)
+
+        double high = Math.Max(shifted.R, Math.Max(shifted.G, shifted.B));
+        if (high > 1)
         {
-            double denominator = high - low;
+            double denominator = high - lum;
             double scale = denominator > 0 ? (1 - lum) / denominator : 0;
             shifted = (lum + ((shifted.R - lum) * scale), lum + ((shifted.G - lum) * scale), lum + ((shifted.B - lum) * scale));
         }
+
         return (Math.Clamp(shifted.R, 0, 1), Math.Clamp(shifted.G, 0, 1), Math.Clamp(shifted.B, 0, 1));
     }
 

@@ -1,0 +1,19 @@
+<Project>
+
+  <!--
+    Microsoft.Graphics.Win2D 1.4.0 depends on Microsoft.WindowsAppSDK.WinUI >= 1.8.260204000, a version
+    that was never published - the WindowsAppSDK 1.8 line ships WinUI as 1.8.260803003. NuGet resolves
+    that as an approximate best match and reports NU1603 on every project that pulls Win2D in.
+
+    Pinning the WinUI component states the version the graph already lands on, so the warning goes away
+    without being silenced. This is not a new dependency: it arrives through Microsoft.WindowsAppSDK
+    anyway. It lives in .targets rather than .props because it has to see the project's own
+    PackageReferences, which are declared in the project body.
+
+    Drop this once Win2D asks for a version that actually exists.
+  -->
+  <ItemGroup Condition="@(PackageReference->WithMetadataValue('Identity', 'Microsoft.Graphics.Win2D')->Count()) > 0">
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="1.8.260803003" />
+  </ItemGroup>
+
+</Project>

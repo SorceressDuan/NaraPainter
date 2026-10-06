@@ -11,6 +11,19 @@
     <Product>Compositor for Windows</Product>
     <Authors>Compositor for Windows contributors</Authors>
     <Version>0.1.0</Version>
+
+    <!--
+      CS9057 comes from OpenCvSharp4 4.13: its Roslyn analyzer is built against a 4.14 compiler and
+      the .NET 8 SDK runs 4.11, so the compiler reports the mismatch on every project that references
+      the package. The analyzer is advisory only and does not run in that case.
+
+      ExcludeAssets="analyzers" does not help here - NuGet resolves analyzer assets straight from the
+      package directory rather than through project.assets.json, so neither Directory.Build.props nor
+      Directory.Build.targets can filter them out. Silencing the specific warning is the fix.
+
+      Drop this once the toolchain moves to .NET 9 or later and the versions line up again.
+    -->
+    <NoWarn>$(NoWarn);CS9057</NoWarn>
   </PropertyGroup>
 
 </Project>
