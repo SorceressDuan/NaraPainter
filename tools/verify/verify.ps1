@@ -202,12 +202,21 @@ else {
             $atRoot = @($names | Where-Object { -not $_.Contains("/") })
             $nested = @($names | Where-Object { $_.Contains("/") })
             $firstSegments = @($nested | ForEach-Object { ($_ -split "/")[0] } | Sort-Object -Unique)
-            $packageExeAtRoot = $atRoot -contains "NaraDreamPainter.exe"
+            $packageExeAtRoot = ($names -contains "launcher/NaraDreamPainter.exe") -and ($atRoot -contains "Run.bat")
 
             $problems = @()
-            foreach ($name in @("NaraDreamPainter.exe", "NaraDreamPainter.dll", "NaraDreamPainter.deps.json", "NaraDreamPainter.runtimeconfig.json", "LICENSE", "README.md", "RUNNING.txt", "Run.bat")) {
-                if ($atRoot -notcontains $name) { $problems += "missing from the archive root: $name" }
+            # The runtime lives in app\ and the launcher in launcher\; only the documents and the two
+            # batch files sit at the top level. Both executables matter, but the one a user runs is the
+            # launcher, so that is what has to be present.
+            foreach ($name in @("Run.bat", "README.md", "LICENSE", "RUNNING.txt", "app/NaraDreamPainter.exe", "launcher/NaraDreamPainter.exe")) {
+                if ($names -notcontains $name) { $problems += "missing from the archive: $name" }
             }
+            foreach ($folder in @("app", "launcher")) {
+                if ($firstSegments -notcontains $folder) { $problems += "missing folder in the archive: $folder" }
+            }
+            $allowedAtRoot = @("Run.bat", "README.md", "LICENSE", "RUNNING.txt")
+            $unexpected = @($atRoot | Where-Object { $_ -notin $allowedAtRoot -and $_ -notlike "*.bat" })
+            if ($unexpected.Count -gt 0) { $problems += "unexpected items at the archive root: $($unexpected -join ', ')" }
             if ($atRoot.Count -eq 0 -and $firstSegments.Count -eq 1) {
                 $problems += "every entry sits inside the wrapper folder '$($firstSegments[0])'"
             }

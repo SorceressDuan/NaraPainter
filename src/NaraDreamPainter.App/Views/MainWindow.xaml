@@ -18,18 +18,14 @@
                 Label="{x:Bind Text.ToolbarOpen, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarOpenHint, Mode=OneWay}"
                 Click="OnOpenClick">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control" Key="O" />
-                </AppBarButton.KeyboardAccelerators>
+
             </AppBarButton>
             <AppBarButton
                 Icon="Save"
                 Label="{x:Bind Text.ToolbarExport, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarExportHint, Mode=OneWay}"
                 Click="OnExportClick">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control" Key="E" />
-                </AppBarButton.KeyboardAccelerators>
+
             </AppBarButton>
             <AppBarSeparator />
             <AppBarButton
@@ -38,9 +34,7 @@
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarUndoHint, Mode=OneWay}"
                 Click="OnUndoClick"
                 IsEnabled="{x:Bind Document.CanUndo, Mode=OneWay}">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control" Key="Z" />
-                </AppBarButton.KeyboardAccelerators>
+
             </AppBarButton>
             <AppBarButton
                 Icon="Redo"
@@ -48,9 +42,7 @@
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarRedoHint, Mode=OneWay}"
                 Click="OnRedoClick"
                 IsEnabled="{x:Bind Document.CanRedo, Mode=OneWay}">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control" Key="Y" />
-                </AppBarButton.KeyboardAccelerators>
+
             </AppBarButton>
             <AppBarSeparator />
             <AppBarButton
@@ -58,9 +50,7 @@
                 Label="{x:Bind Text.ToolbarNewLayer, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarNewLayerHint, Mode=OneWay}"
                 Click="OnNewLayerClick">
-                <AppBarButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
-                </AppBarButton.KeyboardAccelerators>
+
             </AppBarButton>
             <AppBarButton
                 Icon="Copy"

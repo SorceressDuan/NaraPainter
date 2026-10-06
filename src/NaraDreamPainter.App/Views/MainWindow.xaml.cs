@@ -9,6 +9,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
+using Windows.System;
 
 namespace NaraDreamPainter.App.Views;
 
@@ -43,6 +45,8 @@ public sealed partial class MainWindow : Window
         LabelFlyouts();
         _cultureChanged = (_, _) => OnCultureChanged();
         Localization.CultureChanged += _cultureChanged;
+
+        AddAccelerators();
 
         // Built after the handler is wired, so filling the list does not read as a user selection.
         FillLanguagePicker();
@@ -181,7 +185,136 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Declares the keyboard shortcuts once, on the window's content.
+    /// </summary>
+    /// <remarks>
+    /// Attached here rather than in the XAML because <c>Window</c> has no accelerators collection of
+    /// its own, and a table is easier to read - and to check for duplicates - than scattered
+    /// per-button lists. A control with focus that handles the key itself still wins, so typing in the
+    /// layer name box or dragging a slider is unaffected.
+    /// </remarks>
+    private void AddAccelerators()
+    {
+        if (Content is not UIElement root) return;
+
+        Add(VirtualKey.O, VirtualKeyModifiers.Control, OnAcceleratorOpen);
+        Add(VirtualKey.E, VirtualKeyModifiers.Control, OnAcceleratorExport);
+        Add(VirtualKey.Z, VirtualKeyModifiers.Control, OnAcceleratorUndo);
+        Add(VirtualKey.Y, VirtualKeyModifiers.Control, OnAcceleratorRedo);
+        Add(VirtualKey.N, VirtualKeyModifiers.Control, OnAcceleratorNewLayer);
+        Add(VirtualKey.J, VirtualKeyModifiers.Control, OnAcceleratorDuplicateLayer);
+        Add(VirtualKey.A, VirtualKeyModifiers.Control, OnAcceleratorSelectAll);
+        Add(VirtualKey.D, VirtualKeyModifiers.Control, OnAcceleratorDeselect);
+        Add(VirtualKey.Add, VirtualKeyModifiers.Control, OnAcceleratorZoomIn);
+        Add(VirtualKey.Subtract, VirtualKeyModifiers.Control, OnAcceleratorZoomOut);
+        Add(VirtualKey.Number0, VirtualKeyModifiers.Control, OnAcceleratorFit);
+        Add(VirtualKey.Number1, VirtualKeyModifiers.Control, OnAcceleratorActualSize);
+        Add(VirtualKey.M, VirtualKeyModifiers.None, OnAcceleratorMaskBrush);
+        Add(VirtualKey.Escape, VirtualKeyModifiers.None, OnAcceleratorCancelStroke);
+
+        void Add(VirtualKey key, VirtualKeyModifiers modifiers, TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> handler)
+        {
+            var accelerator = new KeyboardAccelerator { Key = key, Modifiers = modifiers };
+            accelerator.Invoked += handler;
+            root.KeyboardAccelerators.Add(accelerator);
+        }
+    }
+
     private void OnUndoClick(object sender, RoutedEventArgs e) => Document.Undo();
+
+    /// <summary>
+    /// The keyboard entry points. Each one marks the event handled so the key does not also reach the
+    /// control that has focus, which would otherwise scroll a list or move a slider as well.
+    /// </summary>
+    private void OnAcceleratorOpen(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        OnOpenClick(this, new RoutedEventArgs());
+    }
+
+    private void OnAcceleratorExport(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        OnExportClick(this, new RoutedEventArgs());
+    }
+
+    private void OnAcceleratorUndo(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Undo();
+    }
+
+    private void OnAcceleratorRedo(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Redo();
+    }
+
+    private void OnAcceleratorNewLayer(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.AddLayer();
+    }
+
+    private void OnAcceleratorDuplicateLayer(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.DuplicateLayer(Document.SelectedLayer);
+    }
+
+    private void OnAcceleratorSelectAll(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Selection.SelectAll();
+    }
+
+    private void OnAcceleratorDeselect(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Selection.Clear();
+    }
+
+    private void OnAcceleratorZoomIn(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Canvas.ZoomTo(Canvas.Zoom * 1.25);
+    }
+
+    private void OnAcceleratorZoomOut(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Canvas.ZoomTo(Canvas.Zoom / 1.25);
+    }
+
+    private void OnAcceleratorFit(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Canvas.FitToWindow();
+    }
+
+    private void OnAcceleratorActualSize(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Canvas.ZoomTo(1);
+    }
+
+    private void OnAcceleratorMaskBrush(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.MaskBrush.IsActive = !Document.MaskBrush.IsActive;
+        MaskBrushButton.IsChecked = Document.MaskBrush.IsActive;
+    }
+
+    /// <summary>Escape abandons the stroke in progress rather than committing it to the mask.</summary>
+    private void OnAcceleratorCancelStroke(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (!_paintingMask) return;
+
+        args.Handled = true;
+        _paintingMask = false;
+        Document.MaskBrush.CancelStroke();
+    }
 
     private void OnRedoClick(object sender, RoutedEventArgs e) => Document.Redo();
 

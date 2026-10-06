@@ -1,9 +1,14 @@
-Compositor for Windows（非官方移植版）
+Nara Dream Painter for Windows（非官方移植版）
 
-运行方式：双击本目录下的 NaraDreamPainter.exe，无需安装 .NET 或 Windows App SDK。
+运行方式：双击本目录下的「NaraDreamPainter」快捷方式即可，无需安装 .NET 或 Windows App SDK。
 
-本目录里的其它 .exe（createdump.exe、RestartAgent.exe）属于运行时，请勿单独运行。
-不要把 NaraDreamPainter.exe 单独复制到别处，它需要同目录的 DLL 才能启动。
+目录结构：
+  NaraDreamPainter.lnk   双击这个启动程序
+  Run.bat                效果同上，习惯用批处理的可以用它
+  launcher\              启动器，自己不含界面
+  app\                   程序本体与运行库，请勿删除或移动里面的文件
+
+不要把 app\ 里的文件单独复制到别处，程序需要同目录的 DLL 才能启动。
 首次运行如果出现 SmartScreen 提示，选择「更多信息」，再选「仍要运行」。
 
 详细说明见同目录 README.md，许可证见 LICENSE。
