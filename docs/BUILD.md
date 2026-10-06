@@ -38,6 +38,8 @@ $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
 $env:DOTNET_CLI_HOME = "$root\.tools\cli-home"
 $env:NUGET_PACKAGES = "$root\.tools\nuget-packages"
 $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR = "$root\.tools\bundle-extract"
+$env:TEMP = "$root\.tools\temp"     # MSBuild 在 %TEMP%\MSBuildTemp 下建目录，真实临时目录不可写
+$env:TMP = $env:TEMP
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = "1"
 $env:DOTNET_NOLOGO = "1"
 $env:DOTNET_CLI_UI_LANGUAGE = "en"     # 否则中文输出，脚本里难解析
@@ -45,8 +47,12 @@ cd $root
 dotnet build Compositor.sln -c Debug
 ```
 
-`$env:APPDATA` 那行是必须的：NuGet 会去读 `%APPDATA%\NuGet\NuGet.Config`，
-不重定向就报「未授权访问」。
+`$env:APPDATA` 与 `$env:TEMP` 两行是必须的：
+
+- NuGet 会去读 `%APPDATA%\NuGet\NuGet.Config`，不重定向就报「未授权访问」
+- MSBuild 会创建 `%TEMP%\MSBuildTemp` 放 XAML 与 PRI 的中间产物，不重定向会在做任何事之前
+  就报 `MSBUILD : error MSB1025: An internal failure occurred while running MSBuild` +
+  `UnauthorizedAccessException: ...\Temp\MSBuildTemp`
 
 ### restore 必须单节点
 
@@ -114,22 +120,38 @@ App 和 Compositing 两个 csproj 里把 `Platform` 默认成 `x64`（`Platforms
 
 ## 测试
 
-**`dotnet test` 在这个沙箱里必然失败**，不是代码问题：VSTest 的 testhost 会对父进程调
-`OpenProcess` 来监听退出，沙箱拒绝，报 `Win32Exception (5): 拒绝访问`，一个测试都跑不起来。
-`dotnet vstest <dll>` 直接对编译产物跑也一样。
-
-替代方案是仓库自带的反射 runner，它在本进程里加载测试程序集、逐个执行 `[Fact]`/`[Theory]`：
+一条命令跑完全部验收：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 ```
 
-这条命令会依次跑 restore → 全解决方案构建（要求 0 error 且 0 warning）→ 结构检查 → 全量测试，
-最后打印 PASS/FAIL 汇总。脚本先试 `dotnet test`，检测到 testhost abort 就回退到 runner，
-并在汇总里注明 `via fallback runner`，不会假装成 `dotnet test` 的结果。
+依次是 restore → 全解决方案构建（要求 0 error 且 0 warning）→ 结构检查 → 全量测试 →
+发布包布局检查，最后打印 PASS/FAIL 汇总。
 
 `-ExecutionPolicy Bypass` 是必须的：这台机器上 `powershell -File` 对任何脚本都报
 `AuthorizationManager check failed`。
+
+### dotnet test 与回退 runner
+
+`dotnet test` 曾经在这台机器上完全跑不起来：VSTest 的 testhost 会对父进程调 `OpenProcess`
+来监听退出，被沙箱拒绝，报 `Win32Exception (5): 拒绝访问`，一个测试都跑不到。
+
+把 `TEMP`（见上文构建环境）重定向到工作区之后**它恢复了可用**，现在验收跑的是真正的
+`dotnet test`。推测是 testhost 起不来与临时目录不可写叠加所致，但没往下追究——只要改了
+`TEMP` 就能跑，这一点连续三次验收复现过。
+
+仓库里仍保留反射 runner（`tools/verify/Compositor.TestRunner`，在本进程里加载测试程序集，
+逐个执行 `[Fact]`/`[Theory]`），它是 `dotnet test` 不可用时的备用证据链。verify.ps1 先试
+`dotnet test`，一旦检测到 testhost abort 就回退过去，并在汇总里注明 `via fallback runner`，
+不会把回退结果冒充成 `dotnet test` 的结果。
+
+### 发布包布局检查
+
+`PACKAGE` 一段断言 `dist\Compositor-*-win-x64.zip`：顶层有 `Compositor.exe` 与它同级的依赖、
+有 `LICENSE` 与 `README.md`、没有把所有内容包住的套层文件夹、README 含运行指引那句。
+`dist` 里没有 zip 时记 `SKIP`（默认验收跑 Debug 构建，而 zip 来自 Release），不影响总结果。
+重新生成发布包用 `packaging/pack.ps1`。
 
 ## 运行
 

@@ -18,10 +18,17 @@ $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
 $env:DOTNET_CLI_HOME = "$root\.tools\cli-home"
 $env:NUGET_PACKAGES = "$root\.tools\nuget-packages"
 $env:DOTNET_BUNDLE_EXTRACT_BASE_DIR = "$root\.tools\bundle-extract"
+# MSBuild creates %TEMP%\MSBuildTemp for its XAML and PRI work, and the real temp folder is outside
+# the writable workspace here, so it fails with MSB1025 before doing anything useful.
+$env:TEMP = "$root\.tools\temp"
+$env:TMP = $env:TEMP
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = "1"
 $env:DOTNET_NOLOGO = "1"
 # Keeps the parsing below working on machines whose dotnet prints in another language.
 $env:DOTNET_CLI_UI_LANGUAGE = "en"
+foreach ($directory in @($env:APPDATA, $env:TEMP)) {
+    if (-not (Test-Path $directory)) { New-Item -ItemType Directory -Force -Path $directory | Out-Null }
+}
 Set-Location $root
 
 $TestsProject = "tests\Compositor.Tests\Compositor.Tests.csproj"
@@ -65,6 +72,15 @@ function Show-FailureLines {
     param([string]$Text)
     $lines = $Text -split "`r?`n" | Where-Object { $_ -match "\berror\b|\bFAILED\b" }
     $lines | Select-Object -First 15 | ForEach-Object { Write-Host "    $($_.Trim())" }
+}
+
+function Normalize-Text {
+    param([string]$Text)
+    # Flattens line breaks and drops Markdown code ticks, so a sentence can be matched regardless of
+    # how the surrounding prose is formatted.
+    $flat = $Text.Replace("`r", " ").Replace("`n", " ").Replace([string][char]96, "")
+    while ($flat.Contains("  ")) { $flat = $flat.Replace("  ", " ") }
+    return $flat.Trim()
 }
 
 # Runs the xUnit suite through "dotnet test" and falls back to the bundled runner when vstest aborts
@@ -134,10 +150,77 @@ if ($tests.ExitCode -ne 0) {
     Show-FailureLines $tests.Output
 }
 
+Write-Host ""
+Write-Host "=== package layout ==="
+$packageZip = @(Get-ChildItem -Path (Join-Path $root "dist") -Filter "Compositor-*-win-x64.zip" -File -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending) | Select-Object -First 1
+
+$packageStatus = "SKIP"
+$packageEntries = 0
+$packageMegabytes = 0
+$packageExeAtRoot = $false
+
+if ($null -eq $packageZip) {
+    Write-Host "note: package not built; run packaging/pack.ps1 to check the layout"
+}
+else {
+    $packageStatus = "PASS"
+    $packageMegabytes = [Math]::Round($packageZip.Length / 1MB, 2)
+    try {
+        Add-Type -AssemblyName System.IO.Compression | Out-Null
+        Add-Type -AssemblyName System.IO.Compression.FileSystem | Out-Null
+        # The required sentence lives in its own UTF-8 file: Windows PowerShell reads a script without
+        # a byte order mark as ANSI, which would mangle an inline copy of it.
+        $requiredLine = Normalize-Text ([System.IO.File]::ReadAllText((Join-Path $PSScriptRoot "required-readme-line.txt"), [System.Text.Encoding]::UTF8))
+        $archive = [System.IO.Compression.ZipFile]::OpenRead($packageZip.FullName)
+        try {
+            $names = @($archive.Entries | ForEach-Object { $_.FullName })
+            $packageEntries = $names.Count
+            $atRoot = @($names | Where-Object { -not $_.Contains("/") })
+            $nested = @($names | Where-Object { $_.Contains("/") })
+            $firstSegments = @($nested | ForEach-Object { ($_ -split "/")[0] } | Sort-Object -Unique)
+            $packageExeAtRoot = $atRoot -contains "Compositor.exe"
+
+            $problems = @()
+            foreach ($name in @("Compositor.exe", "Compositor.dll", "Compositor.deps.json", "Compositor.runtimeconfig.json", "LICENSE", "README.md")) {
+                if ($atRoot -notcontains $name) { $problems += "missing from the archive root: $name" }
+            }
+            if ($atRoot.Count -eq 0 -and $firstSegments.Count -eq 1) {
+                $problems += "every entry sits inside the wrapper folder '$($firstSegments[0])'"
+            }
+
+            $readmeEntry = $archive.Entries | Where-Object { $_.FullName -eq "README.md" } | Select-Object -First 1
+            if ($null -ne $readmeEntry) {
+                $stream = $readmeEntry.Open()
+                try {
+                    $reader = New-Object System.IO.StreamReader -ArgumentList $stream, ([System.Text.Encoding]::UTF8)
+                    try { $readmeText = $reader.ReadToEnd() } finally { $reader.Dispose() }
+                }
+                finally { $stream.Dispose() }
+
+                if (-not (Normalize-Text $readmeText).Contains($requiredLine)) {
+                    $problems += "README.md does not carry the required run instruction"
+                }
+            }
+
+            if ($problems.Count -gt 0) {
+                $packageStatus = "FAIL"
+                foreach ($problem in $problems) { Write-Host "    $problem" }
+            }
+        }
+        finally { $archive.Dispose() }
+    }
+    catch {
+        $packageStatus = "FAIL"
+        Write-Host "    could not read $($packageZip.Name): $($_.Exception.Message)"
+    }
+}
+
 $buildPass = $restore.ExitCode -eq 0 -and $build.ExitCode -eq 0 -and $errors -eq 0 -and $warnings -eq 0
 $runnerPass = $restoreRunner.ExitCode -eq 0 -and $runnerBuild.ExitCode -eq 0
 $structurePass = $structure.ExitCode -eq 0 -and $null -ne $structure.Summary -and $structure.Summary.Failed -eq 0 -and $structure.Summary.Passed -ge 4
 $testsPass = $tests.ExitCode -eq 0 -and $null -ne $tests.Summary -and $tests.Summary.Failed -eq 0 -and $tests.Summary.Passed -gt 0
+$packagePass = $packageStatus -ne "FAIL"
 
 Write-Host ""
 Write-Host "=== summary ==="
@@ -157,7 +240,14 @@ else {
     Write-Host ("TESTS     : {0} ({1} passed, {2} failed, {3} skipped, {4} total) via {5}" -f $(if ($testsPass) { "PASS" } else { "FAIL" }), $tests.Summary.Passed, $tests.Summary.Failed, $tests.Summary.Skipped, $tests.Summary.Total, $tests.Mode)
 }
 
-if ($buildPass -and $runnerPass -and $structurePass -and $testsPass) {
+if ($packageStatus -eq "SKIP") {
+    Write-Host "PACKAGE   : SKIP (package not built; run packaging/pack.ps1 to check the layout)"
+}
+else {
+    Write-Host ("PACKAGE   : {0} ({1} entries, {2} MB, {3})" -f $packageStatus, $packageEntries, $packageMegabytes, $(if ($packageExeAtRoot) { "exe at root" } else { "exe missing from root" }))
+}
+
+if ($buildPass -and $runnerPass -and $structurePass -and $testsPass -and $packagePass) {
     Write-Host "RESULT: PASS"
     exit 0
 }
