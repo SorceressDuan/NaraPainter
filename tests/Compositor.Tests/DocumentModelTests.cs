@@ -89,7 +89,7 @@ public class DocumentModelTests
     public void FlattenAppliesBlendModesBottomUp()
     {
         var document = new CanvasDocument(1, 1);
-        var lower = new Layer("lower") { Pixels = TestPixels.Solid(1, 1, 64, 64, 64, 255) };
+        var lower = new Layer("lower") { Pixels = TestPixels.Solid(1, 1, 64, 64, 64, 255), BlendMode = BlendMode.Overlay };
         var upper = new Layer("upper") { Pixels = TestPixels.Solid(1, 1, 191, 191, 191, 255), BlendMode = BlendMode.Overlay };
         document.Add(lower);
         document.Add(upper);

@@ -43,8 +43,6 @@ public sealed class LayerViewModel : ObservableObject
 
     public AdjustmentKind? LayerKind => _layer.Adjustment is null ? null : AdjustmentKinds.Of(_layer.Adjustment);
 
-    public string KindLabel => IsAdjustment ? "Adjustment" : "Raster";
-
     public string ContentLabel => _layer.Adjustment is not null
         ? _layer.Adjustment.DisplayName
         : _layer.Pixels is null ? "Empty" : $"{_layer.Pixels.Width} × {_layer.Pixels.Height}";
@@ -93,8 +91,6 @@ public sealed class LayerViewModel : ObservableObject
         }
     }
 
-    public string OpacityLabel => $"{Opacity:0}%";
-
     public IReadOnlyList<string> BlendModeNames => BlendModeCatalog.Names;
 
     public int BlendModeIndex
@@ -112,8 +108,6 @@ public sealed class LayerViewModel : ObservableObject
             _owner.History.Push(new PropertyChange<BlendMode>("Blend Mode", previous, mode, SetBlendMode));
         }
     }
-
-    public string BlendModeName => BlendModeCatalog.NameOf(_layer.BlendMode);
 
     public bool IsMasked => _layer.Mask is not null;
 
@@ -177,7 +171,6 @@ public sealed class LayerViewModel : ObservableObject
     {
         _layer.Opacity = Math.Clamp(percent, 0, 100) / 100.0;
         OnPropertyChanged(nameof(Opacity));
-        OnPropertyChanged(nameof(OpacityLabel));
         _owner.NotifyChanged();
     }
 
@@ -185,7 +178,6 @@ public sealed class LayerViewModel : ObservableObject
     {
         _layer.BlendMode = mode;
         OnPropertyChanged(nameof(BlendModeIndex));
-        OnPropertyChanged(nameof(BlendModeName));
         _owner.NotifyChanged();
     }
 

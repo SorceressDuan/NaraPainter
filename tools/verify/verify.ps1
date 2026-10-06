@@ -25,11 +25,16 @@ $env:DOTNET_CLI_UI_LANGUAGE = "en"
 Set-Location $root
 
 $TestsProject = "tests\Compositor.Tests\Compositor.Tests.csproj"
+$TestAssembly = "tests\Compositor.Tests\bin\$Configuration\net8.0-windows10.0.19041.0\win-x64\Compositor.Tests.dll"
+$RunnerProject = "tools\verify\Compositor.TestRunner\Compositor.TestRunner.csproj"
+$RunnerAssembly = "tools\verify\Compositor.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\Compositor.TestRunner.dll"
+$FallbackNote = "tools/verify/Compositor.TestRunner, because vstest cannot keep its test host alive here (the host opens a handle to the vstest process and the sandbox denies it)"
+$script:VstestBlocked = $false
 
 function Invoke-Dotnet {
     param([string[]]$Arguments)
-    # -m:1 -nodeReuse:false keep MSBuild in this process: the sandbox blocks the named pipes a
-    # worker node needs, and the failure surfaces as "0 Error(s)" plus a non-zero exit code.
+    # -m:1 -nodeReuse:false keep MSBuild in this process: the sandbox blocks the named pipes a worker
+    # node needs, and that failure shows up as "0 Error(s)" plus a non-zero exit code.
     $output = & dotnet @Arguments 2>&1 | Out-String
     $code = $LASTEXITCODE
     Write-Host $output.Trim()
@@ -62,12 +67,41 @@ function Show-FailureLines {
     $lines | Select-Object -First 15 | ForEach-Object { Write-Host "    $($_.Trim())" }
 }
 
+# Runs the xUnit suite through "dotnet test" and falls back to the bundled runner when vstest aborts
+# before a single test runs.
+function Invoke-Tests {
+    param([string]$DotnetFilter, [string]$RunnerFilter)
+
+    if (-not $script:VstestBlocked) {
+        $arguments = @("test", $TestsProject, "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
+        if ($DotnetFilter) { $arguments += @("--filter", $DotnetFilter) }
+        $result = Invoke-Dotnet $arguments
+        $summary = Get-TestSummary $result.Output
+
+        if (($null -ne $summary) -and ($result.Output -notmatch "Testhost process for source")) {
+            return [pscustomobject]@{ ExitCode = $result.ExitCode; Output = $result.Output; Summary = $summary; Mode = "dotnet test" }
+        }
+
+        $script:VstestBlocked = $true
+        Write-Host ""
+        Write-Host "note: dotnet test aborted before running a test. Falling back to $FallbackNote."
+        Write-Host ""
+    }
+
+    $runnerArguments = @("exec", $RunnerAssembly, $TestAssembly)
+    if ($RunnerFilter) { $runnerArguments += $RunnerFilter }
+    $fallback = Invoke-Dotnet $runnerArguments
+    return [pscustomobject]@{ ExitCode = $fallback.ExitCode; Output = $fallback.Output; Summary = (Get-TestSummary $fallback.Output); Mode = "fallback runner" }
+}
+
 Write-Host "=== restore ==="
 $restore = Invoke-Dotnet @("restore", "Compositor.sln", "-m:1", "-nodeReuse:false")
 if ($restore.ExitCode -ne 0) {
     Write-Host "restore failed:"
     Show-FailureLines $restore.Output
 }
+
+$restoreRunner = Invoke-Dotnet @("restore", $RunnerProject, "-m:1", "-nodeReuse:false")
 
 Write-Host ""
 Write-Host "=== build ($Configuration) ==="
@@ -83,44 +117,47 @@ elseif ($warnings -gt 0) {
 }
 
 Write-Host ""
+Write-Host "=== runner build ==="
+$runnerBuild = Invoke-Dotnet @("build", $RunnerProject, "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
+
+Write-Host ""
 Write-Host "=== structure ==="
-$structure = Invoke-Dotnet @("test", $TestsProject, "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false",
-    "--filter", "FullyQualifiedName~RepositoryStructureTests")
-$structureSummary = Get-TestSummary $structure.Output
+$structure = Invoke-Tests -DotnetFilter "FullyQualifiedName~RepositoryStructureTests" -RunnerFilter "RepositoryStructureTests"
 if ($structure.ExitCode -ne 0) {
     Show-FailureLines $structure.Output
 }
 
 Write-Host ""
 Write-Host "=== tests ==="
-$tests = Invoke-Dotnet @("test", $TestsProject, "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
-$testSummary = Get-TestSummary $tests.Output
+$tests = Invoke-Tests -DotnetFilter "" -RunnerFilter ""
 if ($tests.ExitCode -ne 0) {
     Show-FailureLines $tests.Output
 }
 
 $buildPass = $restore.ExitCode -eq 0 -and $build.ExitCode -eq 0 -and $errors -eq 0 -and $warnings -eq 0
-$structurePass = $structure.ExitCode -eq 0 -and $null -ne $structureSummary -and $structureSummary.Failed -eq 0 -and $structureSummary.Passed -ge 4
-$testsPass = $tests.ExitCode -eq 0 -and $null -ne $testSummary -and $testSummary.Failed -eq 0 -and $testSummary.Passed -gt 0
+$runnerPass = $restoreRunner.ExitCode -eq 0 -and $runnerBuild.ExitCode -eq 0
+$structurePass = $structure.ExitCode -eq 0 -and $null -ne $structure.Summary -and $structure.Summary.Failed -eq 0 -and $structure.Summary.Passed -ge 4
+$testsPass = $tests.ExitCode -eq 0 -and $null -ne $tests.Summary -and $tests.Summary.Failed -eq 0 -and $tests.Summary.Passed -gt 0
 
 Write-Host ""
 Write-Host "=== summary ==="
 Write-Host ("RESTORE   : {0}" -f $(if ($restore.ExitCode -eq 0) { "PASS" } else { "FAIL" }))
 Write-Host ("BUILD     : {0} ({1} error(s), {2} warning(s))" -f $(if ($buildPass) { "PASS" } else { "FAIL" }), $errors, $warnings)
-if ($null -eq $structureSummary) {
+Write-Host ("RUNNER    : {0}" -f $(if ($runnerPass) { "PASS" } else { "FAIL" }))
+if ($null -eq $structure.Summary) {
     Write-Host ("STRUCTURE : {0} (no test summary)" -f $(if ($structurePass) { "PASS" } else { "FAIL" }))
 }
 else {
-    Write-Host ("STRUCTURE : {0} ({1} passed, {2} failed)" -f $(if ($structurePass) { "PASS" } else { "FAIL" }), $structureSummary.Passed, $structureSummary.Failed)
+    Write-Host ("STRUCTURE : {0} ({1} passed, {2} failed) via {3}" -f $(if ($structurePass) { "PASS" } else { "FAIL" }), $structure.Summary.Passed, $structure.Summary.Failed, $structure.Mode)
 }
-if ($null -eq $testSummary) {
+if ($null -eq $tests.Summary) {
     Write-Host ("TESTS     : {0} (no test summary)" -f $(if ($testsPass) { "PASS" } else { "FAIL" }))
 }
 else {
-    Write-Host ("TESTS     : {0} ({1} passed, {2} failed, {3} skipped, {4} total)" -f $(if ($testsPass) { "PASS" } else { "FAIL" }), $testSummary.Passed, $testSummary.Failed, $testSummary.Skipped, $testSummary.Total)
+    Write-Host ("TESTS     : {0} ({1} passed, {2} failed, {3} skipped, {4} total) via {5}" -f $(if ($testsPass) { "PASS" } else { "FAIL" }), $tests.Summary.Passed, $tests.Summary.Failed, $tests.Summary.Skipped, $tests.Summary.Total, $tests.Mode)
 }
 
-if ($buildPass -and $structurePass -and $testsPass) {
+if ($buildPass -and $runnerPass -and $structurePass -and $testsPass) {
     Write-Host "RESULT: PASS"
     exit 0
 }

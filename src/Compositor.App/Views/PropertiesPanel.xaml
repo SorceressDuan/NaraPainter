@@ -47,14 +47,12 @@
                         Header="Brightness"
                         Minimum="-100"
                         Maximum="100"
-                        Tag="BrightnessContrast"
                         Value="{Binding Adjustment.Brightness, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
                         Header="Contrast"
                         Minimum="-100"
                         Maximum="100"
-                        Tag="BrightnessContrast"
                         Value="{Binding Adjustment.Contrast, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <Button Content="Reset" HorizontalAlignment="Right" Click="OnResetBrightnessContrast" />
@@ -76,21 +74,18 @@
                         Header="Hue"
                         Minimum="-180"
                         Maximum="180"
-                        Tag="HueSaturation"
                         Value="{Binding Adjustment.Hue, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
                         Header="Saturation"
                         Minimum="-100"
                         Maximum="100"
-                        Tag="HueSaturation"
                         Value="{Binding Adjustment.Saturation, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
                         Header="Lightness"
                         Minimum="-100"
                         Maximum="100"
-                        Tag="HueSaturation"
                         Value="{Binding Adjustment.Lightness, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <CheckBox Content="Colorize" IsChecked="{Binding Adjustment.Colorize, Mode=TwoWay}" />
@@ -113,14 +108,12 @@
                         Header="Black Point"
                         Minimum="0"
                         Maximum="254"
-                        Tag="Levels"
                         Value="{Binding Adjustment.LevelBlack, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
                         Header="White Point"
                         Minimum="1"
                         Maximum="255"
-                        Tag="Levels"
                         Value="{Binding Adjustment.LevelWhite, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
@@ -128,21 +121,18 @@
                         Minimum="0.1"
                         Maximum="9.99"
                         Step="0.05"
-                        Tag="Levels"
                         Value="{Binding Adjustment.LevelGamma, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
                         Header="Output Black"
                         Minimum="0"
                         Maximum="255"
-                        Tag="Levels"
                         Value="{Binding Adjustment.LevelOutputBlack, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <controls:AdjustmentSlider
                         Header="Output White"
                         Minimum="0"
                         Maximum="255"
-                        Tag="Levels"
                         Value="{Binding Adjustment.LevelOutputWhite, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <Button Content="Reset" HorizontalAlignment="Right" Click="OnResetLevels" />

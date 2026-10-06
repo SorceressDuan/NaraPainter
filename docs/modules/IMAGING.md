@@ -61,12 +61,12 @@ alpha 不进表，最后 `Cv2.Merge` 合回去。设置对象给的表是 RGB �
 
 ## 性能
 
-4000×3000 PNG `Read`（Debug 构建，6 次连续读，文件缓存已热）：183.8、185.4、187.3、194.0、194.9、
-195.4 ms，最好 185 ms，中位 194 ms，验收线 800 ms。瓶颈在 libpng 解码，通道换位只是 48 MB 的单遍扫描。
+4000×3000 PNG `Read`（Debug 构建，连续读多次，文件缓存已热）：多次测得 183.8~203.4 ms，最好 183.8 ms、
+中位约 195 ms，验收线 800 ms。瓶颈在 libpng 解码，通道换位只是 48 MB 的单遍扫描。
 
-`RuntimeIdentifiers` 只留 `win-x64`：离线源里没有 arm64 的 runtime pack 时 restore 直接 `NU1101`
-失败（整条 `dotnet build` 会退化成只打印「生成失败 0 错误」）。App 本来就是单 RID win-x64，MVP 不需要
-为 arm64 付出构建时间。
+`RuntimeIdentifiers` 只留 `win-x64`：App 自己就是单 RID，MVP 没必要为 arm64 的 runtime pack 和构建时间
+买单。要出 arm64 时和 App 一起放宽，别只改这里。RID 对不上时 restore 会 `NU1101`，整条 `dotnet build`
+退化成只打印「生成失败 / 0 个错误」，看不出原因。
 
 ## 验证方式
 
@@ -84,6 +84,7 @@ alpha 不进表，最后 `Cv2.Merge` 合回去。设置对象给的表是 RGB �
   三个点的插值
 - 4000×3000 读 6 次计时
 
-已知未通过项：`new LevelsSettings()` 不是恒等（`LevelRange.Identity` 是零值结构，Gamma=0、White=0，
-`Normalized()` 把输入范围退化成 `[0,1]`，输出恒为 0）。这是 `Compositor.Models` 里的问题，
-本层按合同调用 `Tables()`，不在这里打补丁。
+跑仓库测试要绕开一个沙箱限制：`dotnet test` / `dotnet vstest` 都起不来 testhost
+（`Win32Exception (5) 拒绝访问`，testhost 拿不到父进程句柄做退出回调），仓库里 `tools/verify/Compositor.TestRunner`
+就是为此写的反射 runner，直接吃测试 dll。`ImageCodecTests` 覆盖了上面大部分编码路径，
+`SelectionMaskBuilder` 目前只有这个一次性 harness 覆盖。

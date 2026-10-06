@@ -57,10 +57,11 @@ public class AdjustmentTests
     {
         var settings = new BrightnessContrastSettings(0, 100);
 
-        // The slope is a hundred, so anything below mid gray bottoms out and anything above tops out.
+        // The slope is a hundred: values far from the 0.5 pivot bottom out or top out, and even a
+        // single level above the pivot is multiplied by it.
         Assert.Equal(0, settings.Map(64));
         Assert.Equal(255, settings.Map(192));
-        Assert.Equal(128, settings.Map(128));
+        Assert.Equal(177, settings.Map(128));
     }
 
     [Fact]
@@ -115,7 +116,7 @@ public class AdjustmentTests
     [Fact]
     public void GrayStaysGrayWhateverTheHueAndSaturationSay()
     {
-        (double R, double G, double B) result = new HueSaturationSettings(90, 100, 50).Adjust(0.4, 0.4, 0.4);
+        (double R, double G, double B) result = new HueSaturationSettings(90, 100).Adjust(0.4, 0.4, 0.4);
 
         Assert.Equal((0.4, 0.4, 0.4), Round(result));
     }
@@ -156,7 +157,7 @@ public class AdjustmentTests
     [Fact]
     public void IdentityLevelsPassValuesThroughAndProduceIdentityTables()
     {
-        var settings = new LevelsSettings(new LevelRange());
+        var settings = new LevelsSettings(LevelRange.Identity);
 
         Assert.True(settings.IsIdentity);
         foreach (double value in new[] { 0.0, 0.25, 0.5, 0.75, 1.0 })
@@ -172,6 +173,39 @@ public class AdjustmentTests
                 Assert.Equal((byte)i, table[i]);
             }
         }
+    }
+
+    [Fact]
+    public void DefaultLevelsAreTheIdentityOnEveryChannel()
+    {
+        var settings = new LevelsSettings();
+        LevelRange rgb = settings[LevelsChannel.Rgb];
+        LevelRange identity = LevelRange.Identity;
+
+        Assert.True(settings.IsIdentity,
+            $"rgb=({rgb.Black}, {rgb.Gamma}, {rgb.White}, {rgb.OutputBlack}, {rgb.OutputWhite}) "
+            + $"identity=({identity.Black}, {identity.Gamma}, {identity.White}, {identity.OutputBlack}, {identity.OutputWhite})");
+
+        Assert.True(settings[LevelsChannel.Rgb].IsIdentity);
+        Assert.True(settings[LevelsChannel.Red].IsIdentity);
+        Assert.True(settings[LevelsChannel.Green].IsIdentity);
+        Assert.True(settings[LevelsChannel.Blue].IsIdentity);
+
+        // A range handed to the four-argument constructor has to be spelled out: new LevelRange()
+        // and default are zero-initialized structs, which is not the identity range.
+        Assert.True(new LevelsSettings(LevelRange.Identity).IsIdentity);
+        Assert.False(default(LevelRange).IsIdentity);
+        Assert.False(new LevelRange().IsIdentity);
+    }
+
+    [Fact]
+    public void DefaultLevelsLeavePixelsAlone()
+    {
+        var source = new PixelBuffer(2, 2, [0, 0, 0, 255, 64, 128, 192, 128, 255, 255, 255, 0, 17, 34, 51, 200]);
+
+        PixelBuffer result = new AdjustmentFilter().Apply(source, new LevelsSettings());
+
+        Assert.Equal((IEnumerable<byte>)source.Data, result.Data);
     }
 
     [Fact]
@@ -236,7 +270,7 @@ public class AdjustmentTests
     [Fact]
     public void ChannelRangesRunBeforeTheCompositeRange()
     {
-        var settings = new LevelsSettings(new LevelRange(), red: new LevelRange(0, 1, 255, 0, 0));
+        var settings = new LevelsSettings(LevelRange.Identity, red: new LevelRange(0, 1, 255, 0, 0));
         byte[][] tables = settings.Tables();
 
         Assert.False(settings.IsIdentity);
@@ -258,7 +292,7 @@ public class AdjustmentTests
         [
             new(new LevelRange(40, 2.2, 210)),
             new(new LevelRange(0, 1, 255, 30, 220)),
-            new(new LevelRange(), red: new LevelRange(10, 0.8, 240))
+            new(LevelRange.Identity, red: new LevelRange(10, 0.8, 240))
         ];
 
         foreach (LevelsSettings candidate in settings)

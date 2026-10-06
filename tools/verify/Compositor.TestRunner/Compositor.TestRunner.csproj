@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Compositor.TestRunner</RootNamespace>
+    <AssemblyName>Compositor.TestRunner</AssemblyName>
+    <Platforms>x64</Platforms>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Referencing the test project keeps every dependency, native ones included, next to this
+         runner in the output folder. -->
+    <ProjectReference Include="..\..\..\tests\Compositor.Tests\Compositor.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

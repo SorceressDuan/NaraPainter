@@ -15,7 +15,8 @@ public readonly record struct SelectionRegion(SelectionShape Shape, int X, int Y
 
 /// <summary>
 /// Turns a selection shape into per-pixel coverage at document resolution: 255 fully selected,
-/// 0 outside. Feather softens the edge inwards from the boundary.
+/// 0 outside. Feather fades the boundary symmetrically, spreading inside and outside the edge the
+/// way the original does, rather than only softening inwards.
 /// </summary>
 public interface ISelectionMaskBuilder
 {

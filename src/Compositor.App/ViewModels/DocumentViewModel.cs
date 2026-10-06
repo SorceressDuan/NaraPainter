@@ -36,11 +36,7 @@ public sealed class DocumentViewModel : ObservableObject
         Adjustment = new AdjustmentViewModel();
         Selection = new SelectionViewModel(this, masks);
 
-        Layers.CollectionChanged += (_, _) =>
-        {
-            OnPropertyChanged(nameof(LayerCountLabel));
-            OnPropertyChanged(nameof(HasLayers));
-        };
+        Layers.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LayerCountLabel));
 
         History.Changed += (_, _) =>
         {
@@ -75,8 +71,6 @@ public sealed class DocumentViewModel : ObservableObject
     public bool CanUndo => History.CanUndo;
 
     public bool CanRedo => History.CanRedo;
-
-    public bool HasLayers => Layers.Count > 0;
 
     public bool HasSelection => _selectedLayer is not null;
 
@@ -130,14 +124,6 @@ public sealed class DocumentViewModel : ObservableObject
         History.Clear();
         ReloadLayers();
         Status = $"Opened {Path.GetFileName(path)} · {SizeLabel} · {stopwatch.ElapsedMilliseconds} ms";
-    }
-
-    public void NewDocument(int width, int height)
-    {
-        _document = CreateDocument(width, height);
-        History.Clear();
-        ReloadLayers();
-        Status = $"New canvas · {SizeLabel}";
     }
 
     public LayerViewModel AddLayer()

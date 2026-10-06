@@ -45,10 +45,6 @@ public sealed class AdjustmentViewModel : ObservableObject
         }
     }
 
-    public bool HasTarget => _target is not null;
-
-    public bool IsAdjustmentLayer => _target?.IsAdjustment == true;
-
     public string TargetLabel => _target is null ? "No layer selected" : $"{_target.Name} · {_target.ContentLabel}";
 
     public bool CanEditBrightnessContrast => CanEdit(AdjustmentKind.BrightnessContrast);
@@ -233,7 +229,8 @@ public sealed class AdjustmentViewModel : ObservableObject
         && _selectedCurvePointIndex < _curvePoints.Count
         && !_curvePoints[_selectedCurvePointIndex].IsEndpoint;
 
-    public void BeginEdit(AdjustmentKind kind) => _session++;
+    /// <summary>Opens a new merge key, so the edits that follow leave one undo step behind.</summary>
+    public void BeginEdit() => _session++;
 
     public void Reset(AdjustmentKind kind)
     {

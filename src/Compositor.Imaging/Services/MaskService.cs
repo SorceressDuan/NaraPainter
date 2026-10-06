@@ -8,6 +8,9 @@ namespace Compositor.Imaging.Services;
 /// </summary>
 public static class MaskService
 {
+    private const double TipCurve = 2.5;
+
+    // MIGRATION: CGContext.drawRadialGradient brush tip -> a per-pixel distance field along the stroke
     public static void Paint(byte[] mask, int width, int height, IReadOnlyList<(int X, int Y)> points, int radius, double hardness, double opacity, bool erase)
     {
         ValidateMask(mask, width, height);
@@ -116,6 +119,8 @@ public static class MaskService
         }
     }
 
+    // The tip's normalized Gaussian, ramped from the hardness radius out to the rim, so 0% hardness
+    // fades across the whole brush and 100% stays solid to the edge.
     private static double Falloff(double distance, double radius, double hardness)
     {
         if (distance >= radius) return 0;
@@ -123,8 +128,8 @@ public static class MaskService
         double solid = radius * hardness;
         if (distance <= solid) return 1;
 
-        double t = (distance - solid) / (radius - solid);
-        return 1 - (t * t * (3 - (2 * t)));
+        double u = (distance - solid) / (radius - solid);
+        return (Math.Exp(-TipCurve * u * u) - Math.Exp(-TipCurve)) / (1 - Math.Exp(-TipCurve));
     }
 
     private static double DistanceToSegment(double ax, double ay, double bx, double by, double px, double py)

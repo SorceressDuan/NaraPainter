@@ -13,7 +13,7 @@ public static class ContentAwareFill
     // radius still reaches across a wide gap.
     private const double FillRadius = 3;
 
-    // MIGRATION: Vision/自定义内容感知填充 -> Cv2.Inpaint
+    // MIGRATION: the original's hand-rolled content-aware fill -> Cv2.Inpaint
     public static PixelBuffer Fill(PixelBuffer source, byte[] mask, double radius = 3, int method = 0)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -39,6 +39,7 @@ public static class ContentAwareFill
     /// Enlarges the canvas by the given number of pixels per side and invents the new border from
     /// the pixels that were already there.
     /// </summary>
+    // MIGRATION: growing the layer past its edge for a content-aware fill -> Cv2.CopyMakeBorder + Cv2.Inpaint
     public static PixelBuffer Extend(PixelBuffer source, int left, int top, int right, int bottom)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -89,7 +90,7 @@ public static class ContentAwareFill
         return true;
     }
 
-    // OpenCV keeps colour channels in BGR order, PixelBuffer is RGBA, so the swap is explicit here.
+    // OpenCV keeps color channels in BGR order, PixelBuffer is RGBA, so the swap is explicit here.
     private static Mat ToBgr(PixelBuffer source)
     {
         var mat = new Mat(source.Height, source.Width, MatType.CV_8UC3);
@@ -125,17 +126,17 @@ public static class ContentAwareFill
         int width = bgr.Width;
         int height = bgr.Height;
         int count = checked(width * height);
-        var colour = new byte[checked(count * 3)];
+        var color = new byte[checked(count * 3)];
         var coverage = new byte[count];
-        Marshal.Copy(bgr.Data, colour, 0, colour.Length);
+        Marshal.Copy(bgr.Data, color, 0, color.Length);
         Marshal.Copy(alpha.Data, coverage, 0, coverage.Length);
 
         var rgba = new byte[checked(count * 4)];
         for (int i = 0, o = 0, p = 0; p < count; i += 3, o += 4, p++)
         {
-            rgba[o] = colour[i + 2];
-            rgba[o + 1] = colour[i + 1];
-            rgba[o + 2] = colour[i];
+            rgba[o] = color[i + 2];
+            rgba[o + 1] = color[i + 1];
+            rgba[o + 2] = color[i];
             rgba[o + 3] = coverage[p];
         }
 

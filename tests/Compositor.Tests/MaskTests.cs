@@ -31,15 +31,73 @@ public class MaskTests
     }
 
     [Fact]
-    public void ASoftBrushRampsFromTheCentreToTheEdge()
+    public void ASoftBrushFollowsTheUpstreamFalloff()
     {
-        var mask = new byte[100 * 100];
+        const int size = 100;
+        const int radius = 20;
+        var mask = new byte[size * size];
 
-        MaskService.Paint(mask, 100, 100, [(50, 50)], radius: 20, hardness: 0, opacity: 1, erase: false);
+        MaskService.Paint(mask, size, size, [(50, 50)], radius, hardness: 0, opacity: 1, erase: false);
 
-        Assert.Equal(255, mask[(50 * 100) + 50]);
-        Assert.InRange(mask[(50 * 100) + 60], 100, 155);
-        Assert.Equal(0, mask[(50 * 100) + 71]);
+        // Every distance lands on one of the tip gradient's own stops, so the expected bytes come
+        // from the curve in legacy/Compositor/Document/BrushStroke.swift, not from this port.
+        foreach (double distance in new[] { 0.0, 5.0, 10.0, 15.0 })
+        {
+            Assert.Equal(UpstreamCoverage(distance, radius, 0), mask[(50 * size) + 50 + (int)distance]);
+        }
+
+        Assert.Equal(0, mask[(50 * size) + 70]);
+        Assert.Equal(0, mask[(50 * size) + 75]);
+    }
+
+    [Fact]
+    public void AHalfHardTipKeepsItsCoreAndFadesToTheRim()
+    {
+        const int size = 100;
+        const int radius = 20;
+        var mask = new byte[size * size];
+
+        MaskService.Paint(mask, size, size, [(50, 50)], radius, hardness: 0.5, opacity: 1, erase: false);
+
+        foreach (int distance in new[] { 0, 5, 10 })
+        {
+            Assert.Equal(255, mask[(50 * size) + 50 + distance]);
+        }
+
+        // 15px is half way through the falloff band (10 to 20), so it sits on one of the tip
+        // gradient's own stops and the byte is exact.
+        Assert.Equal(UpstreamCoverage(15, radius, 0.5), mask[(50 * size) + 65]);
+
+        // Between stops the macOS tip interpolates along a chord between 25 samples while the port
+        // evaluates the curve per pixel, so allow that difference.
+        foreach (int distance in new[] { 12, 17 })
+        {
+            byte expected = UpstreamCoverage(distance, radius, 0.5);
+            Assert.InRange(mask[(50 * size) + 50 + distance], expected - 2, expected + 2);
+        }
+
+        Assert.Equal(0, mask[(50 * size) + 70]);
+    }
+
+    [Fact]
+    public void HigherHardnessNeverPaintsLessAtTheSameDistance()
+    {
+        const int size = 100;
+        double[] hardnesses = [0, 0.25, 0.5, 0.75, 1];
+
+        foreach (int distance in new[] { 2, 6, 10, 14, 18, 22 })
+        {
+            int previous = 0;
+            foreach (double hardness in hardnesses)
+            {
+                var mask = new byte[size * size];
+                MaskService.Paint(mask, size, size, [(50, 50)], radius: 20, hardness, opacity: 1, erase: false);
+
+                int coverage = mask[(50 * size) + 50 + distance];
+                Assert.True(coverage >= previous, $"hardness {hardness} at {distance}px fell to {coverage} from {previous}");
+                previous = coverage;
+            }
+        }
     }
 
     [Fact]
@@ -72,7 +130,8 @@ public class MaskTests
 
         MaskService.Paint(mask, 100, 100, [(50, 50)], radius: 10, hardness: 1, opacity: 0.5, erase: true);
 
-        Assert.InRange(mask[(50 * 100) + 50], 120, 135);
+        // The tip is full strength at the centre, so half opacity has to leave 255 - round(0.5 * 255).
+        Assert.InRange(mask[(50 * 100) + 50], 126, 128);
     }
 
     [Fact]
@@ -235,5 +294,20 @@ public class MaskTests
     public void InterpolateRejectsANonPositiveSpacing(double spacing)
     {
         Assert.Throws<ArgumentOutOfRangeException>(() => BrushStroke.Interpolate([(0, 0), (10, 0)], spacing));
+    }
+
+    // legacy/Compositor/Document/BrushStroke.swift draws the tip as a radial gradient with these
+    // stops: a normalized Gaussian ramped from radius * hardness out to the rim, flat inside it.
+    private static byte UpstreamCoverage(double distance, double radius, double hardness)
+    {
+        if (distance >= radius) return 0;
+
+        double solid = radius * hardness;
+        if (distance <= solid) return 255;
+
+        const double k = 2.5;
+        double u = (distance - solid) / (radius - solid);
+        double value = (Math.Exp(-k * u * u) - Math.Exp(-k)) / (1 - Math.Exp(-k));
+        return (byte)Math.Round(value * 255, MidpointRounding.AwayFromZero);
     }
 }

@@ -19,13 +19,7 @@ public sealed partial class PropertiesPanel : UserControl
         DataContext = document;
     }
 
-    private void OnAdjustmentEditStarted(object sender, EventArgs e)
-    {
-        if (sender is not FrameworkElement element || element.Tag is not string tag) return;
-        if (!Enum.TryParse(tag, out AdjustmentKind kind)) return;
-
-        _document?.Adjustment.BeginEdit(kind);
-    }
+    private void OnAdjustmentEditStarted(object sender, EventArgs e) => _document?.Adjustment.BeginEdit();
 
     private void OnNameGotFocus(object sender, RoutedEventArgs e)
     {

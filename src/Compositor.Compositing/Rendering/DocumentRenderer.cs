@@ -43,6 +43,7 @@ public sealed class DocumentRenderer
     private Guid _flatDocument;
     private int _flatSignature = -1;
 
+    private double _uploadScale = 1;
     private bool _gpuBlocked;
 
     /// <summary>
@@ -77,6 +78,7 @@ public sealed class DocumentRenderer
         Rect visible = view.VisibleDocumentRect(document.Width, document.Height);
         if (visible.Width <= 0 || visible.Height <= 0) return;
 
+        _uploadScale = UploadScaleFor(document, resources.Device);
         int signature = SignatureOf(document);
         if (ForceCpu || _gpuBlocked || CpuCompositor.NeedsFullDocumentPass(document))
         {
@@ -115,7 +117,7 @@ public sealed class DocumentRenderer
     }
 
     /// <summary>
-    /// Composits the region into <c>_front</c>. Every layer lands in a freshly cleared target, so no
+    /// Composites the region into <c>_front</c>. Every layer lands in a freshly cleared target, so no
     /// step depends on whether a render target keeps its contents between drawing sessions; keeping
     /// the whole document out of this and rendering only the padded visible region is what makes
     /// dragging a large document cheap.
@@ -127,7 +129,11 @@ public sealed class DocumentRenderer
         EnsureTargets(resources, width, height);
 
         var full = new Rect(0, 0, width, height);
-        var source = new Rect(region.X, region.Y, region.Width, region.Height);
+        var source = new Rect(
+            region.X * _uploadScale,
+            region.Y * _uploadScale,
+            region.Width * _uploadScale,
+            region.Height * _uploadScale);
         var dest = new Rect(0, 0, region.Width * scale, region.Height * scale);
         CanvasImageInterpolation interpolation = scale >= 1 ? CanvasImageInterpolation.NearestNeighbor : CanvasImageInterpolation.Linear;
 
@@ -205,9 +211,7 @@ public sealed class DocumentRenderer
         if (_flatBitmap is null || _flatSignature != signature || _flatDocument != document.Id)
         {
             PixelBuffer flattened = CpuCompositor.Render(document, AdjustmentRunner);
-            CanvasBitmap bitmap = CanvasBitmap.CreateFromBytes(
-                resources, flattened.Data, flattened.Width, flattened.Height,
-                DirectXPixelFormat.R8G8B8A8UIntNormalized, (float)BitmapDpi, CanvasAlphaMode.Straight);
+            CanvasBitmap bitmap = UploadBitmap(resources, ToPremultipliedBgra(flattened), flattened.Width, flattened.Height);
             _flatBitmap?.Dispose();
             _flatBitmap = bitmap;
             _flatSignature = signature;
@@ -216,7 +220,12 @@ public sealed class DocumentRenderer
 
         Point topLeft = view.ToScreen(visible.X, visible.Y);
         var dest = new Rect(topLeft.X, topLeft.Y, visible.Width * view.Zoom, visible.Height * view.Zoom);
-        session.DrawImage(_flatBitmap, dest, visible, 1, SamplingFor(view.Zoom));
+        var source = new Rect(
+            visible.X * _uploadScale,
+            visible.Y * _uploadScale,
+            visible.Width * _uploadScale,
+            visible.Height * _uploadScale);
+        session.DrawImage(_flatBitmap, dest, source, 1, SamplingFor(view.Zoom));
     }
 
     private CanvasBitmap? GetLayerBitmap(ICanvasResourceCreator resources, CanvasDocument document, Layer layer)
@@ -230,9 +239,7 @@ public sealed class DocumentRenderer
         // A layer smaller than the canvas is stretched the same way CanvasDocument.Flatten stretches
         // it, so the preview and an export see the same pixels.
         PixelBuffer upload = pixels.Width == document.Width && pixels.Height == document.Height ? pixels : document.Fit(pixels);
-        CanvasBitmap bitmap = CanvasBitmap.CreateFromBytes(
-            resources, upload.Data, upload.Width, upload.Height,
-            DirectXPixelFormat.R8G8B8A8UIntNormalized, (float)BitmapDpi, CanvasAlphaMode.Straight);
+        CanvasBitmap bitmap = UploadBitmap(resources, ToPremultipliedBgra(upload), upload.Width, upload.Height);
 
         cached?.Bitmap.Dispose();
         _layers[layer.Id] = new LayerCache(pixels, bitmap);
@@ -247,21 +254,20 @@ public sealed class DocumentRenderer
         if (_masks.TryGetValue(layer.Id, out MaskCache? cached) && ReferenceEquals(cached.Source, coverage))
             return cached.Bitmap;
 
-        // AlphaMaskEffect multiplies by the mask's alpha, so the coverage goes in the alpha channel
-        // and the color channels stay opaque white.
+        // AlphaMaskEffect multiplies by the mask's alpha. Premultiplied white at alpha c is just c in
+        // every channel, so the coverage lands in alpha and the color stays neutral.
         var rgba = new byte[coverage.Length * 4];
         for (int i = 0; i < coverage.Length; i++)
         {
             int offset = i * 4;
-            rgba[offset] = 255;
-            rgba[offset + 1] = 255;
-            rgba[offset + 2] = 255;
-            rgba[offset + 3] = coverage[i];
+            byte value = coverage[i];
+            rgba[offset] = value;
+            rgba[offset + 1] = value;
+            rgba[offset + 2] = value;
+            rgba[offset + 3] = value;
         }
 
-        CanvasBitmap bitmap = CanvasBitmap.CreateFromBytes(
-            resources, rgba, document.Width, document.Height,
-            DirectXPixelFormat.R8G8B8A8UIntNormalized, (float)BitmapDpi, CanvasAlphaMode.Straight);
+        CanvasBitmap bitmap = UploadBitmap(resources, rgba, document.Width, document.Height);
 
         cached?.Bitmap.Dispose();
         _masks[layer.Id] = new MaskCache(coverage, bitmap);
@@ -289,8 +295,6 @@ public sealed class DocumentRenderer
 
     private void PruneLayers()
     {
-        if (_layers.Count <= _live.Count && _masks.Count <= _live.Count) return;
-
         _stale.Clear();
         foreach (Guid id in _layers.Keys)
         {
@@ -365,6 +369,79 @@ public sealed class DocumentRenderer
         int limit = device.MaximumBitmapSizeInPixels;
         if (limit > 0) scale = Math.Min(scale, limit / Math.Max(region.Width, region.Height));
         return Math.Clamp(scale, MinScale, 1);
+    }
+
+    /// <summary>
+    /// Straight RGBA to premultiplied BGRA. Win2D refuses <c>CanvasAlphaMode.Straight</c> for
+    /// bitmaps built from bytes (WINCODEC_ERR_UNSUPPORTEDPIXELFORMAT), and the blend effect wants
+    /// premultiplied input anyway, so the conversion happens here, once per upload.
+    /// </summary>
+    private static byte[] ToPremultipliedBgra(PixelBuffer buffer)
+    {
+        byte[] source = buffer.Data;
+        var premultiplied = new byte[source.Length];
+        for (int i = 0; i < source.Length; i += 4)
+        {
+            byte alpha = source[i + 3];
+            if (alpha == 0) continue;
+
+            premultiplied[i] = (byte)(((source[i + 2] * alpha) + 127) / 255);
+            premultiplied[i + 1] = (byte)(((source[i + 1] * alpha) + 127) / 255);
+            premultiplied[i + 2] = (byte)(((source[i] * alpha) + 127) / 255);
+            premultiplied[i + 3] = alpha;
+        }
+        return premultiplied;
+    }
+
+    /// <summary>
+    /// Uploads premultiplied BGRA, shrinking it first when the document is longer than the device's
+    /// largest surface. The screen cannot show more than its own resolution anyway, and refusing to
+    /// draw a 20000 pixel wide panorama would be worse than showing it soft.
+    /// </summary>
+    private CanvasBitmap UploadBitmap(ICanvasResourceCreator resources, byte[] premultiplied, int width, int height)
+    {
+        if (_uploadScale < 1)
+        {
+            int scaledWidth = Math.Max(1, (int)Math.Round(width * _uploadScale));
+            int scaledHeight = Math.Max(1, (int)Math.Round(height * _uploadScale));
+            premultiplied = ScaleNearest(premultiplied, width, height, scaledWidth, scaledHeight);
+            width = scaledWidth;
+            height = scaledHeight;
+        }
+
+        return CanvasBitmap.CreateFromBytes(
+            resources, premultiplied, width, height,
+            DirectXPixelFormat.B8G8R8A8UIntNormalized, (float)BitmapDpi, CanvasAlphaMode.Premultiplied);
+    }
+
+    /// <summary>Nearest-neighbour shrink of premultiplied BGRA, same sampling rule as CanvasDocument.Fit.</summary>
+    private static byte[] ScaleNearest(byte[] source, int sourceWidth, int sourceHeight, int width, int height)
+    {
+        var scaled = new byte[width * height * 4];
+        for (int y = 0; y < height; y++)
+        {
+            int sourceY = (int)((long)y * sourceHeight / height);
+            for (int x = 0; x < width; x++)
+            {
+                int sourceX = (int)((long)x * sourceWidth / width);
+                int from = ((sourceY * sourceWidth) + sourceX) * 4;
+                int to = ((y * width) + x) * 4;
+                scaled[to] = source[from];
+                scaled[to + 1] = source[from + 1];
+                scaled[to + 2] = source[from + 2];
+                scaled[to + 3] = source[from + 3];
+            }
+        }
+        return scaled;
+    }
+
+    private static double UploadScaleFor(CanvasDocument document, CanvasDevice device)
+    {
+        int limit = device.MaximumBitmapSizeInPixels;
+        if (limit <= 0) return 1;
+
+        int longest = Math.Max(document.Width, document.Height);
+        return longest <= limit ? 1 : (double)limit / longest;
     }
 
     private static CanvasImageInterpolation SamplingFor(double zoom)

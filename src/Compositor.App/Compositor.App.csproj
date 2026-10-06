@@ -8,6 +8,8 @@
     <AssemblyName>Compositor</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64;ARM64</Platforms>
+    <!-- Win2D only ships native binaries, so the default build cannot be AnyCPU. -->
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <UseWinUI>true</UseWinUI>

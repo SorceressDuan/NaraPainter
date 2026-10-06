@@ -11,8 +11,6 @@ public static class BlendModeCatalog
 {
     public static IReadOnlyList<string> Names { get; } = Enum.GetNames<BlendMode>().Select(Space).ToArray();
 
-    public static string NameOf(BlendMode mode) => Names[(int)mode];
-
     private static string Space(string name)
     {
         var builder = new StringBuilder(name.Length + 4);

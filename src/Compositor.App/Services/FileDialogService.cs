@@ -44,12 +44,28 @@ public sealed class FileDialogService
         };
 
         InitializeWithWindow.Initialize(picker, _windowHandle);
-        foreach (string extension in _codec.SupportedWriteExtensions)
+        foreach ((string label, string[] extensions) in ExportChoices)
         {
-            picker.FileTypeChoices.Add($"{extension.ToUpperInvariant()} image", new List<string> { "." + extension });
+            var filter = new List<string>();
+            foreach (string extension in extensions)
+            {
+                if (_codec.SupportedWriteExtensions.Contains(extension)) filter.Add("." + extension);
+            }
+
+            if (filter.Count > 0) picker.FileTypeChoices.Add(label, filter);
         }
 
         var file = await picker.PickSaveFileAsync();
         return file?.Path;
     }
+
+    /// <summary>One picker entry per format; jpg/jpeg and tif/tiff are the same encoder.</summary>
+    private static readonly (string Label, string[] Extensions)[] ExportChoices =
+    [
+        ("PNG image", ["png"]),
+        ("JPEG image", ["jpg", "jpeg"]),
+        ("WebP image", ["webp"]),
+        ("BMP image", ["bmp"]),
+        ("TIFF image", ["tif", "tiff"])
+    ];
 }

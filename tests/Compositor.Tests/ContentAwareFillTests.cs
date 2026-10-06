@@ -17,18 +17,18 @@ public class ContentAwareFillTests
 
         PixelBuffer filled = ContentAwareFill.Fill(image, mask);
 
-        Rgba32 centre = filled[20, 20];
-        Assert.True(Distance(centre, Surroundings) < Distance(centre, Removed),
-            $"the hole centre {centre} is still closer to the colour that was removed");
-        Assert.True(Distance(centre, Surroundings) < 40,
-            $"the hole centre {centre} is {Distance(centre, Surroundings):0.#} away from the surroundings");
+        Rgba32 center = filled[20, 20];
+        Assert.True(Distance(center, Surroundings) < Distance(center, Removed),
+            $"the hole center {center} is still closer to the color that was removed");
+        Assert.True(Distance(center, Surroundings) < 40,
+            $"the hole center {center} is {Distance(center, Surroundings):0.#} away from the surroundings");
         Assert.Equal(FarSide, filled[50, 10]);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public void BothInpaintingMethodsFavourTheSurroundings(int method)
+    public void BothInpaintingMethodsFavorTheSurroundings(int method)
     {
         (PixelBuffer image, byte[] mask) = ImageWithAHole();
 
