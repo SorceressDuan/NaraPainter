@@ -30,7 +30,7 @@
 ```
 
 > **最容易写错的一条：属性名是资源键去掉下划线。** `Toolbar_Open` → `Text.ToolbarOpen`，
-> `Mask_BrushTool` → `Text.MaskBrushTool`，`Undo_ContentFill` → `Text.UndoContentFill`。
+> `Toolbar_MaskBrush` → `Text.ToolbarMaskBrush`，`Undo_ContentFill` → `Text.UndoContentFill`。
 > 写成 `Text.Toolbar_Open` 编译不过（`LocalizedStrings` 没有这个属性），但这正是要的效果——
 > 键写错是构建错误，不是运行时空标签。`Strings.cs` 里的静态属性同理，规则由
 > `LocalizationTests` 断言。
@@ -49,8 +49,9 @@
   code-behind 里赋值。
 
 **例外：`MenuFlyout` / `Flyout` 里的项。** 它们不在页面视觉树里，`x:Bind` 在懒加载的 Flyout 内容里
-是否可靠无法在这个沙箱里验证（窗口看不到），所以下拉菜单项在 code-behind 的 `ApplyText()` 里赋值，
-并订阅 `CultureChanged` 重设。工具栏「调整图层」和「内容感知填充」两个下拉属于这种情况。
+是否可靠无法在这个沙箱里验证（窗口看不到），所以下拉菜单项在 `MainWindow.LabelFlyouts()` 里赋值，
+并在构造函数里挂一次 `CultureChanged`（窗口关闭时退订）。工具栏「调整图层」和「内容感知填充」
+两个下拉属于这种情况。
 
 **红线**：XAML 里不写用户可见文案。`Text` / `Label` / `Header` / `Content` / `PlaceholderText` /
 `ToolTipService.ToolTip` / `Title` 一律走绑定或 code-behind 赋值。界面上的枚举列表（24 种混合模式、

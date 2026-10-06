@@ -40,7 +40,7 @@ public static class SmokeTest
             StartupLog.Record("smokeTest", $"image={imagePath}", $"export={exportPath}", $"log={logPath}");
             log.Add($"options image={imagePath} export={exportPath} log={logPath} cwd={Environment.CurrentDirectory}");
             CheckResources(log);
-            CheckChrome(window, log);
+            await CheckChrome(window, log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -208,35 +208,69 @@ public static class SmokeTest
     /// time and a path that silently failed would leave an empty label, which is invisible in a headless
     /// run; here the expected strings either appear in the tree or the self test fails.
     /// </summary>
-    private static void CheckChrome(Views.MainWindow window, List<string> log)
+    private static async Task CheckChrome(Views.MainWindow window, List<string> log)
     {
-        // A UserControl only puts its content into the visual tree once its template has been applied,
-        // which happens during layout. Without this the panels would look empty to the walk below.
-        if (window.Content is UIElement root) root.UpdateLayout();
-
-        var texts = new List<string>();
-        Collect(window.Content as DependencyObject, texts);
-
-        CommandBar? bar = FindCommandBar(window.Content as DependencyObject);
-        if (bar is not null)
-        {
-            foreach (ICommandBarElement element in bar.PrimaryCommands)
-            {
-                switch (element)
-                {
-                    case AppBarButton button: texts.Add(button.Label); break;
-                    case AppBarToggleButton toggle: texts.Add(toggle.Label); break;
-                }
-            }
-        }
-
         string[] expected =
         [
             Strings.ToolbarOpen, Strings.ToolbarUndo, Strings.LayersTitle,
             Strings.PropertiesTitle, Strings.PropertiesAdjustments, Strings.MaskBrush
         ];
 
-        string[] missing = [.. expected.Where(text => !texts.Contains(text))];
+        // Wait for the window to finish loading before walking it. A freshly unpacked build reads
+        // several hundred megabytes of runtime off disk for the first time, and without this the
+        // panels are still waiting on their templates when the walk runs - the check then fails on a
+        // first run and passes on every later one, which is the worst kind of flaky.
+        if (window.Content is FrameworkElement root && !root.IsLoaded)
+        {
+            var loaded = new TaskCompletionSource();
+            void OnLoaded(object sender, RoutedEventArgs args) => loaded.TrySetResult();
+            root.Loaded += OnLoaded;
+            try
+            {
+                await loaded.Task.WaitAsync(TimeSpan.FromSeconds(30));
+            }
+            catch (TimeoutException)
+            {
+                log.Add("chrome.warning=the window did not report Loaded within 30s");
+            }
+            finally
+            {
+                root.Loaded -= OnLoaded;
+            }
+        }
+
+        CommandBar? bar = FindCommandBar(window.Content as DependencyObject);
+        var barLabels = new List<string>();
+        if (bar is not null)
+        {
+            foreach (ICommandBarElement element in bar.PrimaryCommands)
+            {
+                switch (element)
+                {
+                    case AppBarButton button: barLabels.Add(button.Label); break;
+                    case AppBarToggleButton toggle: barLabels.Add(toggle.Label); break;
+                }
+            }
+        }
+
+        // A UserControl only moves its content into the visual tree once its template has been applied,
+        // which the dispatcher does on its own schedule. Yielding here (rather than blocking) is what
+        // lets that layout run at all; without it the panels still look empty to the walk below.
+        var texts = new List<string>();
+        string[] missing = expected;
+        for (int attempt = 0; attempt < 80; attempt++)
+        {
+            await Task.Delay(50);
+
+            (window.Content as UIElement)?.UpdateLayout();
+            texts.Clear();
+            Collect(window.Content as DependencyObject, texts);
+            texts.AddRange(barLabels);
+
+            missing = [.. expected.Where(text => !texts.Contains(text))];
+            if (missing.Length == 0) break;
+        }
+
         log.Add($"chrome culture={Localization.Culture.Name} title={window.Title} texts={texts.Count} checked={expected.Length} missing={missing.Length}");
         log.Add($"chrome.texts={string.Join(" | ", texts)}");
 
