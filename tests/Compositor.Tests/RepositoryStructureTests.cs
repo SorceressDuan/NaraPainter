@@ -87,9 +87,14 @@ public class RepositoryStructureTests
     }
 
     // The docs name the frameworks they replace, so the scan covers code and project files only.
+    // Packaging output is excluded as well: the self-contained payload's deps.json lists real
+    // Windows App SDK and BCL assemblies, whose names trip both scans and are none of our business.
     private static IEnumerable<string> SourceFiles(string root)
     {
-        var skipped = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "legacy", ".tools", ".git", ".vs", "bin", "obj" };
+        var skipped = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "legacy", ".tools", ".git", ".vs", "bin", "obj", "dist"
+        };
         var pending = new Stack<string>();
         pending.Push(root);
 

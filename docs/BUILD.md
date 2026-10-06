@@ -140,20 +140,41 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 调试构建是自包含的，进程会在后台起来，沙箱里看不到窗口截图，验证靠 `MainWindowTitle`。
 跑之前先确认没有残留的 `Compositor` 进程。
 
-### 改完 App 的源码后要 Rebuild
+### 改了 App 的 XAML 之后要清掉 App 的 obj/bin
 
-改了 `Compositor.App` 的 XAML 或代码后再做增量构建，可能出现启动即 `XamlParseException`
-（退出码 `0xC000027B`），而同一份源码从零构建完全正常。遇到过两次，都在「改源码 + 增量构建」之后；
-空跑一次增量构建不会触发。所以验收前一律：
+改了 `Compositor.App` 的 XAML 或代码后再做增量构建，产物可能坏掉，表现是启动即
+`XamlParseException`（退出码 `0xC000027B`）。这时 `startup.log` 里只有 `[unhandled]`
+而没有 `[OnLaunched]`，因为应用死在 XAML 解析阶段，`App` 构造函数里的兜底都没跑到。
+
+修复配方（连续 4 次验证有效）：
 
 ```powershell
-dotnet build src/Compositor.App/Compositor.App.csproj -c Debug -t:Rebuild
+dotnet build-server shutdown
+Remove-Item -Recurse -Force src\Compositor.App\obj, src\Compositor.App\bin
+dotnet build Compositor.sln -c Debug
 ```
 
-### 不要用 Start-Process 重定向输出
+**不要用 `dotnet build -t:Rebuild`。** 它会把依赖项目一起重建，而 App 的 PRI 合并正好撞上
+`Compositor.Compositing.pri` 被清掉的瞬间，报 `PRI252 ... not found`，或者留下比增量构建
+更坏的中间产物。只删 App 自己的 `obj`/`bin` 再整体构建是唯一稳定的做法。
 
-`Start-Process -RedirectStandardOutput/-RedirectStandardError` 在这个沙箱里会让**父进程挂住不返回**。
-要观察程序的输出，让它自己写文件，然后读文件。
+### 启动进程不要用 Start-Process
+
+`Start-Process` 带 `-RedirectStandard*`、或者 `UseShellExecute = $true`，在这个沙箱里都会
+把父进程挂住不返回。用 `ProcessStartInfo` 显式关闭 shell 执行：
+
+```powershell
+$psi = New-Object System.Diagnostics.ProcessStartInfo
+$psi.FileName = $exe
+$psi.WorkingDirectory = (Get-Location).Path
+$psi.UseShellExecute = $false
+$psi.RedirectStandardOutput = $true
+$psi.RedirectStandardError = $true
+$psi.Arguments = "--selftest=assets\testimages\photo.jpg --log=.tools\s.log"
+$p = [System.Diagnostics.Process]::Start($psi)
+$null = $p.WaitForExit(180000)
+$p.ExitCode
+```
 
 ### 不要并行构建
 

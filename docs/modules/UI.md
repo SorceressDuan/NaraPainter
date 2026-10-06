@@ -26,6 +26,7 @@ WinUI 3 外壳：窗口布局、图层与属性面板、文件对话框、拖放
 | `Services/ImageImporter.cs` | `IImageCodec` 读出的 `PixelBuffer` → `Layer` / `CanvasDocument` |
 | `Services/DroppedFile.cs` | 从拖放数据里取第一个文件路径 |
 | `Services/SmokeTest.cs` | `--selftest` 的端到端自检，写日志并返回退出码 |
+| `Services/StartupLog.cs` | 每次启动记一行命令行与参数解析结果，供「自检没反应」时定位 |
 | `Converters/BoolToVisibilityConverter.cs` | `{Binding}` 用的 bool → Visibility |
 
 ## 布局与控件映射
@@ -106,13 +107,25 @@ dotnet build Compositor.sln -c Debug      # 0 warning 0 error
 ```
 
 沙箱里同时跑多个 `dotnet build` 会互相抢 `obj/` 下的中间产物，报 CS2012 或
-「input.json is being used by another process」，之后应用启动可能直接抛 `XamlParseException`
-（退出码 `0xC000027B`）。踩过两次，都是**同一份源码**从零构建就正常、增量构建出来的就崩：
+「input.json is being used by another process」；构建目录一旦坏掉，应用会在 `OnLaunched` **之前**
+就抛 `XamlParseException`（退出码 `-1073741189` / `0xC000027B`），现象和「自检没被执行」一模一样。
+同一份源码换个构建方式就正常，所以改了 App 的代码之后按这个顺序走：
 
-- 改了 `src/Compositor.App` 里的东西之后，先 `dotnet build src/Compositor.App/Compositor.App.csproj -c Debug -t:Rebuild`
-  （或者删掉 `src/Compositor.App/obj` 和 `bin`）再启动验证；
-- 构建打架时先 `dotnet build-server shutdown`，必要时加 `-nodeReuse:false`；
-- 最终验收前别和其他人的构建并行。
+```powershell
+dotnet build-server shutdown
+Remove-Item -Recurse -Force src\Compositor.App\obj, src\Compositor.App\bin
+dotnet build Compositor.sln -c Debug
+```
+
+只删 App 的 `obj`/`bin` 再整体构建是目前稳定复现的配方；`-t:Rebuild` 不要用——它会连带重建依赖项目，
+而 App 的 PRI 合并正好可能在依赖的 `.pri` 被清掉时跑，报
+`PRI252 ... Compositor.Compositing.pri not found`，或者留下更坏的中间产物。构建冲突时先
+`dotnet build-server shutdown`（必要时加 `-nodeReuse:false`），最终验收前别和其他人的构建并行。
+
+启动到底有没有走到自检，看 exe 目录下的 `startup.log`（同内容另写一份到
+`%TEMP%\compositor-startup.log`）：`[OnLaunched]` 一行带完整命令行、参数解析结果和工作目录，
+后面跟着 `[selfTest] queued`、`[selfTest] running`、`[smokeTest]` 的路径与退出码。
+如果里面只有 `[unhandled] XamlParseException` 而没有 `[OnLaunched]`，就是构建目录坏了，按上面的配方重建。
 
 启动：
 
@@ -152,6 +165,17 @@ exit=0
 ```
 
 导出的 PNG 能直接看出蒙版的作用：左上 (0,0)-(400,300) 是加了调整和蒙版的图层，其余部分是未处理的底图。
+
+参数两种写法都认：`--selftest <图片>` 和 `--selftest=<图片>`，`--large/--export/--log` 同理；
+不传的项有默认值（`assets\testimages\photo.jpg`、`large-4000x3000.png`、
+`%TEMP%\compositor-selftest.png`、exe 目录下的 `selftest.log`）。注意 `--selftest` 后面会紧跟一个
+图片路径，所以 `--selftest --log x.log` 里的 `--log` 会被当成图片名，日志里会出现一条
+`RESULT FAIL FileNotFoundException`——这不算 bug，是这种写法的必然结果，用 `--selftest=<图片>` 更稳。
+
+退出码：`0` 通过，`1` 有断言失败或图片打不开（日志里有 `RESULT FAIL ...`），
+`-1073741189`（`0xC000027B`）是启动期 XamlParseException，说明构建目录坏了、自检根本没跑。
+`--log` 指定的路径写不进去时（只读目录、沙箱限制），会自动退回到 exe 目录的 `selftest.log`
+并在日志里说明，不会因为写日志失败而丢结果。
 
 沙箱里没法确认、需要人工点一遍的：文件对话框（要真人选文件）、拖放、滑条拖动与键盘加速键的交互手感、
 撤销按钮的可用状态。

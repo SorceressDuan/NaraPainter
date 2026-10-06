@@ -34,6 +34,7 @@ public static class SmokeTest
             string exportPath = Option(commandLine, "--export") ?? Path.Combine(Path.GetTempPath(), "compositor-selftest.png");
             logPath = Option(commandLine, "--log") ?? logPath;
             StartupLog.Record("smokeTest", $"image={imagePath}", $"export={exportPath}", $"log={logPath}");
+            log.Add($"options image={imagePath} export={exportPath} log={logPath} cwd={Environment.CurrentDirectory}");
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
