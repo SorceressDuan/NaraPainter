@@ -13,4 +13,7 @@ obj/
 # Upstream reference checkout is fetched separately
 .upstream-compositor/
 
+# Publish output and packages produced by packaging/pack.ps1
+dist/
+
 *.log

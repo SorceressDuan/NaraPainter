@@ -9,6 +9,12 @@
     <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <UseWinUI>true</UseWinUI>
+    <!--
+      Only the app that ships produces the self-contained Windows App SDK payload. Leaving this on in a
+      library makes both projects stage the same MsixContent, and publishing them together fails with
+      NETSDK1152 (duplicate CoreMessagingXP.dll, DirectML.dll and friends).
+    -->
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
   </PropertyGroup>
 
   <ItemGroup>

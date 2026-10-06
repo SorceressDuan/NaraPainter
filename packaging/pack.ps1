@@ -43,10 +43,15 @@ if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
     -c $Configuration `
     -r $RuntimeIdentifier `
     -p:Platform=x64 `
-    -p:SelfContained=true `
-    -p:WindowsAppSDKSelfContained=true `
+    -m:1 `
+    -nodeReuse:false `
     -o $publishDir
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed with $LASTEXITCODE" }
+
+# Do not pass -p:SelfContained or -p:WindowsAppSDKSelfContained here. A global property override
+# reaches every project in the graph, including Compositor.Compositing, which then stages its own
+# copy of the Windows App SDK payload and collides with the app's: NETSDK1152, duplicate
+# CoreMessagingXP.dll and friends. The app project already declares both, so they are not needed.
 
 # The MIT license and the provenance notice travel with the binaries; both are required by the
 # licence terms and by the project's own compliance rules.
