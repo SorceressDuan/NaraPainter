@@ -5,6 +5,9 @@ using NaraDreamPainter.App.ViewModels;
 using NaraDreamPainter.Models.Adjustments;
 using NaraDreamPainter.Models.Layers;
 using NaraDreamPainter.Models.Pixels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 
 namespace NaraDreamPainter.App.Services;
 
@@ -37,6 +40,7 @@ public static class SmokeTest
             StartupLog.Record("smokeTest", $"image={imagePath}", $"export={exportPath}", $"log={logPath}");
             log.Add($"options image={imagePath} export={exportPath} log={logPath} cwd={Environment.CurrentDirectory}");
             CheckResources(log);
+            CheckChrome(window, log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -197,6 +201,107 @@ public static class SmokeTest
         {
             throw new InvalidOperationException($"These resource keys did not resolve: {string.Join(", ", broken)}");
         }
+    }
+
+    /// <summary>
+    /// Reads the interface text back out of the live window. The compiled bindings resolve at load
+    /// time and a path that silently failed would leave an empty label, which is invisible in a headless
+    /// run; here the expected strings either appear in the tree or the self test fails.
+    /// </summary>
+    private static void CheckChrome(Views.MainWindow window, List<string> log)
+    {
+        // A UserControl only puts its content into the visual tree once its template has been applied,
+        // which happens during layout. Without this the panels would look empty to the walk below.
+        if (window.Content is UIElement root) root.UpdateLayout();
+
+        var texts = new List<string>();
+        Collect(window.Content as DependencyObject, texts);
+
+        CommandBar? bar = FindCommandBar(window.Content as DependencyObject);
+        if (bar is not null)
+        {
+            foreach (ICommandBarElement element in bar.PrimaryCommands)
+            {
+                switch (element)
+                {
+                    case AppBarButton button: texts.Add(button.Label); break;
+                    case AppBarToggleButton toggle: texts.Add(toggle.Label); break;
+                }
+            }
+        }
+
+        string[] expected =
+        [
+            Strings.ToolbarOpen, Strings.ToolbarUndo, Strings.LayersTitle,
+            Strings.PropertiesTitle, Strings.PropertiesAdjustments, Strings.MaskBrush
+        ];
+
+        string[] missing = [.. expected.Where(text => !texts.Contains(text))];
+        log.Add($"chrome culture={Localization.Culture.Name} title={window.Title} texts={texts.Count} checked={expected.Length} missing={missing.Length}");
+        log.Add($"chrome.texts={string.Join(" | ", texts)}");
+
+        if (window.Title.Contains('!'))
+        {
+            throw new InvalidOperationException($"The window title did not compose from its resources: {window.Title}");
+        }
+
+        if (bar is null)
+        {
+            throw new InvalidOperationException("The command bar is not in the window tree, so the labels could not be checked.");
+        }
+
+        if (missing.Length > 0)
+        {
+            throw new InvalidOperationException($"These labels are not showing in the window: {string.Join(" / ", missing)}");
+        }
+    }
+
+    private static CommandBar? FindCommandBar(DependencyObject? node)
+    {
+        if (node is CommandBar bar) return bar;
+
+        int children = node is null ? 0 : VisualTreeHelper.GetChildrenCount(node);
+        for (int i = 0; i < children; i++)
+        {
+            CommandBar? found = FindCommandBar(VisualTreeHelper.GetChild(node, i));
+            if (found is not null) return found;
+        }
+
+        return null;
+    }
+
+    private static void Collect(DependencyObject? node, List<string> texts)
+    {
+        switch (node)
+        {
+            case TextBlock block when !string.IsNullOrEmpty(block.Text):
+                texts.Add(block.Text);
+                break;
+            case Button button when button.Content is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+            case CheckBox box when box.Content is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+            case ToggleSwitch toggle when toggle.Header is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+            case Expander expander when expander.Header is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+            case ComboBox combo when combo.Header is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+            case TextBox input when input.Header is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+            case NumberBox number when number.Header is string label && label.Length > 0:
+                texts.Add(label);
+                break;
+        }
+
+        int children = node is null ? 0 : VisualTreeHelper.GetChildrenCount(node);
+        for (int i = 0; i < children; i++) Collect(VisualTreeHelper.GetChild(node, i), texts);
     }
 
     private static string Sample(DocumentViewModel document)

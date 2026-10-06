@@ -84,14 +84,14 @@ public sealed class DocumentViewModel : ObservableObject
 
     public string Title => _document.FilePath is null ? Strings.AppUntitled : Path.GetFileName(_document.FilePath);
 
-    public string WindowTitle => Localization.Format(Strings.AppWindowTitle, Strings.AppTitle, Title)
+    public string WindowTitle => Localization.Interpolate(Strings.AppWindowTitle, Strings.AppTitle, Title)
         + (_document.IsDirty ? Strings.AppModifiedMark : string.Empty);
 
     public string SizeLabel => $"{_document.Width} × {_document.Height}";
 
     public string LayerCountLabel => Layers.Count == 1
         ? Strings.StatusOneLayer
-        : Localization.Format(Strings.StatusLayerCount, Layers.Count);
+        : Localization.Interpolate(Strings.StatusLayerCount, Layers.Count);
 
     public string ZoomLabel => $"{_zoom * 100:0}%";
 
@@ -137,18 +137,18 @@ public sealed class DocumentViewModel : ObservableObject
         _document = document;
         History.Clear();
         ReloadLayers();
-        Status = Localization.Format(Strings.StatusOpened, Path.GetFileName(path), SizeLabel, stopwatch.ElapsedMilliseconds);
+        Status = Localization.Interpolate(Strings.StatusOpened, Path.GetFileName(path), SizeLabel, stopwatch.ElapsedMilliseconds);
     }
 
     public LayerViewModel AddLayer()
     {
-        Layer layer = _document.AddBlank(Localization.Format(Strings.LayersNameFormat, _document.Layers.Count + 1));
+        Layer layer = _document.AddBlank(Localization.Interpolate(Strings.LayersNameFormat, _document.Layers.Count + 1));
         var view = new LayerViewModel(layer, this, _filter);
         Layers.Insert(0, view);
         SelectedLayer = view;
         History.Push(new DelegateAction(Strings.UndoNewLayer, () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
         NotifyChanged();
-        Status = Localization.Format(Strings.StatusLayerAdded, layer.Name);
+        Status = Localization.Interpolate(Strings.StatusLayerAdded, layer.Name);
         return view;
     }
 
@@ -161,11 +161,11 @@ public sealed class DocumentViewModel : ObservableObject
         Layers.Insert(0, view);
         SelectedLayer = view;
         History.Push(new DelegateAction(
-            Localization.Format(Strings.UndoNewAdjustmentLayer, name),
+            Localization.Interpolate(Strings.UndoNewAdjustmentLayer, name),
             () => RemoveLayerCore(view),
             () => InsertLayerCore(view, 0)));
         NotifyChanged();
-        Status = Localization.Format(Strings.StatusAdjustmentLayerAdded, name);
+        Status = Localization.Interpolate(Strings.StatusAdjustmentLayerAdded, name);
         return view;
     }
 
@@ -182,7 +182,7 @@ public sealed class DocumentViewModel : ObservableObject
         SelectedLayer = view;
         History.Push(new DelegateAction(Strings.UndoImportLayer, () => RemoveLayerCore(view), () => InsertLayerCore(view, 0)));
         NotifyChanged();
-        Status = Localization.Format(Strings.StatusImported, Path.GetFileName(path));
+        Status = Localization.Interpolate(Strings.StatusImported, Path.GetFileName(path));
         return view;
     }
 
@@ -191,7 +191,7 @@ public sealed class DocumentViewModel : ObservableObject
         if (layer is null) return null;
 
         Layer clone = layer.Model.Clone();
-        clone.Name = Localization.Format(Strings.LayersCopyNameFormat, layer.Model.Name);
+        clone.Name = Localization.Interpolate(Strings.LayersCopyNameFormat, layer.Model.Name);
 
         // The copy keeps the original pixels and re-runs the same adjustment stack over them.
         clone.Pixels = layer.Source?.Clone();
@@ -206,7 +206,7 @@ public sealed class DocumentViewModel : ObservableObject
         SelectedLayer = view;
         History.Push(new DelegateAction(Strings.UndoDuplicateLayer, () => RemoveLayerCore(view), () => InsertLayerCore(view, panelIndex)));
         NotifyChanged();
-        Status = Localization.Format(Strings.StatusLayerDuplicated, layer.Name);
+        Status = Localization.Interpolate(Strings.StatusLayerDuplicated, layer.Name);
         return view;
     }
 
@@ -219,7 +219,7 @@ public sealed class DocumentViewModel : ObservableObject
 
         RemoveLayerCore(layer);
         History.Push(new DelegateAction(Strings.UndoDeleteLayer, () => InsertLayerCore(layer, panelIndex), () => RemoveLayerCore(layer)));
-        Status = Localization.Format(Strings.StatusLayerDeleted, layer.Name);
+        Status = Localization.Interpolate(Strings.StatusLayerDeleted, layer.Name);
     }
 
     /// <summary>Takes the order the layers panel ended up in, top first, and records the move.</summary>
@@ -244,7 +244,7 @@ public sealed class DocumentViewModel : ObservableObject
 
         _document.IsDirty = false;
         OnPropertyChanged(nameof(WindowTitle));
-        Status = Localization.Format(Strings.StatusExported, Path.GetFileName(path), pixels.Width, pixels.Height);
+        Status = Localization.Interpolate(Strings.StatusExported, Path.GetFileName(path), pixels.Width, pixels.Height);
     }
 
     public void Undo() => History.Undo();
@@ -280,7 +280,7 @@ public sealed class DocumentViewModel : ObservableObject
     private static CanvasDocument CreateDocument(int width, int height)
     {
         var document = new CanvasDocument(width, height);
-        document.AddBlank(Localization.Format(Strings.LayersNameFormat, 1));
+        document.AddBlank(Localization.Interpolate(Strings.LayersNameFormat, 1));
         document.IsDirty = false;
         return document;
     }

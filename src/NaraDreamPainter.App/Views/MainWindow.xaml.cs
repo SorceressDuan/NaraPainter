@@ -6,6 +6,7 @@ using NaraDreamPainter.Models.Documents;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace NaraDreamPainter.App.Views;
@@ -13,6 +14,7 @@ namespace NaraDreamPainter.App.Views;
 public sealed partial class MainWindow : Window
 {
     private readonly FileDialogService _dialogs;
+    private readonly EventHandler _cultureChanged;
     private bool _fitted;
 
     public MainWindow()
@@ -38,6 +40,8 @@ public sealed partial class MainWindow : Window
         Properties.Attach(Document);
 
         LabelFlyouts();
+        _cultureChanged = (_, _) => LabelFlyouts();
+        Localization.CultureChanged += _cultureChanged;
 
         Document.Changed += (_, _) => Canvas.Refresh();
         Document.DocumentReplaced += OnDocumentReplaced;
@@ -47,8 +51,8 @@ public sealed partial class MainWindow : Window
 
     /// <summary>
     /// Flyout content is not part of the window's visual tree, so the compiled bindings used elsewhere
-    /// in the XAML do not reach it. These few items are labelled here instead, and relabelled on a
-    /// language change.
+    /// in the XAML do not reach it. These few items are labelled here instead; the constructor keeps
+    /// one CultureChanged subscription alive so a language change relabels them.
     /// </summary>
     private void LabelFlyouts()
     {
@@ -80,8 +84,6 @@ public sealed partial class MainWindow : Window
         {
             if (entry is MenuFlyoutItem item && index < fill.Length) item.Text = fill[index++];
         }
-
-        Localization.CultureChanged += (_, _) => LabelFlyouts();
     }
 
     /// <summary>Initialized before InitializeComponent so the compiled bindings in the XAML have a document.</summary>
@@ -111,7 +113,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception error)
         {
-            await ShowMessageAsync("Export failed", error.Message);
+            await ShowMessageAsync(Strings.DialogExportFailed, error.Message);
         }
     }
 
@@ -217,7 +219,7 @@ public sealed partial class MainWindow : Window
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
 
         e.AcceptedOperation = DataPackageOperation.Copy;
-        if (e.DragUIOverride is not null) e.DragUIOverride.Caption = "Open image";
+        if (e.DragUIOverride is not null) e.DragUIOverride.Caption = Strings.DropOpenImage;
     }
 
     private async void OnCanvasDrop(object sender, DragEventArgs e)
@@ -242,7 +244,11 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void OnClosed(object sender, WindowEventArgs args) => Application.Current.Exit();
+    private void OnClosed(object sender, WindowEventArgs args)
+    {
+        Localization.CultureChanged -= _cultureChanged;
+        Application.Current.Exit();
+    }
 
     private async Task OpenAsync()
     {
@@ -258,7 +264,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception error)
         {
-            await ShowMessageAsync("Open failed", error.Message);
+            await ShowMessageAsync(Strings.DialogOpenFailed, error.Message);
         }
     }
 
@@ -273,9 +279,16 @@ public sealed partial class MainWindow : Window
         {
             Title = title,
             Content = message,
-            CloseButtonText = "OK",
+            CloseButtonText = Strings.DialogOk,
             XamlRoot = Content.XamlRoot
         };
+
+        // A dialog is hosted outside the window's tree, so AppFontFamily does not reach it by
+        // inheritance the way it does for the panels.
+        if (Application.Current.Resources.TryGetValue("AppFontFamily", out object? family) && family is FontFamily font)
+        {
+            dialog.FontFamily = font;
+        }
 
         await dialog.ShowAsync();
     }

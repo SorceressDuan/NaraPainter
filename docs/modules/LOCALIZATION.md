@@ -59,8 +59,13 @@
 
 ## C# 取文案
 
-`Strings.ToolbarUndo`；带占位符的用 `Localization.Format(Strings.StatusLayerCount, count)`。
+`Strings.ToolbarUndo`；带占位符的用 `Localization.Interpolate(Strings.StatusLayerCount, count)`。
 视图模型里可以直接写继承来的 `Text.ToolbarUndo`。
+
+**注意 `Interpolate` 收的是模板，不是键。** `Strings.StatusOpened` 本身就是 `"已打开 {0} · {1} · 耗时 {2} 毫秒"`，
+把它交给按键查表的那套就会得到 `!Status_Opened!` 这种半成品——这个坑踩过一次，窗口标题直接显示成
+`!Nara Dream Painter — 未命名!`。自检里因此加了两条守卫：`window.Title` 含 `!` 即失败，
+`chrome.texts` 会把窗口里实际显示的文字打出来。
 
 命名规则：**属性名 == 资源键去掉下划线**（`Toolbar_Open` → `ToolbarOpen`），
 `tests/NaraDreamPainter.Tests/LocalizationTests.cs` 会断言这条，写错名字测试就红。
@@ -84,8 +89,12 @@
 
 - 数字与符号：`800 × 600`、`100%`、`Ctrl+Z` 的键名、`×` 分隔符留在代码里。带单位或语序的
   （「耗时 30 毫秒」）走资源。
+- **框架自带的文案**：`ToggleSwitch` 的 On/Off 与 `CheckBox` 的勾选标记来自 WinUI 自己的资源，
+  不会跟着 `Strings.resx` 变。凡是界面上出现开关的地方都显式写 `OnContent`/`OffContent`
+  （用 `Common_On`/`Common_Off`，或像「涂抹/擦除」那样各自成对），不依赖框架默认值。
 - `Models` / `Imaging` 抛出的异常消息：错误对话框的正文用的是 `error.Message`，目前是英文。
-  要汉化得在那两个项目里另建资源文件，超出本次范围。
+  要汉化得在那两个项目里另建资源文件，超出本次范围。Models 里 `AdjustmentSettings.DisplayName`
+  那四个英文名现在只被 Models 自己用，界面一律走 `AdjustmentKinds.Name`。
 - 自检日志（`selftest.log`、`startup.log`）：保持 ASCII，方便脚本比对。
 - 撤销历史条目的名字：在记录那一刻按当时的语言定格，切换语言不会改写已经发生的那一步
   （`UndoStack` 存的是字符串）。
@@ -124,12 +133,13 @@ powershell -ExecutionPolicy Bypass -File tools/verify/check-localization.ps1
 
 `tools/verify/verify.ps1` 会跑同一个脚本并在汇总里给一行 `LOCALIZATION`。
 
-窗口在这个沙箱里看不到，所以中文是否真的显示出来靠 `--selftest`：它通过反射读一遍
-`LocalizedStrings` 的每个键，任何没解析出来的键（`!Key!`）都会让自检失败，并在
-`startup.log` / `selftest.log` 里留一行
+窗口在这个沙箱里看不到，所以中文是否真的显示出来靠 `--selftest` 的两条运行时检查：
 
-```
-resources culture=zh-CN keys=NNN broken=0 sample=撤销/图层/就绪
-```
+- `CheckResources`：反射读一遍 `LocalizedStrings` 的每个键，任何没解析出来的键（`!Key!`）都会让
+  自检失败，并留一行
+  `resources culture=zh-CN keys=207 broken=0 sample=撤销/图层/就绪`。
+- `CheckChrome`：从活动窗口的视觉树与 `CommandBar.PrimaryCommands` 里把标签读回来，确认
+  `{x:Bind Text.X}` 在加载时确实解析了（绑定路径写错不会抛异常，只会留下空标签，这种失败在无窗口
+  环境里看不出来），并留一行 `chrome culture=zh-CN texts=NN checked=6 missing=0`。
 
 再配合 `window.title=Nara Dream Painter — 未命名`，可以确认资源确实在运行时生效，而不是只有文件里对齐。

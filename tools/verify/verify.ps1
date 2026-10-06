@@ -55,7 +55,8 @@ function Invoke-Dotnet {
 
 function Count-Diagnostics {
     param([string]$Text, [string]$Severity)
-    return ([regex]::Matches($Text, "(?m):\s+$Severity\s+[A-Z]{2,}\d+")).Count
+    # Matches both "error CS1234" and the coded-less form the XAML compiler emits, "error : message".
+    return ([regex]::Matches($Text, "(?m):\s+$Severity\b")).Count
 }
 
 function Get-TestSummary {

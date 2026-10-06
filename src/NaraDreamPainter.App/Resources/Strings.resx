@@ -32,6 +32,12 @@
   <data name="App_ModifiedMark" xml:space="preserve">
     <value> *</value>
   </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
   <data name="Status_Ready" xml:space="preserve">
     <value>Ready</value>
   </data>
@@ -552,8 +558,8 @@
   <data name="Fill_UseNikolai" xml:space="preserve">
     <value>Use Nikolai method</value>
   </data>
-  <data name="Fill_Applied" xml:space="preserve">
-    <value>Content-Aware Fill</value>
+  <data name="Fill_Run" xml:space="preserve">
+    <value>Fill</value>
   </data>
   <data name="Fill_Done" xml:space="preserve">
     <value>Filled the selection from its surroundings</value>

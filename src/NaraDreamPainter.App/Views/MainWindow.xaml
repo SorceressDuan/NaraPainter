@@ -12,13 +12,21 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
-            <AppBarButton Icon="OpenFile" Label="{x:Bind Text.ToolbarOpen, Mode=OneWay}" Click="OnOpenClick">
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right" FontFamily="{StaticResource AppFontFamily}">
+            <AppBarButton
+                Icon="OpenFile"
+                Label="{x:Bind Text.ToolbarOpen, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarOpenHint, Mode=OneWay}"
+                Click="OnOpenClick">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="O" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton Icon="Save" Label="{x:Bind Text.ToolbarExport, Mode=OneWay}" Click="OnExportClick">
+            <AppBarButton
+                Icon="Save"
+                Label="{x:Bind Text.ToolbarExport, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarExportHint, Mode=OneWay}"
+                Click="OnExportClick">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="E" />
                 </AppBarButton.KeyboardAccelerators>
@@ -27,6 +35,7 @@
             <AppBarButton
                 Icon="Undo"
                 Label="{x:Bind Text.ToolbarUndo, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarUndoHint, Mode=OneWay}"
                 Click="OnUndoClick"
                 IsEnabled="{x:Bind Document.CanUndo, Mode=OneWay}">
                 <AppBarButton.KeyboardAccelerators>
@@ -36,6 +45,7 @@
             <AppBarButton
                 Icon="Redo"
                 Label="{x:Bind Text.ToolbarRedo, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarRedoHint, Mode=OneWay}"
                 Click="OnRedoClick"
                 IsEnabled="{x:Bind Document.CanRedo, Mode=OneWay}">
                 <AppBarButton.KeyboardAccelerators>
@@ -43,7 +53,11 @@
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
             <AppBarSeparator />
-            <AppBarButton Icon="Add" Label="{x:Bind Text.ToolbarNewLayer, Mode=OneWay}" Click="OnNewLayerClick">
+            <AppBarButton
+                Icon="Add"
+                Label="{x:Bind Text.ToolbarNewLayer, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarNewLayerHint, Mode=OneWay}"
+                Click="OnNewLayerClick">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
                 </AppBarButton.KeyboardAccelerators>
@@ -51,14 +65,19 @@
             <AppBarButton
                 Icon="Copy"
                 Label="{x:Bind Text.ToolbarDuplicate, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarDuplicateHint, Mode=OneWay}"
                 Click="OnDuplicateLayerClick"
                 IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
             <AppBarButton
                 Icon="Delete"
                 Label="{x:Bind Text.ToolbarDeleteLayer, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarDeleteHint, Mode=OneWay}"
                 Click="OnDeleteLayerClick"
                 IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
-            <AppBarButton Icon="Edit" Label="{x:Bind Text.ToolbarAdjustmentLayer, Mode=OneWay}">
+            <AppBarButton
+                Icon="Edit"
+                Label="{x:Bind Text.ToolbarAdjustmentLayer, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarAdjustmentLayerHint, Mode=OneWay}">
                 <AppBarButton.Flyout>
                     <!-- A flyout is not part of the page's visual tree, so the compiled bindings above
                          do not reach inside it; these are labelled in code-behind instead. -->
@@ -75,8 +94,13 @@
                 x:Name="MaskBrushButton"
                 Icon="Edit"
                 Label="{x:Bind Text.ToolbarMaskBrush, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarMaskBrushHint, Mode=OneWay}"
                 Click="OnMaskBrushClick" />
-            <AppBarButton Icon="Repair" Label="{x:Bind Text.ToolbarContentAwareFill, Mode=OneWay}" Click="OnContentAwareFillClick">
+            <AppBarButton
+                Icon="Repair"
+                Label="{x:Bind Text.ToolbarContentAwareFill, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarContentAwareFillHint, Mode=OneWay}"
+                Click="OnContentAwareFillClick">
                 <AppBarButton.Flyout>
                     <MenuFlyout x:Name="FillFlyout">
                         <MenuFlyoutItem Click="OnContentAwareFillClick" />
@@ -88,10 +112,25 @@
                 </AppBarButton.Flyout>
             </AppBarButton>
             <AppBarSeparator />
-            <AppBarButton Icon="ZoomOut" Label="{x:Bind Text.ToolbarZoomOut, Mode=OneWay}" Click="OnZoomOutClick" />
-            <AppBarButton Icon="ZoomIn" Label="{x:Bind Text.ToolbarZoomIn, Mode=OneWay}" Click="OnZoomInClick" />
-            <AppBarButton Icon="Zoom" Label="{x:Bind Text.ToolbarFit, Mode=OneWay}" Click="OnFitClick" />
-            <AppBarButton Label="{x:Bind Text.ToolbarActualSize, Mode=OneWay}" Click="OnActualSizeClick" />
+            <AppBarButton
+                Icon="ZoomOut"
+                Label="{x:Bind Text.ToolbarZoomOut, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarZoomOutHint, Mode=OneWay}"
+                Click="OnZoomOutClick" />
+            <AppBarButton
+                Icon="ZoomIn"
+                Label="{x:Bind Text.ToolbarZoomIn, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarZoomInHint, Mode=OneWay}"
+                Click="OnZoomInClick" />
+            <AppBarButton
+                Icon="Zoom"
+                Label="{x:Bind Text.ToolbarFit, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarFitHint, Mode=OneWay}"
+                Click="OnFitClick" />
+            <AppBarButton
+                Label="{x:Bind Text.ToolbarActualSize, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind Text.ToolbarActualSizeHint, Mode=OneWay}"
+                Click="OnActualSizeClick" />
         </CommandBar>
 
         <Grid Grid.Row="1">
@@ -131,22 +170,26 @@
                 <TextBlock
                     Text="{x:Bind Document.Status, Mode=OneWay}"
                     Style="{StaticResource CaptionTextBlockStyle}"
+                    FontFamily="{StaticResource AppFontFamily}"
                     VerticalAlignment="Center"
                     TextTrimming="CharacterEllipsis" />
                 <TextBlock
                     Grid.Column="1"
                     Text="{x:Bind Document.SizeLabel, Mode=OneWay}"
-                    Style="{StaticResource CaptionTextBlockStyle}" />
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    FontFamily="{StaticResource AppFontFamily}" />
                 <TextBlock
                     Grid.Column="2"
                     Text="{x:Bind Document.LayerCountLabel, Mode=OneWay}"
-                    Style="{StaticResource CaptionTextBlockStyle}" />
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    FontFamily="{StaticResource AppFontFamily}" />
                 <TextBlock
                     Grid.Column="3"
                     MinWidth="56"
                     TextAlignment="Right"
                     Text="{x:Bind Document.ZoomLabel, Mode=OneWay}"
-                    Style="{StaticResource CaptionTextBlockStyle}" />
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    FontFamily="{StaticResource AppFontFamily}" />
             </Grid>
         </Border>
     </Grid>

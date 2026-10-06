@@ -13,6 +13,9 @@ public sealed partial class PropertiesPanel : UserControl
         InitializeComponent();
     }
 
+    /// <summary>The localisation surface the compiled bindings in this panel read their text from.</summary>
+    public LocalizedStrings Text => LocalizedStrings.Instance;
+
     public void Attach(DocumentViewModel document)
     {
         _document = document;

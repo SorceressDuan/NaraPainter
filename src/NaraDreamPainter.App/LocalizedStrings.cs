@@ -38,6 +38,10 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string AppModifiedMark => Strings.AppModifiedMark;
 
+    public string CommonOn => Strings.CommonOn;
+
+    public string CommonOff => Strings.CommonOff;
+
     public string StatusReady => Strings.StatusReady;
 
     public string StatusOpened => Strings.StatusOpened;
@@ -382,7 +386,7 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string FillUseNikolai => Strings.FillUseNikolai;
 
-    public string FillApplied => Strings.FillApplied;
+    public string FillRun => Strings.FillRun;
 
     public string FillDone => Strings.FillDone;
 

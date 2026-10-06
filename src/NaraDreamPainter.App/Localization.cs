@@ -59,6 +59,12 @@ public static class Localization
         return value ?? $"!{key}!";
     }
 
-    public static string Format(string key, params object?[] arguments) =>
-        string.Format(_culture, Get(key), arguments);
+    /// <summary>
+    /// Fills the placeholders of a template that has already been resolved, such as
+    /// <c>Strings.StatusOpened</c>. Interface code reaches the templates through the typed accessors,
+    /// so this is what it calls; there is deliberately no key-based variant, because handing a key to a
+    /// formatter prints the key back instead of the text.
+    /// </summary>
+    public static string Interpolate(string template, params object?[] arguments) =>
+        string.Format(_culture, template, arguments);
 }

@@ -22,6 +22,10 @@ public static class Strings
 
     public static string AppModifiedMark => Localization.Get("App_ModifiedMark");
 
+    public static string CommonOn => Localization.Get("Common_On");
+
+    public static string CommonOff => Localization.Get("Common_Off");
+
     public static string StatusReady => Localization.Get("Status_Ready");
 
     public static string StatusOpened => Localization.Get("Status_Opened");
@@ -366,7 +370,7 @@ public static class Strings
 
     public static string FillUseNikolai => Localization.Get("Fill_UseNikolai");
 
-    public static string FillApplied => Localization.Get("Fill_Applied");
+    public static string FillRun => Localization.Get("Fill_Run");
 
     public static string FillDone => Localization.Get("Fill_Done");
 

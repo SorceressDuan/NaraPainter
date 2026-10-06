@@ -15,6 +15,9 @@ public sealed partial class LayersPanel : UserControl
         InitializeComponent();
     }
 
+    /// <summary>The localisation surface the compiled bindings in this panel read their text from.</summary>
+    public LocalizedStrings Text => LocalizedStrings.Instance;
+
     public void Attach(DocumentViewModel document)
     {
         _document = document;
@@ -65,7 +68,7 @@ public sealed partial class LayersPanel : UserControl
         if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
 
         e.AcceptedOperation = DataPackageOperation.Copy;
-        if (e.DragUIOverride is not null) e.DragUIOverride.Caption = "Import as a layer";
+        if (e.DragUIOverride is not null) e.DragUIOverride.Caption = Strings.LayersImportHint;
     }
 
     private async void OnPanelDrop(object sender, DragEventArgs e)
@@ -81,7 +84,7 @@ public sealed partial class LayersPanel : UserControl
         }
         catch (Exception error)
         {
-            _document.Status = $"Could not import {Path.GetFileName(path)}: {error.Message}";
+            _document.Status = Localization.Interpolate(Strings.LayersImportFailed, Path.GetFileName(path), error.Message);
         }
     }
 

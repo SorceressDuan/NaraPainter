@@ -128,7 +128,7 @@ public sealed class SelectionViewModel : ObservableObject
         }
 
         SetMask(layer, _masks.Build(region, _owner.Document.Width, _owner.Document.Height, _feather), Strings.UndoApplyMask);
-        _owner.Status = Localization.Format(Strings.StatusMaskApplied, layer.Name);
+        _owner.Status = Localization.Interpolate(Strings.StatusMaskApplied, layer.Name);
     }
 
     public void SelectAll()
@@ -141,7 +141,7 @@ public sealed class SelectionViewModel : ObservableObject
         }
 
         SetMask(layer, _masks.Full(_owner.Document.Width, _owner.Document.Height), Strings.UndoSelectAll);
-        _owner.Status = Localization.Format(Strings.StatusSelectAll, layer.Name);
+        _owner.Status = Localization.Interpolate(Strings.StatusSelectAll, layer.Name);
     }
 
     public void ClearMask()
@@ -150,7 +150,7 @@ public sealed class SelectionViewModel : ObservableObject
         if (layer is null || !layer.IsMasked) return;
 
         SetMask(layer, null, Strings.UndoClearMask);
-        _owner.Status = Localization.Format(Strings.StatusMaskCleared, layer.Name);
+        _owner.Status = Localization.Interpolate(Strings.StatusMaskCleared, layer.Name);
     }
 
     public void Refresh()

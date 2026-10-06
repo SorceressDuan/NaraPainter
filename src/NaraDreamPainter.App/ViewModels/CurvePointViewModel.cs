@@ -27,7 +27,7 @@ public sealed class CurvePointViewModel : ObservableObject
 
     public string Label => IsEndpoint
         ? (_x <= 0 ? Strings.CurveShadows : Strings.CurveHighlights)
-        : Localization.Format(Strings.CurvePointFormat, Math.Round(_x));
+        : Localization.Interpolate(Strings.CurvePointFormat, Math.Round(_x));
 
     internal void RefreshLocalization() => OnPropertyChanged(nameof(Label));
 

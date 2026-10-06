@@ -239,7 +239,7 @@ public sealed class AdjustmentViewModel : ObservableObject
         if (!CanEdit(kind) || _target is null) return;
 
         AdjustmentSettings? settings = _target.IsAdjustment ? AdjustmentKinds.Create(kind) : null;
-        Store(kind, settings, Localization.Format(Strings.UndoResetAdjustment, AdjustmentKinds.Name(kind)));
+        Store(kind, settings, Localization.Interpolate(Strings.UndoResetAdjustment, AdjustmentKinds.Name(kind)));
         Reload();
     }
 
