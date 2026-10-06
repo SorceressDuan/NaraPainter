@@ -401,6 +401,70 @@ public static class Strings
 
     public static string AboutDesignerLabel => Localization.Get("About_DesignerLabel");
 
+    public static string UndoCropLayer => Localization.Get("Undo_CropLayer");
+
+    public static string UndoRotateRight => Localization.Get("Undo_RotateRight");
+
+    public static string UndoRotateLeft => Localization.Get("Undo_RotateLeft");
+
+    public static string UndoFlipHorizontal => Localization.Get("Undo_FlipHorizontal");
+
+    public static string UndoFlipVertical => Localization.Get("Undo_FlipVertical");
+
+    public static string UndoResizeCanvas => Localization.Get("Undo_ResizeCanvas");
+
+    public static string StatusTransformed => Localization.Get("Status_Transformed");
+
+    public static string StatusResized => Localization.Get("Status_Resized");
+
+    public static string UndoGaussianBlur => Localization.Get("Undo_GaussianBlur");
+
+    public static string UndoSharpen => Localization.Get("Undo_Sharpen");
+
+    public static string StatusPickedColor => Localization.Get("Status_PickedColor");
+
+    public static string ToolbarFilters => Localization.Get("Toolbar_Filters");
+
+    public static string FilterGaussianBlur => Localization.Get("Filter_GaussianBlur");
+
+    public static string FilterSharpen => Localization.Get("Filter_Sharpen");
+
+    public static string FilterRadius => Localization.Get("Filter_Radius");
+
+    public static string FilterAmount => Localization.Get("Filter_Amount");
+
+    public static string ToolbarTransform => Localization.Get("Toolbar_Transform");
+
+    public static string TransformRotateRight => Localization.Get("Transform_RotateRight");
+
+    public static string TransformRotateLeft => Localization.Get("Transform_RotateLeft");
+
+    public static string TransformFlipHorizontal => Localization.Get("Transform_FlipHorizontal");
+
+    public static string TransformFlipVertical => Localization.Get("Transform_FlipVertical");
+
+    public static string TransformCropToSelection => Localization.Get("Transform_CropToSelection");
+
+    public static string TransformResize => Localization.Get("Transform_Resize");
+
+    public static string ResizeTitle => Localization.Get("Resize_Title");
+
+    public static string ResizeWidth => Localization.Get("Resize_Width");
+
+    public static string ResizeHeight => Localization.Get("Resize_Height");
+
+    public static string ResizeKeepRatio => Localization.Get("Resize_KeepRatio");
+
+    public static string ResizeApply => Localization.Get("Resize_Apply");
+
+    public static string ResizeCancel => Localization.Get("Resize_Cancel");
+
+    public static string ToolbarColorPicker => Localization.Get("Toolbar_ColorPicker");
+
+    public static string ColorPickerCopy => Localization.Get("ColorPicker_Copy");
+
+    public static string ColorPickerCopied => Localization.Get("ColorPicker_Copied");
+
     public static string UndoOpenImage => Localization.Get("Undo_OpenImage");
 
     public static string UndoNewLayer => Localization.Get("Undo_NewLayer");

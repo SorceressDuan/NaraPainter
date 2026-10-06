@@ -704,4 +704,100 @@
   <data name="Crash_Message" xml:space="preserve">
     <value>程序遇到问题，即将关闭。{0}{0}请把下面的日志文件发送给开发者：{0}</value>
   </data>
+  <data name="Undo_CropLayer" xml:space="preserve">
+    <value>裁剪图层</value>
+  </data>
+  <data name="Undo_RotateRight" xml:space="preserve">
+    <value>顺时针旋转</value>
+  </data>
+  <data name="Undo_RotateLeft" xml:space="preserve">
+    <value>逆时针旋转</value>
+  </data>
+  <data name="Undo_FlipHorizontal" xml:space="preserve">
+    <value>水平翻转</value>
+  </data>
+  <data name="Undo_FlipVertical" xml:space="preserve">
+    <value>垂直翻转</value>
+  </data>
+  <data name="Undo_ResizeCanvas" xml:space="preserve">
+    <value>调整画布尺寸</value>
+  </data>
+  <data name="Status_Transformed" xml:space="preserve">
+    <value>{0}：{1}</value>
+  </data>
+  <data name="Status_Resized" xml:space="preserve">
+    <value>画布尺寸已改为 {0}</value>
+  </data>
+  <data name="Undo_GaussianBlur" xml:space="preserve">
+    <value>高斯模糊</value>
+  </data>
+  <data name="Undo_Sharpen" xml:space="preserve">
+    <value>USM 锐化</value>
+  </data>
+  <data name="Status_PickedColor" xml:space="preserve">
+    <value>已取色 {0}</value>
+  </data>
+  <data name="Toolbar_Filters" xml:space="preserve">
+    <value>滤镜</value>
+  </data>
+  <data name="Filter_GaussianBlur" xml:space="preserve">
+    <value>高斯模糊</value>
+  </data>
+  <data name="Filter_Sharpen" xml:space="preserve">
+    <value>USM 锐化</value>
+  </data>
+  <data name="Filter_Radius" xml:space="preserve">
+    <value>半径</value>
+  </data>
+  <data name="Filter_Amount" xml:space="preserve">
+    <value>强度</value>
+  </data>
+  <data name="Toolbar_Transform" xml:space="preserve">
+    <value>变换</value>
+  </data>
+  <data name="Transform_RotateRight" xml:space="preserve">
+    <value>顺时针旋转 90°</value>
+  </data>
+  <data name="Transform_RotateLeft" xml:space="preserve">
+    <value>逆时针旋转 90°</value>
+  </data>
+  <data name="Transform_FlipHorizontal" xml:space="preserve">
+    <value>水平翻转</value>
+  </data>
+  <data name="Transform_FlipVertical" xml:space="preserve">
+    <value>垂直翻转</value>
+  </data>
+  <data name="Transform_CropToSelection" xml:space="preserve">
+    <value>裁剪到选区</value>
+  </data>
+  <data name="Transform_Resize" xml:space="preserve">
+    <value>调整画布尺寸…</value>
+  </data>
+  <data name="Resize_Title" xml:space="preserve">
+    <value>画布尺寸</value>
+  </data>
+  <data name="Resize_Width" xml:space="preserve">
+    <value>宽度</value>
+  </data>
+  <data name="Resize_Height" xml:space="preserve">
+    <value>高度</value>
+  </data>
+  <data name="Resize_KeepRatio" xml:space="preserve">
+    <value>保持长宽比</value>
+  </data>
+  <data name="Resize_Apply" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Resize_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Toolbar_ColorPicker" xml:space="preserve">
+    <value>吸管</value>
+  </data>
+  <data name="ColorPicker_Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="ColorPicker_Copied" xml:space="preserve">
+    <value>颜色已复制</value>
+  </data>
 </root>

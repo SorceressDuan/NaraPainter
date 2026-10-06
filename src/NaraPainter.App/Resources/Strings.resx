@@ -706,4 +706,100 @@
   <data name="Crash_Message" xml:space="preserve">
     <value>The application has run into a problem and will close.{0}{0}Please send this log file to the developer:{0}</value>
   </data>
+  <data name="Undo_CropLayer" xml:space="preserve">
+    <value>Crop layer</value>
+  </data>
+  <data name="Undo_RotateRight" xml:space="preserve">
+    <value>Rotate right</value>
+  </data>
+  <data name="Undo_RotateLeft" xml:space="preserve">
+    <value>Rotate left</value>
+  </data>
+  <data name="Undo_FlipHorizontal" xml:space="preserve">
+    <value>Flip horizontal</value>
+  </data>
+  <data name="Undo_FlipVertical" xml:space="preserve">
+    <value>Flip vertical</value>
+  </data>
+  <data name="Undo_ResizeCanvas" xml:space="preserve">
+    <value>Resize canvas</value>
+  </data>
+  <data name="Status_Transformed" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Status_Resized" xml:space="preserve">
+    <value>Canvas resized to {0}</value>
+  </data>
+  <data name="Undo_GaussianBlur" xml:space="preserve">
+    <value>Gaussian blur</value>
+  </data>
+  <data name="Undo_Sharpen" xml:space="preserve">
+    <value>Sharpen</value>
+  </data>
+  <data name="Status_PickedColor" xml:space="preserve">
+    <value>Picked {0}</value>
+  </data>
+  <data name="Toolbar_Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="Filter_GaussianBlur" xml:space="preserve">
+    <value>Gaussian Blur</value>
+  </data>
+  <data name="Filter_Sharpen" xml:space="preserve">
+    <value>Sharpen (USM)</value>
+  </data>
+  <data name="Filter_Radius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="Filter_Amount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Toolbar_Transform" xml:space="preserve">
+    <value>Transform</value>
+  </data>
+  <data name="Transform_RotateRight" xml:space="preserve">
+    <value>Rotate right</value>
+  </data>
+  <data name="Transform_RotateLeft" xml:space="preserve">
+    <value>Rotate left</value>
+  </data>
+  <data name="Transform_FlipHorizontal" xml:space="preserve">
+    <value>Flip horizontal</value>
+  </data>
+  <data name="Transform_FlipVertical" xml:space="preserve">
+    <value>Flip vertical</value>
+  </data>
+  <data name="Transform_CropToSelection" xml:space="preserve">
+    <value>Crop to selection</value>
+  </data>
+  <data name="Transform_Resize" xml:space="preserve">
+    <value>Resize canvas…</value>
+  </data>
+  <data name="Resize_Title" xml:space="preserve">
+    <value>Canvas size</value>
+  </data>
+  <data name="Resize_Width" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="Resize_Height" xml:space="preserve">
+    <value>Height</value>
+  </data>
+  <data name="Resize_KeepRatio" xml:space="preserve">
+    <value>Keep aspect ratio</value>
+  </data>
+  <data name="Resize_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Resize_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Toolbar_ColorPicker" xml:space="preserve">
+    <value>Eyedropper</value>
+  </data>
+  <data name="ColorPicker_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="ColorPicker_Copied" xml:space="preserve">
+    <value>Colour copied</value>
+  </data>
 </root>

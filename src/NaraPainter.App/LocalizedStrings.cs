@@ -476,6 +476,70 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string AboutUnofficial => Strings.AboutUnofficial;
 
+    public string UndoGaussianBlur => Strings.UndoGaussianBlur;
+
+    public string UndoSharpen => Strings.UndoSharpen;
+
+    public string StatusPickedColor => Strings.StatusPickedColor;
+
+    public string ToolbarFilters => Strings.ToolbarFilters;
+
+    public string FilterGaussianBlur => Strings.FilterGaussianBlur;
+
+    public string FilterSharpen => Strings.FilterSharpen;
+
+    public string FilterRadius => Strings.FilterRadius;
+
+    public string FilterAmount => Strings.FilterAmount;
+
+    public string ToolbarTransform => Strings.ToolbarTransform;
+
+    public string TransformRotateRight => Strings.TransformRotateRight;
+
+    public string TransformRotateLeft => Strings.TransformRotateLeft;
+
+    public string TransformFlipHorizontal => Strings.TransformFlipHorizontal;
+
+    public string TransformFlipVertical => Strings.TransformFlipVertical;
+
+    public string TransformCropToSelection => Strings.TransformCropToSelection;
+
+    public string TransformResize => Strings.TransformResize;
+
+    public string ResizeTitle => Strings.ResizeTitle;
+
+    public string ResizeWidth => Strings.ResizeWidth;
+
+    public string ResizeHeight => Strings.ResizeHeight;
+
+    public string ResizeKeepRatio => Strings.ResizeKeepRatio;
+
+    public string ResizeApply => Strings.ResizeApply;
+
+    public string ResizeCancel => Strings.ResizeCancel;
+
+    public string ToolbarColorPicker => Strings.ToolbarColorPicker;
+
+    public string ColorPickerCopy => Strings.ColorPickerCopy;
+
+    public string ColorPickerCopied => Strings.ColorPickerCopied;
+
+    public string UndoCropLayer => Strings.UndoCropLayer;
+
+    public string UndoRotateRight => Strings.UndoRotateRight;
+
+    public string UndoRotateLeft => Strings.UndoRotateLeft;
+
+    public string UndoFlipHorizontal => Strings.UndoFlipHorizontal;
+
+    public string UndoFlipVertical => Strings.UndoFlipVertical;
+
+    public string UndoResizeCanvas => Strings.UndoResizeCanvas;
+
+    public string StatusTransformed => Strings.StatusTransformed;
+
+    public string StatusResized => Strings.StatusResized;
+
     public string StatusLanguageChanged => Strings.StatusLanguageChanged;
 
     public string LanguageLabel => Strings.LanguageLabel;

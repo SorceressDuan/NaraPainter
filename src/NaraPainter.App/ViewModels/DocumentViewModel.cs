@@ -37,6 +37,8 @@ public sealed class DocumentViewModel : ObservableObject
         Selection = new SelectionViewModel(this, masks);
         MaskBrush = new MaskBrushViewModel(this, masks);
         ContentFill = new ContentAwareFillViewModel(this, masks);
+        Transform = new TransformViewModel(this);
+        ColorPicker = new ColorPickerViewModel(this);
 
         Layers.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LayerCountLabel));
 
@@ -56,6 +58,12 @@ public sealed class DocumentViewModel : ObservableObject
     public event EventHandler<CanvasDocument>? DocumentReplaced;
 
     public UndoStack History { get; } = new();
+
+    /// <summary>Crop, rotate, flip and canvas resize. Created with the document, like the other tools.</summary>
+    public TransformViewModel Transform { get; }
+
+    /// <summary>Reads the colour under a point on the canvas.</summary>
+    public ColorPickerViewModel ColorPicker { get; }
 
     public AdjustmentViewModel Adjustment { get; }
 
@@ -167,7 +175,7 @@ public sealed class DocumentViewModel : ObservableObject
         Status = Localization.Interpolate(Strings.StatusOpened, fileName, SizeLabel, stopwatch.ElapsedMilliseconds);
     }
 
-    private void SwapDocument(CanvasDocument document)
+    internal void SwapDocument(CanvasDocument document)
     {
         _document = document;
         ReloadLayers();
