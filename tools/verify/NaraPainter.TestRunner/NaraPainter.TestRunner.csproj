@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>NaraPainter.TestRunner</RootNamespace>
+    <AssemblyName>NaraPainter.TestRunner</AssemblyName>
+    <Platforms>x64</Platforms>
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <!-- The test project pulls in the app, which is a self-contained WinUI executable, and a
+         framework-dependent project cannot reference that. -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Referencing the test project keeps every dependency, native ones included, next to this
+         runner in the output folder. -->
+    <ProjectReference Include="..\..\..\tests\NaraPainter.Tests\NaraPainter.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

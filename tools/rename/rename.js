@@ -1,4 +1,4 @@
-// One-shot product rename: Compositor -> NaraDreamPainter.
+// One-shot product rename: Compositor -> NaraPainter.
 //
 // Two things must survive untouched: the upstream reference in legacy/, and every mention of the
 // original project by name in prose (the provenance notice, issue links, the migration docs). So
@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 
 const OLD = "Compositor";
-const NEW = "NaraDreamPainter";
+const NEW = "NaraPainter";
 const dryRun = process.argv.includes("--dry");
 
 const root = path.resolve(__dirname, "..", "..");
@@ -46,8 +46,8 @@ const RULES = [
     [`Compositor.exe`, `${NEW}.exe`],
     [`"Compositor"`, `"${NEW}"`],
     [`'Compositor'`, `'${NEW}'`],
-    [`compositor-selftest`, "naradreampainter-selftest"],
-    [`compositor-startup`, "naradreampainter-startup"],
+    [`compositor-selftest`, "narapainter-selftest"],
+    [`compositor-startup`, "narapainter-startup"],
     [`compositor-notary`, "naradreampainter-notary"]
 ];
 
@@ -80,7 +80,7 @@ function applyRules(text) {
     return { result, hits };
 }
 
-// Renames a path segment: Compositor.App -> NaraDreamPainter.App, and a bare Compositor -> NaraDreamPainter.
+// Renames a path segment: Compositor.App -> NaraPainter.App, and a bare Compositor -> NaraPainter.
 function renameSegment(segment) {
     if (segment === OLD) return NEW;
     if (segment.startsWith(OLD + ".")) return NEW + segment.slice(OLD.length);

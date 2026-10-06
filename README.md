@@ -1,33 +1,33 @@
-# Nara Dream Painter
+# Nara Painter
 
 > **本工具定位为轻量级 Windows 图像编辑器，支持图层、蒙版、内容感知填充、TIFF 导出，
 > 不包含 Photoshop 级别的 PSD 导入/导出、CMYK 和矢量功能。**
 
-> **运行方式：解压后双击根目录的 `Run.bat`。**
+> **运行方式：解压后双击 `launcher\NaraPainter.exe`。**
 >
-> 想放到桌面或开始菜单，双击 `创建桌面快捷方式.bat` 会在同目录生成一个快捷方式。
-> 无需安装 .NET 或 Windows App SDK。
+> 更省事：先双击 `创建桌面快捷方式.bat`，它会在根目录生成 `NaraPainter.lnk`，
+> 之后从桌面或开始菜单启动即可。无需安装 .NET 或 Windows App SDK。
 
-Nara Dream Painter 是 [robbietilton/Compositor](https://github.com/robbietilton/Compositor)
-的非官方 Windows 移植版。
+Nara Painter 是
+[robbietilton/Compositor](https://github.com/robbietilton/Compositor) 的非官方 Windows 移植版。
 原项目版权归 Robbie Tilton 所有，采用 MIT 许可证。
 本项目与原作者无隶属或背书关系，也不是原项目的官方续作。
 原始许可证见 `LICENSE`。
 
 ## 发布包里的目录结构
 
-面向使用者的压缩包只有 7 个可见项目，依赖都在子文件夹里：
+面向使用者的压缩包在根目录只放一个脚本和几份文档，程序都在子文件夹里：
 
 ```
-Run.bat                       双击这个启动
-创建桌面快捷方式.bat            生成 NaraDreamPainter.lnk，可拖到桌面或开始菜单
+创建桌面快捷方式.bat            生成 NaraPainter.lnk，可拖到桌面或开始菜单
 RUNNING.txt                   一页说明
 README.md  LICENSE
-launcher/                     启动器（自包含，不需要已安装 .NET）
+launcher/                     引导程序与它自己的运行库；双击里面的 NaraPainter.exe 启动
 app/                          程序本体与运行库，不要移动或删除里面的文件
 ```
 
-拆分的原因是 `app/` 里有一百多个运行时文件，全部摊在根目录会让第一次使用的人找不到主程序。
+`launcher\NaraPainter.exe` 是个极小的引导程序：启动 `app\` 里的主程序后自己就退出。拆分的原因是
+`app/` 里有一百多个运行时文件，全部摊在根目录会让第一次使用的人找不到主程序。
 程序放在子目录里能正常启动，这一点是实测过的，不是假设——见 [docs/BUILD.md](docs/BUILD.md)。
 
 ---
@@ -96,8 +96,8 @@ app/                          程序本体与运行库，不要移动或删除�
 界面文本全部走资源文件，不硬编码。默认简体中文，系统语言是英文时回退英文：
 
 ```
-src/NaraDreamPainter.App/Resources/Strings.resx      英文（默认回退）
-src/NaraDreamPainter.App/Resources/Strings.zh-CN.resx 简体中文
+src/NaraPainter.App/Resources/Strings.resx      英文（默认回退）
+src/NaraPainter.App/Resources/Strings.zh-CN.resx 简体中文
 ```
 
 加一门语言就是加一个 `Strings.<culture>.resx`，代码不用动。
@@ -111,11 +111,11 @@ src/NaraDreamPainter.App/Resources/Strings.zh-CN.resx 简体中文
 
 ```powershell
 dotnet restore
-dotnet build src/NaraDreamPainter.App/NaraDreamPainter.App.csproj -c Debug
+dotnet build src/NaraPainter.App/NaraPainter.App.csproj -c Debug
 ```
 
 调试构建是自包含的（`SelfContained` + `WindowsAppSDKSelfContained`），
-所以产物目录里已经带了 .NET 运行时和 Windows App SDK，不需要另外装运行时，双击 `NaraDreamPainter.exe` 就能跑。
+所以产物目录里已经带了 .NET 运行时和 Windows App SDK，不需要另外装运行时，双击 `NaraPainter.exe` 就能跑。
 
 打包成可以直接发给别人的压缩包：
 
@@ -129,7 +129,7 @@ powershell -ExecutionPolicy Bypass -File packaging/pack.ps1
 ## 测试
 
 ```powershell
-dotnet test tests/NaraDreamPainter.Tests/NaraDreamPainter.Tests.csproj
+dotnet test tests/NaraPainter.Tests/NaraPainter.Tests.csproj
 ```
 
 测试集中在不依赖界面的部分：混合模式数值、调整算法、文件读写往返、图层模型操作。
@@ -140,12 +140,12 @@ dotnet test tests/NaraDreamPainter.Tests/NaraDreamPainter.Tests.csproj
 
 ```
 src/
-  NaraDreamPainter.Models/       数据模型、混合数学、服务契约，不引用任何 Windows API
-  NaraDreamPainter.Imaging/      OpenCvSharp4 的图像读写与像素操作
-  NaraDreamPainter.Compositing/  Win2D 画布渲染与 GPU 合成
-  NaraDreamPainter.App/          WinUI 3 界面（Views / ViewModels / Services / Controls）
+  NaraPainter.Models/       数据模型、混合数学、服务契约，不引用任何 Windows API
+  NaraPainter.Imaging/      OpenCvSharp4 的图像读写与像素操作
+  NaraPainter.Compositing/  Win2D 画布渲染与 GPU 合成
+  NaraPainter.App/          WinUI 3 界面（Views / ViewModels / Services / Controls）
 tests/
-  NaraDreamPainter.Tests/        xUnit 测试
+  NaraPainter.Tests/        xUnit 测试
 tools/
   assets/                  测试图片与应用图标的生成器
   verify/                  一次性跑完的验收脚本
@@ -154,7 +154,7 @@ legacy/                    原项目 Swift 源码（只读参考）
 docs/                      移植说明、构建说明、需求文档存档
 ```
 
-`NaraDreamPainter.Models` 刻意不引用 Windows 相关的包，混合与调整的公式只有一处实现，
+`NaraPainter.Models` 刻意不引用 Windows 相关的包，混合与调整的公式只有一处实现，
 界面预览和高分辨率导出走的是同一套代码。
 
 ## 许可

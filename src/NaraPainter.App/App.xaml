@@ -1,0 +1,22 @@
+<Application
+    x:Class="NaraPainter.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:NaraPainter.App.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+
+            <!--
+                One family, not a comma-separated chain: WinUI 3 does not document WPF's fallback-list
+                syntax, and an unparsed chain silently drops back to the default font. DirectWrite
+                already falls back per glyph when a family is absent, so Chinese still renders (with
+                Latin sharing the fallback) without listing Segoe UI here.
+            -->
+            <FontFamily x:Key="AppFontFamily">Microsoft YaHei UI</FontFamily>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

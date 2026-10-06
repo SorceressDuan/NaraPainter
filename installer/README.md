@@ -13,11 +13,11 @@ powershell -ExecutionPolicy Bypass -File installer/build-msix.ps1
 
 | 文件 | 说明 |
 | --- | --- |
-| `dist/NaraDreamPainter-Setup.msix` | 安装包，约 122 MB |
-| `dist/NaraDreamPainter.cer` | 自签名证书，安装前要先让本机信任它 |
+| `dist/NaraPainter-Setup.msix` | 安装包，约 122 MB |
+| `dist/NaraPainter.cer` | 自签名证书，安装前要先让本机信任它 |
 
 脚本会顺手生成签名用的自签名证书（不需要管理员权限），存在
-`Cert:\CurrentUser\My`，主题固定为 `CN=Nara Dream Painter`——这个字符串必须与
+`Cert:\CurrentUser\My`，主题固定为 `CN=Nara Painter`——这个字符串必须与
 `Package.appxmanifest` 里的 `Publisher` 完全一致，否则安装会以签名错误告终。
 
 ## 安装
@@ -26,7 +26,7 @@ powershell -ExecutionPolicy Bypass -File installer/build-msix.ps1
 
 ```powershell
 # 1. 信任证书（需要管理员）
-Import-Certificate -FilePath dist\NaraDreamPainter.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
+Import-Certificate -FilePath dist\NaraPainter.cer -CertStoreLocation Cert:\LocalMachine\TrustedPeople
 
 # 2. 允许旁加载（需要管理员，只需一次）
 #    设置 → 系统 → 开发者选项 → 允许"旁加载应用"，或：
@@ -35,7 +35,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModel
     -Name AllowAllTrustedApps -Value 1 -Type DWord
 
 # 3. 安装
-Add-AppxPackage -Path dist\NaraDreamPainter-Setup.msix
+Add-AppxPackage -Path dist\NaraPainter-Setup.msix
 ```
 
 也可以直接双击 `.msix`，系统会提示缺少受信任的证书，按提示先装 `.cer` 再装包。
@@ -56,10 +56,10 @@ Add-AppxPackage -Path dist\NaraDreamPainter-Setup.msix
    改这个键需要管理员。
 
 所以在有开发许可或已启用旁加载、且能拿到完整 SDK `signtool` 的机器上补上签名即可：
-`makeappx pack /d dist\msix /p dist\NaraDreamPainter-Setup.msix` 之后
-`signtool sign /fd SHA256 /sha1 <证书指纹> dist\NaraDreamPainter-Setup.msix`。
+`makeappx pack /d dist\msix /p dist\NaraPainter-Setup.msix` 之后
+`signtool sign /fd SHA256 /sha1 <证书指纹> dist\NaraPainter-Setup.msix`。
 
 ## 便携版
 
-不想碰安装包就用 zip：解压后双击根目录的 `Run.bat`，或直接双击 `NaraDreamPainter.exe`。
+不想碰安装包就用 zip：解压后双击根目录的 `Run.bat`，或直接双击 `NaraPainter.exe`。
 两者都不需要安装 .NET 或 Windows App SDK。

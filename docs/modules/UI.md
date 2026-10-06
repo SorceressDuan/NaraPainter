@@ -1,7 +1,7 @@
-# 界面模块（NaraDreamPainter.App）
+# 界面模块（NaraPainter.App）
 
 WinUI 3 外壳：窗口布局、图层与属性面板、文件对话框、拖放、撤销。画布渲染在
-`NaraDreamPainter.Compositing`，像素操作在 `NaraDreamPainter.Imaging`，界面只通过 `NaraDreamPainter.Models.Services`
+`NaraPainter.Compositing`，像素操作在 `NaraPainter.Imaging`，界面只通过 `NaraPainter.Models.Services`
 下的三个接口和 `CanvasView` 的公开成员接触它们。
 
 界面文字全部来自资源文件，默认简体中文、英文系统回退英文，见 [LOCALIZATION.md](LOCALIZATION.md)。
@@ -113,24 +113,24 @@ dotnet build Compositor.sln -c Debug      # 0 warning 0 error
 
 ```powershell
 dotnet build-server shutdown
-Remove-Item -Recurse -Force src\NaraDreamPainter.App\obj, src\NaraDreamPainter.App\bin
+Remove-Item -Recurse -Force src\NaraPainter.App\obj, src\NaraPainter.App\bin
 dotnet build Compositor.sln -c Debug
 ```
 
 只删 App 的 `obj`/`bin` 再整体构建是目前稳定复现的配方；`-t:Rebuild` 不要用——它会连带重建依赖项目，
 而 App 的 PRI 合并正好可能在依赖的 `.pri` 被清掉时跑，报
-`PRI252 ... NaraDreamPainter.Compositing.pri not found`，或者留下更坏的中间产物。构建冲突时先
+`PRI252 ... NaraPainter.Compositing.pri not found`，或者留下更坏的中间产物。构建冲突时先
 `dotnet build-server shutdown`（必要时加 `-nodeReuse:false`），最终验收前别和其他人的构建并行。
 
 启动到底有没有走到自检，看 exe 目录下的 `startup.log`（同内容另写一份到
-`%TEMP%\naradreampainter-startup.log`）：`[OnLaunched]` 一行带完整命令行、参数解析结果和工作目录，
+`%TEMP%\narapainter-startup.log`）：`[OnLaunched]` 一行带完整命令行、参数解析结果和工作目录，
 后面跟着 `[selfTest] queued`、`[selfTest] running`、`[smokeTest]` 的路径与退出码。
 如果里面只有 `[unhandled] XamlParseException` 而没有 `[OnLaunched]`，就是构建目录坏了，按上面的配方重建。
 
 启动：
 
 ```powershell
-& "src\NaraDreamPainter.App\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.exe"
+& "src\NaraPainter.App\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\NaraPainter.exe"
 ```
 
 沙箱里点不到窗口，所以功能验证靠 `--selftest`：它用真实视图模型跑一遍
@@ -138,13 +138,13 @@ dotnet build Compositor.sln -c Debug
 重新读回 → 打开 4000×3000」，每步都断言像素确实变了，最后把日志写文件并返回进程退出码。
 
 ```powershell
-NaraDreamPainter.exe --selftest assets\testimages\photo.jpg --export .tools\out.png --log .tools\selftest.log
+NaraPainter.exe --selftest assets\testimages\photo.jpg --export .tools\out.png --log .tools\selftest.log
 ```
 
 ```text
-window.title=NaraDreamPainter — Untitled
+window.title=NaraPainter — Untitled
 open file=photo.jpg size=800 × 600 layers=1 ms=31
-window.title=NaraDreamPainter — photo.jpg
+window.title=NaraPainter — photo.jpg
 newLayer name=Layer 2 layers=2 size=800 × 600
 blendModes Multiply=162,101,109,255 Screen=221,181,187,255 Overlay=211,146,169,255
 brightnessContrast brightness=25 contrast=10 before=211,146,169,255 after=229,172,195,255
@@ -168,7 +168,7 @@ exit=0
 
 参数两种写法都认：`--selftest <图片>` 和 `--selftest=<图片>`，`--large/--export/--log` 同理；
 不传的项有默认值（`assets\testimages\photo.jpg`、`large-4000x3000.png`、
-`%TEMP%\naradreampainter-selftest.png`、exe 目录下的 `selftest.log`）。注意 `--selftest` 后面会紧跟一个
+`%TEMP%\narapainter-selftest.png`、exe 目录下的 `selftest.log`）。注意 `--selftest` 后面会紧跟一个
 图片路径，所以 `--selftest --log x.log` 里的 `--log` 会被当成图片名，日志里会出现一条
 `RESULT FAIL FileNotFoundException`——这不算 bug，是这种写法的必然结果，用 `--selftest=<图片>` 更稳。
 
@@ -219,7 +219,7 @@ exit=0
 
 ## 崩溃与容错
 
-- `CrashReport` 写 `%LOCALAPPDATA%\NaraDreamPainter\crash.log`（便携包可能解压在只读位置，exe 旁边不一定能写），
+- `CrashReport` 写 `%LOCALAPPDATA%\NaraPainter\crash.log`（便携包可能解压在只读位置，exe 旁边不一定能写），
   同时弹一个 user32 的 `MessageBox`。用 user32 而不是 XAML 对话框：这条路径在 UI 线程已经出问题时执行，
   再创建 XAML 对象很可能跟着失败。文案走 `Crash_Message` 资源键。
 - `App` 挂了 `UnhandledException` 与 `TaskScheduler.UnobservedTaskException`（后者 `SetObserved`，避免进程被带走）。

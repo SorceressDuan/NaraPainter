@@ -19,7 +19,7 @@
   <!--
     Architecture is deliberately NOT set here. Setting PlatformTarget or RuntimeIdentifier globally from
     this file propagates into every project a Windows-targeting project references, including
-    NaraDreamPainter.Models, and moves its output from bin/Debug to bin/x64/Debug. Anything looking for the
+    NaraPainter.Models, and moves its output from bin/Debug to bin/x64/Debug. Anything looking for the
     framework-neutral path - the test runner does - then fails with MSB3030. Win2D0001 is handled per
     project instead, where the platform actually belongs.
   -->

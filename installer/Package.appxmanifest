@@ -8,14 +8,14 @@
   <!-- __VERSION__ and __PUBLISHER__ are filled in by installer/build-msix.ps1. The publisher has to
        match the signing certificate's subject exactly. -->
   <Identity
-    Name="NaraDreamPainter.Unofficial"
+    Name="NaraPainter.Unofficial"
     Publisher="__PUBLISHER__"
     Version="__VERSION__"
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Nara Dream Painter</DisplayName>
-    <PublisherDisplayName>Nara Dream Painter contributors</PublisherDisplayName>
+    <DisplayName>Nara Painter</DisplayName>
+    <PublisherDisplayName>Nara Painter contributors</PublisherDisplayName>
     <Description>Non-official Windows port of the Compositor image editor.</Description>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,9 +30,9 @@
   </Resources>
 
   <Applications>
-    <Application Id="NaraDreamPainter" Executable="NaraDreamPainter.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="NaraPainter" Executable="NaraPainter.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Nara Dream Painter"
+        DisplayName="Nara Painter"
         Description="Non-official Windows port of the Compositor image editor."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"

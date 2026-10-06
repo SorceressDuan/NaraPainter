@@ -1,0 +1,36 @@
+<UserControl
+    x:Class="NaraPainter.App.Controls.AdjustmentSlider"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid ColumnSpacing="8" RowSpacing="2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            Text="{x:Bind Header, Mode=OneWay}"
+            Style="{StaticResource CaptionTextBlockStyle}"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+            VerticalAlignment="Center"
+            TextTrimming="CharacterEllipsis" />
+
+        <NumberBox
+            x:Name="Box"
+            Grid.Column="1"
+            Width="84"
+            MinWidth="0"
+            SpinButtonPlacementMode="Compact" />
+
+        <Slider
+            x:Name="Track"
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            IsThumbToolTipEnabled="False" />
+    </Grid>
+</UserControl>

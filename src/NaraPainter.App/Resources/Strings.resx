@@ -1,0 +1,709 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    English. This is the neutral fallback, so every key here must also exist in Strings.zh-CN.resx.
+    tools/verify fails the run when the two files drift apart. The property names in Strings.cs drop
+    the underscores (Toolbar_Open -> ToolbarOpen), which tests/NaraPainter.Tests/LocalizationTests
+    also asserts. See docs/modules/LOCALIZATION.md before adding a key.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Window, status bar and file names. -->
+  <data name="App_Title" xml:space="preserve">
+    <value>Nara Painter</value>
+  </data>
+  <data name="App_Untitled" xml:space="preserve">
+    <value>Untitled</value>
+  </data>
+  <data name="App_WindowTitle" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="App_ModifiedMark" xml:space="preserve">
+    <value> *</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Status_Ready" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="Status_Opened" xml:space="preserve">
+    <value>Opened {0} · {1} · {2} ms</value>
+  </data>
+  <data name="Status_Exported" xml:space="preserve">
+    <value>Exported {0} · {1} × {2}</value>
+  </data>
+  <data name="Status_Imported" xml:space="preserve">
+    <value>Imported {0} as a layer</value>
+  </data>
+  <data name="Status_LayerAdded" xml:space="preserve">
+    <value>Added {0}</value>
+  </data>
+  <data name="Status_AdjustmentLayerAdded" xml:space="preserve">
+    <value>Added the {0} layer</value>
+  </data>
+  <data name="Status_LayerDuplicated" xml:space="preserve">
+    <value>Duplicated {0}</value>
+  </data>
+  <data name="Status_LayerDeleted" xml:space="preserve">
+    <value>Deleted {0}</value>
+  </data>
+  <data name="Status_LayersReordered" xml:space="preserve">
+    <value>Layers reordered</value>
+  </data>
+  <data name="Status_OneLayer" xml:space="preserve">
+    <value>1 layer</value>
+  </data>
+  <data name="Status_LayerCount" xml:space="preserve">
+    <value>{0} layers</value>
+  </data>
+
+  <!-- Toolbar. The hint keys carry the keyboard shortcut the accelerator already uses. -->
+  <data name="Toolbar_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Toolbar_OpenHint" xml:space="preserve">
+    <value>Open an image (Ctrl+O)</value>
+  </data>
+  <data name="Toolbar_Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Toolbar_ExportHint" xml:space="preserve">
+    <value>Export the flattened image (Ctrl+E)</value>
+  </data>
+  <data name="Toolbar_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Toolbar_UndoHint" xml:space="preserve">
+    <value>Undo (Ctrl+Z)</value>
+  </data>
+  <data name="Toolbar_Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Toolbar_RedoHint" xml:space="preserve">
+    <value>Redo (Ctrl+Y)</value>
+  </data>
+  <data name="Toolbar_NewLayer" xml:space="preserve">
+    <value>New Layer</value>
+  </data>
+  <data name="Toolbar_NewLayerHint" xml:space="preserve">
+    <value>Add a layer (Ctrl+Shift+N)</value>
+  </data>
+  <data name="Toolbar_Duplicate" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="Toolbar_DuplicateHint" xml:space="preserve">
+    <value>Duplicate the selected layer</value>
+  </data>
+  <data name="Toolbar_DeleteLayer" xml:space="preserve">
+    <value>Delete Layer</value>
+  </data>
+  <data name="Toolbar_DeleteHint" xml:space="preserve">
+    <value>Delete the selected layer</value>
+  </data>
+  <data name="Toolbar_AdjustmentLayer" xml:space="preserve">
+    <value>Adjustment Layer</value>
+  </data>
+  <data name="Toolbar_AdjustmentLayerHint" xml:space="preserve">
+    <value>Add an adjustment layer above the selected one</value>
+  </data>
+  <data name="Toolbar_ZoomOut" xml:space="preserve">
+    <value>Zoom Out</value>
+  </data>
+  <data name="Toolbar_ZoomOutHint" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
+  <data name="Toolbar_ZoomIn" xml:space="preserve">
+    <value>Zoom In</value>
+  </data>
+  <data name="Toolbar_ZoomInHint" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="Toolbar_Fit" xml:space="preserve">
+    <value>Fit</value>
+  </data>
+  <data name="Toolbar_FitHint" xml:space="preserve">
+    <value>Fit the canvas to the window</value>
+  </data>
+  <data name="Toolbar_ActualSize" xml:space="preserve">
+    <value>100%</value>
+  </data>
+  <data name="Toolbar_ActualSizeHint" xml:space="preserve">
+    <value>Show the canvas at 100%</value>
+  </data>
+  <data name="Toolbar_MaskBrush" xml:space="preserve">
+    <value>Mask Brush</value>
+  </data>
+  <data name="Toolbar_MaskBrushHint" xml:space="preserve">
+    <value>Paint on the selected layer's mask</value>
+  </data>
+  <data name="Toolbar_ContentAwareFill" xml:space="preserve">
+    <value>Content-Aware Fill</value>
+  </data>
+  <data name="Toolbar_ContentAwareFillHint" xml:space="preserve">
+    <value>Fill the selection from its surroundings</value>
+  </data>
+  <data name="Toolbar_FillSelection" xml:space="preserve">
+    <value>Fill Selection</value>
+  </data>
+  <data name="Toolbar_FeatherMask" xml:space="preserve">
+    <value>Feather Mask</value>
+  </data>
+  <data name="Toolbar_InvertMask" xml:space="preserve">
+    <value>Invert Mask</value>
+  </data>
+  <data name="Toolbar_ClearMask" xml:space="preserve">
+    <value>Clear Mask</value>
+  </data>
+
+  <!-- Layers panel. -->
+  <data name="Layers_Title" xml:space="preserve">
+    <value>Layers</value>
+  </data>
+  <data name="Layers_VisibilityHint" xml:space="preserve">
+    <value>Show or hide</value>
+  </data>
+  <data name="Layers_AdjustmentBadge" xml:space="preserve">
+    <value>ADJUST</value>
+  </data>
+  <data name="Layers_Opacity" xml:space="preserve">
+    <value>Opacity</value>
+  </data>
+  <data name="Layers_AddHint" xml:space="preserve">
+    <value>New layer</value>
+  </data>
+  <data name="Layers_DuplicateHint" xml:space="preserve">
+    <value>Duplicate layer</value>
+  </data>
+  <data name="Layers_DeleteHint" xml:space="preserve">
+    <value>Delete layer</value>
+  </data>
+  <data name="Layers_MoveUpHint" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="Layers_MoveDownHint" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="Layers_Empty" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="Layers_DefaultName" xml:space="preserve">
+    <value>Layer</value>
+  </data>
+  <data name="Layers_NameFormat" xml:space="preserve">
+    <value>Layer {0}</value>
+  </data>
+  <data name="Layers_CopyNameFormat" xml:space="preserve">
+    <value>{0} copy</value>
+  </data>
+  <data name="Layers_ImportHint" xml:space="preserve">
+    <value>Import as a layer</value>
+  </data>
+  <data name="Layers_ImportFailed" xml:space="preserve">
+    <value>Could not import {0}: {1}</value>
+  </data>
+
+  <!-- Properties panel. -->
+  <data name="Properties_Title" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="Properties_Layer" xml:space="preserve">
+    <value>Layer</value>
+  </data>
+  <data name="Properties_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Properties_BlendMode" xml:space="preserve">
+    <value>Blend Mode</value>
+  </data>
+  <data name="Properties_Opacity" xml:space="preserve">
+    <value>Opacity</value>
+  </data>
+  <data name="Properties_Visible" xml:space="preserve">
+    <value>Visible</value>
+  </data>
+  <data name="Properties_Adjustments" xml:space="preserve">
+    <value>Adjustments</value>
+  </data>
+  <data name="Properties_SelectionAndMask" xml:space="preserve">
+    <value>Selection and Mask</value>
+  </data>
+  <data name="Properties_NoLayer" xml:space="preserve">
+    <value>No layer selected</value>
+  </data>
+  <data name="Properties_Shape" xml:space="preserve">
+    <value>Shape</value>
+  </data>
+  <data name="Properties_X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="Properties_Y" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="Properties_Width" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="Properties_Height" xml:space="preserve">
+    <value>Height</value>
+  </data>
+  <data name="Properties_Feather" xml:space="preserve">
+    <value>Feather</value>
+  </data>
+  <data name="Properties_ApplyAsMask" xml:space="preserve">
+    <value>Apply as Mask</value>
+  </data>
+  <data name="Properties_SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Properties_ClearMask" xml:space="preserve">
+    <value>Clear Mask</value>
+  </data>
+  <data name="Properties_Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Properties_AddPoint" xml:space="preserve">
+    <value>Add Point</value>
+  </data>
+  <data name="Properties_RemovePoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Properties_Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="Properties_Range" xml:space="preserve">
+    <value>Range</value>
+  </data>
+  <data name="Properties_Brightness" xml:space="preserve">
+    <value>Brightness</value>
+  </data>
+  <data name="Properties_Contrast" xml:space="preserve">
+    <value>Contrast</value>
+  </data>
+  <data name="Properties_Hue" xml:space="preserve">
+    <value>Hue</value>
+  </data>
+  <data name="Properties_Saturation" xml:space="preserve">
+    <value>Saturation</value>
+  </data>
+  <data name="Properties_Lightness" xml:space="preserve">
+    <value>Lightness</value>
+  </data>
+  <data name="Properties_Colorize" xml:space="preserve">
+    <value>Colorize</value>
+  </data>
+  <data name="Properties_BlackPoint" xml:space="preserve">
+    <value>Black Point</value>
+  </data>
+  <data name="Properties_WhitePoint" xml:space="preserve">
+    <value>White Point</value>
+  </data>
+  <data name="Properties_Gamma" xml:space="preserve">
+    <value>Gamma</value>
+  </data>
+  <data name="Properties_OutputBlack" xml:space="preserve">
+    <value>Output Black</value>
+  </data>
+  <data name="Properties_OutputWhite" xml:space="preserve">
+    <value>Output White</value>
+  </data>
+
+  <!-- Adjustment names, shared by the toolbar menu, the panel headers, layer names and history. -->
+  <data name="Adjust_BrightnessContrast" xml:space="preserve">
+    <value>Brightness / Contrast</value>
+  </data>
+  <data name="Adjust_HueSaturation" xml:space="preserve">
+    <value>Hue / Saturation</value>
+  </data>
+  <data name="Adjust_Levels" xml:space="preserve">
+    <value>Levels</value>
+  </data>
+  <data name="Adjust_Curves" xml:space="preserve">
+    <value>Curves</value>
+  </data>
+  <data name="Channel_Rgb" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="Channel_Red" xml:space="preserve">
+    <value>Red</value>
+  </data>
+  <data name="Channel_Green" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="Channel_Blue" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="Range_Master" xml:space="preserve">
+    <value>Master</value>
+  </data>
+  <data name="Range_Reds" xml:space="preserve">
+    <value>Reds</value>
+  </data>
+  <data name="Range_Yellows" xml:space="preserve">
+    <value>Yellows</value>
+  </data>
+  <data name="Range_Greens" xml:space="preserve">
+    <value>Greens</value>
+  </data>
+  <data name="Range_Cyans" xml:space="preserve">
+    <value>Cyans</value>
+  </data>
+  <data name="Range_Blues" xml:space="preserve">
+    <value>Blues</value>
+  </data>
+  <data name="Range_Magentas" xml:space="preserve">
+    <value>Magentas</value>
+  </data>
+  <data name="Curve_Shadows" xml:space="preserve">
+    <value>Shadows</value>
+  </data>
+  <data name="Curve_Highlights" xml:space="preserve">
+    <value>Highlights</value>
+  </data>
+  <data name="Curve_PointFormat" xml:space="preserve">
+    <value>Point {0}</value>
+  </data>
+
+  <!-- The 24 blend modes, in enum order; the picker binds its index straight to the enum. -->
+  <data name="BlendMode_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="BlendMode_Darken" xml:space="preserve">
+    <value>Darken</value>
+  </data>
+  <data name="BlendMode_Multiply" xml:space="preserve">
+    <value>Multiply</value>
+  </data>
+  <data name="BlendMode_ColorBurn" xml:space="preserve">
+    <value>Color Burn</value>
+  </data>
+  <data name="BlendMode_LinearBurn" xml:space="preserve">
+    <value>Linear Burn</value>
+  </data>
+  <data name="BlendMode_Lighten" xml:space="preserve">
+    <value>Lighten</value>
+  </data>
+  <data name="BlendMode_Screen" xml:space="preserve">
+    <value>Screen</value>
+  </data>
+  <data name="BlendMode_ColorDodge" xml:space="preserve">
+    <value>Color Dodge</value>
+  </data>
+  <data name="BlendMode_LinearDodge" xml:space="preserve">
+    <value>Linear Dodge</value>
+  </data>
+  <data name="BlendMode_Overlay" xml:space="preserve">
+    <value>Overlay</value>
+  </data>
+  <data name="BlendMode_SoftLight" xml:space="preserve">
+    <value>Soft Light</value>
+  </data>
+  <data name="BlendMode_HardLight" xml:space="preserve">
+    <value>Hard Light</value>
+  </data>
+  <data name="BlendMode_VividLight" xml:space="preserve">
+    <value>Vivid Light</value>
+  </data>
+  <data name="BlendMode_LinearLight" xml:space="preserve">
+    <value>Linear Light</value>
+  </data>
+  <data name="BlendMode_PinLight" xml:space="preserve">
+    <value>Pin Light</value>
+  </data>
+  <data name="BlendMode_HardMix" xml:space="preserve">
+    <value>Hard Mix</value>
+  </data>
+  <data name="BlendMode_Difference" xml:space="preserve">
+    <value>Difference</value>
+  </data>
+  <data name="BlendMode_Exclusion" xml:space="preserve">
+    <value>Exclusion</value>
+  </data>
+  <data name="BlendMode_Subtract" xml:space="preserve">
+    <value>Subtract</value>
+  </data>
+  <data name="BlendMode_Divide" xml:space="preserve">
+    <value>Divide</value>
+  </data>
+  <data name="BlendMode_Hue" xml:space="preserve">
+    <value>Hue</value>
+  </data>
+  <data name="BlendMode_Saturation" xml:space="preserve">
+    <value>Saturation</value>
+  </data>
+  <data name="BlendMode_Color" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="BlendMode_Luminosity" xml:space="preserve">
+    <value>Luminosity</value>
+  </data>
+
+  <!-- Selection and mask. -->
+  <data name="Shape_Rectangle" xml:space="preserve">
+    <value>Rectangle</value>
+  </data>
+  <data name="Shape_Ellipse" xml:space="preserve">
+    <value>Ellipse</value>
+  </data>
+  <data name="Mask_None" xml:space="preserve">
+    <value>No mask</value>
+  </data>
+  <data name="Mask_Applied" xml:space="preserve">
+    <value>Mask applied</value>
+  </data>
+  <data name="Selection_Clear" xml:space="preserve">
+    <value>Clear Selection</value>
+  </data>
+  <data name="Selection_None" xml:space="preserve">
+    <value>No selection</value>
+  </data>
+  <data name="Selection_Active" xml:space="preserve">
+    <value>Selection active</value>
+  </data>
+  <data name="Selection_MaskApplied" xml:space="preserve">
+    <value>Mask applied to the selected layer</value>
+  </data>
+  <data name="Selection_NoMask" xml:space="preserve">
+    <value>No mask on the selected layer</value>
+  </data>
+  <data name="Selection_FromMask" xml:space="preserve">
+    <value>Fill will follow the mask</value>
+  </data>
+  <data name="Status_SelectLayerForMask" xml:space="preserve">
+    <value>Select a layer before applying a mask</value>
+  </data>
+  <data name="Status_SelectionEmpty" xml:space="preserve">
+    <value>The selection is empty</value>
+  </data>
+  <data name="Status_MaskApplied" xml:space="preserve">
+    <value>Mask applied to {0}</value>
+  </data>
+  <data name="Status_SelectAll" xml:space="preserve">
+    <value>Whole canvas selected on {0}</value>
+  </data>
+  <data name="Status_MaskCleared" xml:space="preserve">
+    <value>Mask cleared on {0}</value>
+  </data>
+
+  <!-- Mask brush. -->
+  <data name="Mask_Brush" xml:space="preserve">
+    <value>Mask Brush</value>
+  </data>
+  <data name="Mask_BrushOn" xml:space="preserve">
+    <value>Mask brush: drag on the canvas to paint</value>
+  </data>
+  <data name="Mask_Paint" xml:space="preserve">
+    <value>Paint</value>
+  </data>
+  <data name="Mask_Erase" xml:space="preserve">
+    <value>Erase</value>
+  </data>
+  <data name="Mask_Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Mask_Hardness" xml:space="preserve">
+    <value>Hardness</value>
+  </data>
+  <data name="Mask_Opacity" xml:space="preserve">
+    <value>Opacity</value>
+  </data>
+  <data name="Mask_Feather" xml:space="preserve">
+    <value>Feather</value>
+  </data>
+  <data name="Mask_FeatherRadius" xml:space="preserve">
+    <value>Feather radius</value>
+  </data>
+  <data name="Mask_Invert" xml:space="preserve">
+    <value>Invert</value>
+  </data>
+  <data name="Mask_Painted" xml:space="preserve">
+    <value>Paint Mask</value>
+  </data>
+  <data name="Mask_Feathered" xml:space="preserve">
+    <value>Mask feathered</value>
+  </data>
+  <data name="Mask_Inverted" xml:space="preserve">
+    <value>Mask inverted</value>
+  </data>
+  <data name="Mask_NoMaskToFeather" xml:space="preserve">
+    <value>The selected layer has no mask to feather</value>
+  </data>
+  <data name="Mask_NoMaskToInvert" xml:space="preserve">
+    <value>The selected layer has no mask to invert</value>
+  </data>
+  <data name="Mask_SelectPixelLayer" xml:space="preserve">
+    <value>Select a pixel layer before painting a mask</value>
+  </data>
+
+  <!-- Content-aware fill. -->
+  <data name="Fill_ContentAware" xml:space="preserve">
+    <value>Content-Aware Fill</value>
+  </data>
+  <data name="Fill_Radius" xml:space="preserve">
+    <value>Sample radius</value>
+  </data>
+  <data name="Fill_UseNikolai" xml:space="preserve">
+    <value>Use Nikolai method</value>
+  </data>
+  <data name="Fill_Run" xml:space="preserve">
+    <value>Fill</value>
+  </data>
+  <data name="Fill_Done" xml:space="preserve">
+    <value>Filled the selection from its surroundings</value>
+  </data>
+  <data name="Fill_NothingToFill" xml:space="preserve">
+    <value>Nothing selected to fill</value>
+  </data>
+  <data name="Fill_NeedsTarget" xml:space="preserve">
+    <value>Make a selection or paint a mask to say what to fill</value>
+  </data>
+  <data name="Fill_SelectPixelLayer" xml:space="preserve">
+    <value>Select a pixel layer before filling</value>
+  </data>
+
+  <!-- History entries. Not shown today; named in the language of the session that recorded them. -->
+  <data name="Undo_NewLayer" xml:space="preserve">
+    <value>New Layer</value>
+  </data>
+  <data name="Undo_DeleteLayer" xml:space="preserve">
+    <value>Delete Layer</value>
+  </data>
+  <data name="Undo_DuplicateLayer" xml:space="preserve">
+    <value>Duplicate Layer</value>
+  </data>
+  <data name="Undo_ImportLayer" xml:space="preserve">
+    <value>Import Layer</value>
+  </data>
+  <data name="Undo_ReorderLayers" xml:space="preserve">
+    <value>Reorder Layers</value>
+  </data>
+  <data name="Undo_RenameLayer" xml:space="preserve">
+    <value>Rename Layer</value>
+  </data>
+  <data name="Undo_ShowLayer" xml:space="preserve">
+    <value>Show Layer</value>
+  </data>
+  <data name="Undo_HideLayer" xml:space="preserve">
+    <value>Hide Layer</value>
+  </data>
+  <data name="Undo_LayerOpacity" xml:space="preserve">
+    <value>Layer Opacity</value>
+  </data>
+  <data name="Undo_BlendMode" xml:space="preserve">
+    <value>Blend Mode</value>
+  </data>
+  <data name="Undo_NewAdjustmentLayer" xml:space="preserve">
+    <value>New {0} Layer</value>
+  </data>
+  <data name="Undo_ResetAdjustment" xml:space="preserve">
+    <value>Reset {0}</value>
+  </data>
+  <data name="Undo_ApplyMask" xml:space="preserve">
+    <value>Apply Mask</value>
+  </data>
+  <data name="Undo_SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Undo_ClearMask" xml:space="preserve">
+    <value>Clear Mask</value>
+  </data>
+  <data name="Undo_PaintMask" xml:space="preserve">
+    <value>Paint Mask</value>
+  </data>
+  <data name="Undo_FeatherMask" xml:space="preserve">
+    <value>Feather Mask</value>
+  </data>
+  <data name="Undo_InvertMask" xml:space="preserve">
+    <value>Invert Mask</value>
+  </data>
+  <data name="Undo_ContentFill" xml:space="preserve">
+    <value>Content-Aware Fill</value>
+  </data>
+
+  <!-- Picker entries, error dialogs and the drag captions. -->
+  <data name="Format_Png" xml:space="preserve">
+    <value>PNG image</value>
+  </data>
+  <data name="Format_Jpeg" xml:space="preserve">
+    <value>JPEG image</value>
+  </data>
+  <data name="Format_WebP" xml:space="preserve">
+    <value>WebP image</value>
+  </data>
+  <data name="Format_Bmp" xml:space="preserve">
+    <value>BMP image</value>
+  </data>
+  <data name="Format_Tiff" xml:space="preserve">
+    <value>TIFF image</value>
+  </data>
+  <data name="Dialog_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Dialog_OpenFailed" xml:space="preserve">
+    <value>Open failed</value>
+  </data>
+  <data name="Dialog_ExportFailed" xml:space="preserve">
+    <value>Export failed</value>
+  </data>
+  <data name="Drop_OpenImage" xml:space="preserve">
+    <value>Open image</value>
+  </data>
+  <data name="Language_Label" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_Chinese" xml:space="preserve">
+    <value>Chinese (Simplified)</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Status_LanguageChanged" xml:space="preserve">
+    <value>Language changed</value>
+  </data>
+  <data name="Undo_OpenImage" xml:space="preserve">
+    <value>Open image</value>
+  </data>
+  <data name="Dialog_OpenFailedDetail" xml:space="preserve">
+    <value>Could not open this file. The format is not supported, or the file is damaged.</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>Released under the MIT licence.</value>
+  </data>
+  <data name="About_Upstream" xml:space="preserve">
+    <value>An unofficial Windows port of the macOS project Compositor, by Robbie Tilton.</value>
+  </data>
+  <data name="About_UpstreamLink" xml:space="preserve">
+    <value>github.com/robbietilton/Compositor</value>
+  </data>
+  <data name="About_Unofficial" xml:space="preserve">
+    <value>Not affiliated with, or endorsed by, the original author.</value>
+  </data>
+  <data name="About_DesignerLabel" xml:space="preserve">
+    <value>Design: </value>
+  </data>
+  <data name="Dialog_ExportFailedDetail" xml:space="preserve">
+    <value>Could not export to that location. Check the folder and the file name.</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>The application has run into a problem and will close.{0}{0}Please send this log file to the developer:{0}</value>
+  </data>
+</root>

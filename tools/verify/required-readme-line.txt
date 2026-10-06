@@ -1,1 +1,1 @@
-运行方式：解压后双击根目录的 Run.bat。
+运行方式：解压后双击 `launcher\NaraPainter.exe`。

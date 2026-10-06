@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>NaraPainter.Tests</RootNamespace>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NaraPainter.Models\NaraPainter.Models.csproj" />
+    <ProjectReference Include="..\..\src\NaraPainter.Imaging\NaraPainter.Imaging.csproj" />
+    <!-- UndoStack and the view models live with the app; the WinUI surface is confined to Views,
+         Controls and the launcher, so plain types still load without a XAML tree. -->
+    <ProjectReference Include="..\..\src\NaraPainter.App\NaraPainter.App.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\testimages\**\*" LinkBase="testimages" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

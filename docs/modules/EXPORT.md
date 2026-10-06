@@ -1,6 +1,6 @@
 # 图像导出 — 格式矩阵与参数契约
 
-导出路径从 `PixelBuffer` 到文件只有一条：`NaraDreamPainter.Imaging.Services.ImageCodec` 走 `Cv2.ImWrite`，
+导出路径从 `PixelBuffer` 到文件只有一条：`NaraPainter.Imaging.Services.ImageCodec` 走 `Cv2.ImWrite`，
 格式由扩展名决定，参数由 `ImageSaveOptions` 决定。这份文档写清每个格式能做什么、TIFF 的压缩怎么选、
 以及为什么没有换掉 OpenCV 的 TIFF 编码器。影像层的其它内容见 [IMAGING.md](IMAGING.md)。
 
@@ -23,7 +23,7 @@ BMP 这一行容易让人意外：OpenCV 写的是 32 位 BMP，alpha 真实落�
 
 ## 契约
 
-契约在 `src/NaraDreamPainter.Models/Services/IImageCodec.cs`，V0.2 里加了两个东西：
+契约在 `src/NaraPainter.Models/Services/IImageCodec.cs`，V0.2 里加了两个东西：
 
 ```csharp
 public enum TiffCompression { None, Lzw, Deflate, PackBits }
@@ -86,7 +86,7 @@ OpenCvSharp 没有对应枚举，所以映射写死在 `ImageCodec.TiffConstant`
 PackBits 对这种高熵图案反而略微膨胀）。`COMPRESSION_DEFLATE`（32946）与 8 是同一个编解码器的两个标签，
 实测都能正常往返，这里只暴露 8，避免下拉框出现两个功能相同的选项。
 
-`TiffCompression` 是普通枚举，不携带 libtiff 的数值：`NaraDreamPainter.Models` 不引用任何影像库，
+`TiffCompression` 是普通枚举，不携带 libtiff 的数值：`NaraPainter.Models` 不引用任何影像库，
 把库常量写进 Models 等于让契约偷偷依赖 OpenCV 的版本。
 
 ## TIFF 的已知限制：没有 ExtraSamples 标签
@@ -122,7 +122,7 @@ channels and ExtraSamples doesn't match SamplesPerPixel. Defining non-color chan
 
 ## 测试
 
-`tests/NaraDreamPainter.Tests/TiffExportTests.cs`：
+`tests/NaraPainter.Tests/TiffExportTests.cs`：
 
 - 四种压缩方案各自的 TIFF 往返逐像素一致（含 alpha）
 - 四种方案的 tag 259 与上表一致；不传参数时是 5，且与显式 `Lzw` 的字节完全相同
@@ -133,5 +133,5 @@ channels and ExtraSamples doesn't match SamplesPerPixel. Defining non-color chan
   文件表现一致（质量变不变字节、alpha 是否留下、压缩参数是否被忽略），扩展名能反查回格式
 - 未知压缩值（`(TiffCompression)7`）与未知格式值抛 `NotSupportedException`
 
-`tests/NaraDreamPainter.Tests/ImageCodecTests.cs` 里的七种扩展名映射、路径与格式不一致的拒绝路径、
+`tests/NaraPainter.Tests/ImageCodecTests.cs` 里的七种扩展名映射、路径与格式不一致的拒绝路径、
 4000×3000 解码计时都不受影响，V0.2 之前的行为没有回归。

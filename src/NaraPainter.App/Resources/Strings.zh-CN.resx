@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Simplified Chinese. The key set must match Strings.resx exactly; tools/verify fails the run when
+    the two files drift apart.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Window, status bar and file names. -->
+  <data name="App_Title" xml:space="preserve">
+    <value>Nara Painter</value>
+  </data>
+  <data name="App_Untitled" xml:space="preserve">
+    <value>未命名</value>
+  </data>
+  <data name="App_WindowTitle" xml:space="preserve">
+    <value>{0} — {1}</value>
+  </data>
+  <data name="App_ModifiedMark" xml:space="preserve">
+    <value> *</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="Status_Ready" xml:space="preserve">
+    <value>就绪</value>
+  </data>
+  <data name="Status_Opened" xml:space="preserve">
+    <value>已打开 {0} · {1} · 耗时 {2} 毫秒</value>
+  </data>
+  <data name="Status_Exported" xml:space="preserve">
+    <value>已导出 {0} · {1} × {2}</value>
+  </data>
+  <data name="Status_Imported" xml:space="preserve">
+    <value>已将 {0} 导入为图层</value>
+  </data>
+  <data name="Status_LayerAdded" xml:space="preserve">
+    <value>已添加 {0}</value>
+  </data>
+  <data name="Status_AdjustmentLayerAdded" xml:space="preserve">
+    <value>已添加{0}图层</value>
+  </data>
+  <data name="Status_LayerDuplicated" xml:space="preserve">
+    <value>已复制 {0}</value>
+  </data>
+  <data name="Status_LayerDeleted" xml:space="preserve">
+    <value>已删除 {0}</value>
+  </data>
+  <data name="Status_LayersReordered" xml:space="preserve">
+    <value>图层顺序已调整</value>
+  </data>
+  <data name="Status_OneLayer" xml:space="preserve">
+    <value>1 个图层</value>
+  </data>
+  <data name="Status_LayerCount" xml:space="preserve">
+    <value>{0} 个图层</value>
+  </data>
+
+  <!-- Toolbar. The hint keys carry the keyboard shortcut the accelerator already uses. -->
+  <data name="Toolbar_Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="Toolbar_OpenHint" xml:space="preserve">
+    <value>打开图片 (Ctrl+O)</value>
+  </data>
+  <data name="Toolbar_Export" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="Toolbar_ExportHint" xml:space="preserve">
+    <value>导出合成后的图片 (Ctrl+E)</value>
+  </data>
+  <data name="Toolbar_Undo" xml:space="preserve">
+    <value>撤销</value>
+  </data>
+  <data name="Toolbar_UndoHint" xml:space="preserve">
+    <value>撤销 (Ctrl+Z)</value>
+  </data>
+  <data name="Toolbar_Redo" xml:space="preserve">
+    <value>重做</value>
+  </data>
+  <data name="Toolbar_RedoHint" xml:space="preserve">
+    <value>重做 (Ctrl+Y)</value>
+  </data>
+  <data name="Toolbar_NewLayer" xml:space="preserve">
+    <value>新建图层</value>
+  </data>
+  <data name="Toolbar_NewLayerHint" xml:space="preserve">
+    <value>新建图层 (Ctrl+Shift+N)</value>
+  </data>
+  <data name="Toolbar_Duplicate" xml:space="preserve">
+    <value>复制图层</value>
+  </data>
+  <data name="Toolbar_DuplicateHint" xml:space="preserve">
+    <value>复制选中的图层</value>
+  </data>
+  <data name="Toolbar_DeleteLayer" xml:space="preserve">
+    <value>删除图层</value>
+  </data>
+  <data name="Toolbar_DeleteHint" xml:space="preserve">
+    <value>删除选中的图层</value>
+  </data>
+  <data name="Toolbar_AdjustmentLayer" xml:space="preserve">
+    <value>调整图层</value>
+  </data>
+  <data name="Toolbar_AdjustmentLayerHint" xml:space="preserve">
+    <value>在选中图层上方添加调整图层</value>
+  </data>
+  <data name="Toolbar_ZoomOut" xml:space="preserve">
+    <value>缩小</value>
+  </data>
+  <data name="Toolbar_ZoomOutHint" xml:space="preserve">
+    <value>缩小画布</value>
+  </data>
+  <data name="Toolbar_ZoomIn" xml:space="preserve">
+    <value>放大</value>
+  </data>
+  <data name="Toolbar_ZoomInHint" xml:space="preserve">
+    <value>放大画布</value>
+  </data>
+  <data name="Toolbar_Fit" xml:space="preserve">
+    <value>适应窗口</value>
+  </data>
+  <data name="Toolbar_FitHint" xml:space="preserve">
+    <value>让画布适应窗口</value>
+  </data>
+  <data name="Toolbar_ActualSize" xml:space="preserve">
+    <value>100%</value>
+  </data>
+  <data name="Toolbar_ActualSizeHint" xml:space="preserve">
+    <value>以 100% 显示画布</value>
+  </data>
+  <data name="Toolbar_MaskBrush" xml:space="preserve">
+    <value>蒙版画笔</value>
+  </data>
+  <data name="Toolbar_MaskBrushHint" xml:space="preserve">
+    <value>在选中图层的蒙版上涂抹</value>
+  </data>
+  <data name="Toolbar_ContentAwareFill" xml:space="preserve">
+    <value>内容感知填充</value>
+  </data>
+  <data name="Toolbar_ContentAwareFillHint" xml:space="preserve">
+    <value>用周围内容填充选区</value>
+  </data>
+  <data name="Toolbar_FillSelection" xml:space="preserve">
+    <value>填充选区</value>
+  </data>
+  <data name="Toolbar_FeatherMask" xml:space="preserve">
+    <value>羽化蒙版</value>
+  </data>
+  <data name="Toolbar_InvertMask" xml:space="preserve">
+    <value>反相蒙版</value>
+  </data>
+  <data name="Toolbar_ClearMask" xml:space="preserve">
+    <value>清除蒙版</value>
+  </data>
+
+  <!-- Layers panel. -->
+  <data name="Layers_Title" xml:space="preserve">
+    <value>图层</value>
+  </data>
+  <data name="Layers_VisibilityHint" xml:space="preserve">
+    <value>显示或隐藏</value>
+  </data>
+  <data name="Layers_AdjustmentBadge" xml:space="preserve">
+    <value>调整</value>
+  </data>
+  <data name="Layers_Opacity" xml:space="preserve">
+    <value>不透明度</value>
+  </data>
+  <data name="Layers_AddHint" xml:space="preserve">
+    <value>新建图层</value>
+  </data>
+  <data name="Layers_DuplicateHint" xml:space="preserve">
+    <value>复制图层</value>
+  </data>
+  <data name="Layers_DeleteHint" xml:space="preserve">
+    <value>删除图层</value>
+  </data>
+  <data name="Layers_MoveUpHint" xml:space="preserve">
+    <value>上移</value>
+  </data>
+  <data name="Layers_MoveDownHint" xml:space="preserve">
+    <value>下移</value>
+  </data>
+  <data name="Layers_Empty" xml:space="preserve">
+    <value>空图层</value>
+  </data>
+  <data name="Layers_DefaultName" xml:space="preserve">
+    <value>图层</value>
+  </data>
+  <data name="Layers_NameFormat" xml:space="preserve">
+    <value>图层 {0}</value>
+  </data>
+  <data name="Layers_CopyNameFormat" xml:space="preserve">
+    <value>{0} 副本</value>
+  </data>
+  <data name="Layers_ImportHint" xml:space="preserve">
+    <value>导入为图层</value>
+  </data>
+  <data name="Layers_ImportFailed" xml:space="preserve">
+    <value>无法导入 {0}：{1}</value>
+  </data>
+
+  <!-- Properties panel. -->
+  <data name="Properties_Title" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="Properties_Layer" xml:space="preserve">
+    <value>图层</value>
+  </data>
+  <data name="Properties_Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Properties_BlendMode" xml:space="preserve">
+    <value>混合模式</value>
+  </data>
+  <data name="Properties_Opacity" xml:space="preserve">
+    <value>不透明度</value>
+  </data>
+  <data name="Properties_Visible" xml:space="preserve">
+    <value>可见</value>
+  </data>
+  <data name="Properties_Adjustments" xml:space="preserve">
+    <value>调整</value>
+  </data>
+  <data name="Properties_SelectionAndMask" xml:space="preserve">
+    <value>选区与蒙版</value>
+  </data>
+  <data name="Properties_NoLayer" xml:space="preserve">
+    <value>未选中图层</value>
+  </data>
+  <data name="Properties_Shape" xml:space="preserve">
+    <value>形状</value>
+  </data>
+  <data name="Properties_X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="Properties_Y" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="Properties_Width" xml:space="preserve">
+    <value>宽度</value>
+  </data>
+  <data name="Properties_Height" xml:space="preserve">
+    <value>高度</value>
+  </data>
+  <data name="Properties_Feather" xml:space="preserve">
+    <value>羽化</value>
+  </data>
+  <data name="Properties_ApplyAsMask" xml:space="preserve">
+    <value>应用为蒙版</value>
+  </data>
+  <data name="Properties_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Properties_ClearMask" xml:space="preserve">
+    <value>清除蒙版</value>
+  </data>
+  <data name="Properties_Reset" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="Properties_AddPoint" xml:space="preserve">
+    <value>添加控制点</value>
+  </data>
+  <data name="Properties_RemovePoint" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Properties_Channel" xml:space="preserve">
+    <value>通道</value>
+  </data>
+  <data name="Properties_Range" xml:space="preserve">
+    <value>范围</value>
+  </data>
+  <data name="Properties_Brightness" xml:space="preserve">
+    <value>亮度</value>
+  </data>
+  <data name="Properties_Contrast" xml:space="preserve">
+    <value>对比度</value>
+  </data>
+  <data name="Properties_Hue" xml:space="preserve">
+    <value>色相</value>
+  </data>
+  <data name="Properties_Saturation" xml:space="preserve">
+    <value>饱和度</value>
+  </data>
+  <data name="Properties_Lightness" xml:space="preserve">
+    <value>明度</value>
+  </data>
+  <data name="Properties_Colorize" xml:space="preserve">
+    <value>着色</value>
+  </data>
+  <data name="Properties_BlackPoint" xml:space="preserve">
+    <value>黑场</value>
+  </data>
+  <data name="Properties_WhitePoint" xml:space="preserve">
+    <value>白场</value>
+  </data>
+  <data name="Properties_Gamma" xml:space="preserve">
+    <value>灰度系数</value>
+  </data>
+  <data name="Properties_OutputBlack" xml:space="preserve">
+    <value>输出黑场</value>
+  </data>
+  <data name="Properties_OutputWhite" xml:space="preserve">
+    <value>输出白场</value>
+  </data>
+
+  <!-- Adjustment names, shared by the toolbar menu, the panel headers, layer names and history. -->
+  <data name="Adjust_BrightnessContrast" xml:space="preserve">
+    <value>亮度/对比度</value>
+  </data>
+  <data name="Adjust_HueSaturation" xml:space="preserve">
+    <value>色相/饱和度</value>
+  </data>
+  <data name="Adjust_Levels" xml:space="preserve">
+    <value>色阶</value>
+  </data>
+  <data name="Adjust_Curves" xml:space="preserve">
+    <value>曲线</value>
+  </data>
+  <data name="Channel_Rgb" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="Channel_Red" xml:space="preserve">
+    <value>红</value>
+  </data>
+  <data name="Channel_Green" xml:space="preserve">
+    <value>绿</value>
+  </data>
+  <data name="Channel_Blue" xml:space="preserve">
+    <value>蓝</value>
+  </data>
+  <data name="Range_Master" xml:space="preserve">
+    <value>全图</value>
+  </data>
+  <data name="Range_Reds" xml:space="preserve">
+    <value>红色</value>
+  </data>
+  <data name="Range_Yellows" xml:space="preserve">
+    <value>黄色</value>
+  </data>
+  <data name="Range_Greens" xml:space="preserve">
+    <value>绿色</value>
+  </data>
+  <data name="Range_Cyans" xml:space="preserve">
+    <value>青色</value>
+  </data>
+  <data name="Range_Blues" xml:space="preserve">
+    <value>蓝色</value>
+  </data>
+  <data name="Range_Magentas" xml:space="preserve">
+    <value>洋红</value>
+  </data>
+  <data name="Curve_Shadows" xml:space="preserve">
+    <value>暗部</value>
+  </data>
+  <data name="Curve_Highlights" xml:space="preserve">
+    <value>亮部</value>
+  </data>
+  <data name="Curve_PointFormat" xml:space="preserve">
+    <value>控制点 {0}</value>
+  </data>
+
+  <!-- The 24 blend modes, in enum order; the picker binds its index straight to the enum. -->
+  <data name="BlendMode_Normal" xml:space="preserve">
+    <value>正常</value>
+  </data>
+  <data name="BlendMode_Darken" xml:space="preserve">
+    <value>变暗</value>
+  </data>
+  <data name="BlendMode_Multiply" xml:space="preserve">
+    <value>正片叠底</value>
+  </data>
+  <data name="BlendMode_ColorBurn" xml:space="preserve">
+    <value>颜色加深</value>
+  </data>
+  <data name="BlendMode_LinearBurn" xml:space="preserve">
+    <value>线性加深</value>
+  </data>
+  <data name="BlendMode_Lighten" xml:space="preserve">
+    <value>变亮</value>
+  </data>
+  <data name="BlendMode_Screen" xml:space="preserve">
+    <value>滤色</value>
+  </data>
+  <data name="BlendMode_ColorDodge" xml:space="preserve">
+    <value>颜色减淡</value>
+  </data>
+  <data name="BlendMode_LinearDodge" xml:space="preserve">
+    <value>线性减淡（添加）</value>
+  </data>
+  <data name="BlendMode_Overlay" xml:space="preserve">
+    <value>叠加</value>
+  </data>
+  <data name="BlendMode_SoftLight" xml:space="preserve">
+    <value>柔光</value>
+  </data>
+  <data name="BlendMode_HardLight" xml:space="preserve">
+    <value>强光</value>
+  </data>
+  <data name="BlendMode_VividLight" xml:space="preserve">
+    <value>亮光</value>
+  </data>
+  <data name="BlendMode_LinearLight" xml:space="preserve">
+    <value>线性光</value>
+  </data>
+  <data name="BlendMode_PinLight" xml:space="preserve">
+    <value>点光</value>
+  </data>
+  <data name="BlendMode_HardMix" xml:space="preserve">
+    <value>实色混合</value>
+  </data>
+  <data name="BlendMode_Difference" xml:space="preserve">
+    <value>差值</value>
+  </data>
+  <data name="BlendMode_Exclusion" xml:space="preserve">
+    <value>排除</value>
+  </data>
+  <data name="BlendMode_Subtract" xml:space="preserve">
+    <value>减去</value>
+  </data>
+  <data name="BlendMode_Divide" xml:space="preserve">
+    <value>划分</value>
+  </data>
+  <data name="BlendMode_Hue" xml:space="preserve">
+    <value>色相</value>
+  </data>
+  <data name="BlendMode_Saturation" xml:space="preserve">
+    <value>饱和度</value>
+  </data>
+  <data name="BlendMode_Color" xml:space="preserve">
+    <value>颜色</value>
+  </data>
+  <data name="BlendMode_Luminosity" xml:space="preserve">
+    <value>明度</value>
+  </data>
+
+  <!-- Selection and mask. -->
+  <data name="Shape_Rectangle" xml:space="preserve">
+    <value>矩形</value>
+  </data>
+  <data name="Shape_Ellipse" xml:space="preserve">
+    <value>椭圆</value>
+  </data>
+  <data name="Mask_None" xml:space="preserve">
+    <value>无蒙版</value>
+  </data>
+  <data name="Mask_Applied" xml:space="preserve">
+    <value>已应用蒙版</value>
+  </data>
+  <data name="Selection_Clear" xml:space="preserve">
+    <value>取消选区</value>
+  </data>
+  <data name="Selection_None" xml:space="preserve">
+    <value>无选区</value>
+  </data>
+  <data name="Selection_Active" xml:space="preserve">
+    <value>已有选区</value>
+  </data>
+  <data name="Selection_MaskApplied" xml:space="preserve">
+    <value>所选图层已应用蒙版</value>
+  </data>
+  <data name="Selection_NoMask" xml:space="preserve">
+    <value>所选图层没有蒙版</value>
+  </data>
+  <data name="Selection_FromMask" xml:space="preserve">
+    <value>将按蒙版填充</value>
+  </data>
+  <data name="Status_SelectLayerForMask" xml:space="preserve">
+    <value>请先选择图层再应用蒙版</value>
+  </data>
+  <data name="Status_SelectionEmpty" xml:space="preserve">
+    <value>选区为空</value>
+  </data>
+  <data name="Status_MaskApplied" xml:space="preserve">
+    <value>已为 {0} 应用蒙版</value>
+  </data>
+  <data name="Status_SelectAll" xml:space="preserve">
+    <value>已全选 {0}</value>
+  </data>
+  <data name="Status_MaskCleared" xml:space="preserve">
+    <value>已清除 {0} 的蒙版</value>
+  </data>
+
+  <!-- Mask brush. -->
+  <data name="Mask_Brush" xml:space="preserve">
+    <value>蒙版画笔</value>
+  </data>
+  <data name="Mask_BrushOn" xml:space="preserve">
+    <value>蒙版画笔：在画布上拖动即可涂抹</value>
+  </data>
+  <data name="Mask_Paint" xml:space="preserve">
+    <value>涂抹</value>
+  </data>
+  <data name="Mask_Erase" xml:space="preserve">
+    <value>擦除</value>
+  </data>
+  <data name="Mask_Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Mask_Hardness" xml:space="preserve">
+    <value>硬度</value>
+  </data>
+  <data name="Mask_Opacity" xml:space="preserve">
+    <value>不透明度</value>
+  </data>
+  <data name="Mask_Feather" xml:space="preserve">
+    <value>羽化</value>
+  </data>
+  <data name="Mask_FeatherRadius" xml:space="preserve">
+    <value>羽化半径</value>
+  </data>
+  <data name="Mask_Invert" xml:space="preserve">
+    <value>反相</value>
+  </data>
+  <data name="Mask_Painted" xml:space="preserve">
+    <value>涂抹蒙版</value>
+  </data>
+  <data name="Mask_Feathered" xml:space="preserve">
+    <value>蒙版已羽化</value>
+  </data>
+  <data name="Mask_Inverted" xml:space="preserve">
+    <value>蒙版已反相</value>
+  </data>
+  <data name="Mask_NoMaskToFeather" xml:space="preserve">
+    <value>所选图层没有可羽化的蒙版</value>
+  </data>
+  <data name="Mask_NoMaskToInvert" xml:space="preserve">
+    <value>所选图层没有可反相的蒙版</value>
+  </data>
+  <data name="Mask_SelectPixelLayer" xml:space="preserve">
+    <value>请先选择一个像素图层再涂抹蒙版</value>
+  </data>
+
+  <!-- Content-aware fill. -->
+  <data name="Fill_ContentAware" xml:space="preserve">
+    <value>内容感知填充</value>
+  </data>
+  <data name="Fill_Radius" xml:space="preserve">
+    <value>取样半径</value>
+  </data>
+  <data name="Fill_UseNikolai" xml:space="preserve">
+    <value>使用 Nikolai 方法</value>
+  </data>
+  <data name="Fill_Run" xml:space="preserve">
+    <value>填充</value>
+  </data>
+  <data name="Fill_Done" xml:space="preserve">
+    <value>已按周围内容填充选区</value>
+  </data>
+  <data name="Fill_NothingToFill" xml:space="preserve">
+    <value>没有可填充的区域</value>
+  </data>
+  <data name="Fill_NeedsTarget" xml:space="preserve">
+    <value>请先建立选区，或涂抹蒙版来指定要填充的区域</value>
+  </data>
+  <data name="Fill_SelectPixelLayer" xml:space="preserve">
+    <value>请先选择一个像素图层再填充</value>
+  </data>
+
+  <!-- History entries. Not shown today; named in the language of the session that recorded them. -->
+  <data name="Undo_NewLayer" xml:space="preserve">
+    <value>新建图层</value>
+  </data>
+  <data name="Undo_DeleteLayer" xml:space="preserve">
+    <value>删除图层</value>
+  </data>
+  <data name="Undo_DuplicateLayer" xml:space="preserve">
+    <value>复制图层</value>
+  </data>
+  <data name="Undo_ImportLayer" xml:space="preserve">
+    <value>导入图层</value>
+  </data>
+  <data name="Undo_ReorderLayers" xml:space="preserve">
+    <value>调整图层顺序</value>
+  </data>
+  <data name="Undo_RenameLayer" xml:space="preserve">
+    <value>重命名图层</value>
+  </data>
+  <data name="Undo_ShowLayer" xml:space="preserve">
+    <value>显示图层</value>
+  </data>
+  <data name="Undo_HideLayer" xml:space="preserve">
+    <value>隐藏图层</value>
+  </data>
+  <data name="Undo_LayerOpacity" xml:space="preserve">
+    <value>图层不透明度</value>
+  </data>
+  <data name="Undo_BlendMode" xml:space="preserve">
+    <value>混合模式</value>
+  </data>
+  <data name="Undo_NewAdjustmentLayer" xml:space="preserve">
+    <value>新建{0}图层</value>
+  </data>
+  <data name="Undo_ResetAdjustment" xml:space="preserve">
+    <value>重置{0}</value>
+  </data>
+  <data name="Undo_ApplyMask" xml:space="preserve">
+    <value>应用蒙版</value>
+  </data>
+  <data name="Undo_SelectAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Undo_ClearMask" xml:space="preserve">
+    <value>清除蒙版</value>
+  </data>
+  <data name="Undo_PaintMask" xml:space="preserve">
+    <value>涂抹蒙版</value>
+  </data>
+  <data name="Undo_FeatherMask" xml:space="preserve">
+    <value>羽化蒙版</value>
+  </data>
+  <data name="Undo_InvertMask" xml:space="preserve">
+    <value>反相蒙版</value>
+  </data>
+  <data name="Undo_ContentFill" xml:space="preserve">
+    <value>内容感知填充</value>
+  </data>
+
+  <!-- Picker entries, error dialogs and the drag captions. -->
+  <data name="Format_Png" xml:space="preserve">
+    <value>PNG 图片</value>
+  </data>
+  <data name="Format_Jpeg" xml:space="preserve">
+    <value>JPEG 图片</value>
+  </data>
+  <data name="Format_WebP" xml:space="preserve">
+    <value>WebP 图片</value>
+  </data>
+  <data name="Format_Bmp" xml:space="preserve">
+    <value>BMP 图片</value>
+  </data>
+  <data name="Format_Tiff" xml:space="preserve">
+    <value>TIFF 图片</value>
+  </data>
+  <data name="Dialog_Ok" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Dialog_OpenFailed" xml:space="preserve">
+    <value>打开失败</value>
+  </data>
+  <data name="Dialog_ExportFailed" xml:space="preserve">
+    <value>导出失败</value>
+  </data>
+  <data name="Drop_OpenImage" xml:space="preserve">
+    <value>打开图片</value>
+  </data>
+  <data name="Language_Label" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Language_Chinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Status_LanguageChanged" xml:space="preserve">
+    <value>界面语言已切换</value>
+  </data>
+  <data name="Undo_OpenImage" xml:space="preserve">
+    <value>打开图片</value>
+  </data>
+  <data name="Dialog_OpenFailedDetail" xml:space="preserve">
+    <value>无法打开该文件，格式不支持或文件已损坏。</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>以 MIT 许可证发布。</value>
+  </data>
+  <data name="About_Upstream" xml:space="preserve">
+    <value>macOS 项目 Compositor（作者 Robbie Tilton）的非官方 Windows 移植版。</value>
+  </data>
+  <data name="About_UpstreamLink" xml:space="preserve">
+    <value>github.com/robbietilton/Compositor</value>
+  </data>
+  <data name="About_Unofficial" xml:space="preserve">
+    <value>与原作者无隶属或背书关系。</value>
+  </data>
+  <data name="About_DesignerLabel" xml:space="preserve">
+    <value>设计：</value>
+  </data>
+  <data name="Dialog_ExportFailedDetail" xml:space="preserve">
+    <value>无法导出到该位置，请检查文件夹与文件名。</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>程序遇到问题，即将关闭。{0}{0}请把下面的日志文件发送给开发者：{0}</value>
+  </data>
+</root>

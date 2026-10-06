@@ -2,9 +2,9 @@
 #
 #   powershell -ExecutionPolicy Bypass -File packaging/pack.ps1
 #
-# Produces dist/NaraDreamPainter-<version>-win-x64.zip, which unpacks to:
+# Produces dist/NaraPainter-<version>-win-x64.zip, which unpacks to:
 #
-#   Run.bat                 double-click this to start the application
+#   launcher\               the bootstrap a user runs, and the runtime it needs
 #   <the Chinese-named batch file>   makes a shortcut beside itself, for the desktop or Start menu
 #   README.md  LICENSE  RUNNING.txt
 #   launcher\               a self-contained stub; it starts the application and shows no window of its own
@@ -22,7 +22,7 @@
 #   - the archive has no wrapper folder: unpacking drops the payload straight into the folder
 #     the user picks
 #   - the root holds only the two batch files, the documents, and the two folders
-#   - app\NaraDreamPainter.exe and launcher\NaraDreamPainter.exe both exist
+#   - app\NaraPainter.exe and launcher\NaraPainter.exe both exist
 param(
     [string]$Configuration = "Release",
     [string]$RuntimeIdentifier = "win-x64",
@@ -64,7 +64,7 @@ foreach ($dir in @($staging, $appPublish, $launcherPublish)) {
     if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
 }
 
-& dotnet publish "src\NaraDreamPainter.App\NaraDreamPainter.App.csproj" `
+& dotnet publish "src\NaraPainter.App\NaraPainter.App.csproj" `
     -c $Configuration `
     -r $RuntimeIdentifier `
     -p:Platform=x64 `
@@ -74,11 +74,11 @@ foreach ($dir in @($staging, $appPublish, $launcherPublish)) {
 if ($LASTEXITCODE -ne 0) { throw "publishing the application failed with $LASTEXITCODE" }
 
 # Do not pass -p:SelfContained or -p:WindowsAppSDKSelfContained here. A global property override
-# reaches every project in the graph, including NaraDreamPainter.Compositing, which then stages its own
+# reaches every project in the graph, including NaraPainter.Compositing, which then stages its own
 # copy of the Windows App SDK payload and collides with the app's: NETSDK1152, duplicate
 # CoreMessagingXP.dll and friends. The app project already declares both, so they are not needed.
 
-& dotnet publish "launcher\NaraDreamPainter.Launcher.csproj" `
+& dotnet publish "launcher\NaraPainter.Bootstrap.csproj" `
     -c $Configuration `
     -r $RuntimeIdentifier `
     --self-contained true `
@@ -86,8 +86,8 @@ if ($LASTEXITCODE -ne 0) { throw "publishing the application failed with $LASTEX
     -nodeReuse:false `
     -o $launcherPublish
 if ($LASTEXITCODE -ne 0) { throw "publishing the launcher failed with $LASTEXITCODE" }
-if (-not (Test-Path (Join-Path $launcherPublish "NaraDreamPainter.exe"))) {
-    throw "the launcher did not produce NaraDreamPainter.exe"
+if (-not (Test-Path (Join-Path $launcherPublish "NaraPainter.exe"))) {
+    throw "the launcher did not produce NaraPainter.exe"
 }
 
 Write-Host "Assembling the layout" -ForegroundColor Cyan
@@ -95,7 +95,7 @@ New-Item -ItemType Directory -Force -Path $appDir, $launcherDir | Out-Null
 Copy-Item (Join-Path $appPublish "*") $appDir -Recurse -Force
 Copy-Item (Join-Path $launcherPublish "*") $launcherDir -Recurse -Force
 
-foreach ($exe in @("app\NaraDreamPainter.exe", "launcher\NaraDreamPainter.exe")) {
+foreach ($exe in @("app\NaraPainter.exe", "launcher\NaraPainter.exe")) {
     if (-not (Test-Path (Join-Path $staging $exe))) { throw "$exe is missing from the staging folder." }
 }
 
@@ -112,11 +112,15 @@ foreach ($dir in @($appDir, $launcherDir)) {
     Get-ChildItem $dir -Recurse -File -Filter *.pdb | Remove-Item -Force
 }
 
+# The bootstrap keeps its runtime beside it in launcher\. A self-contained host refuses to start when
+# hostpolicy.dll is not in its own directory, so its executable cannot be lifted to the root on its
+# own; that was tried and the host reports a missing framework before any managed code runs. The
+# shortcut a user makes with the batch file at the root is the way to the top level from here.
+
 # The MIT license and the provenance notice travel with the binaries; both are required by the
 # licence terms and by the project's own compliance rules.
 Copy-Item "LICENSE" (Join-Path $staging "LICENSE") -Force
 Copy-Item "README.md" (Join-Path $staging "README.md") -Force
-Copy-Item "packaging\Run.bat" (Join-Path $staging "Run.bat") -Force
 $shortcutMakerName = [System.IO.File]::ReadAllText((Join-Path $root "packaging\shortcut-name.txt"), [System.Text.Encoding]::UTF8).Trim()
 Copy-Item (Join-Path $root "packaging\$shortcutMakerName") (Join-Path $staging $shortcutMakerName) -Force
 
@@ -133,11 +137,11 @@ $noteText = [System.IO.File]::ReadAllText((Join-Path $root "packaging\RUNNING.tx
 # A shortcut cannot be shipped ready-made: a .lnk stores an absolute target, so one built here would
 # point into this build machine's folders. The batch file beside it builds the shortcut on the user's
 # machine instead, where the path is final.
-$iconPath = Join-Path $root "packaging\NaraDreamPainter.ico"
-if (-not (Test-Path $iconPath)) { throw "packaging\NaraDreamPainter.ico is missing." }
+$iconPath = Join-Path $root "packaging\NaraPainter.ico"
+if (-not (Test-Path $iconPath)) { throw "packaging\NaraPainter.ico is missing." }
 
 if (-not $SkipZip) {
-    $zip = Join-Path $root "dist\NaraDreamPainter-$version-$RuntimeIdentifier.zip"
+    $zip = Join-Path $root "dist\NaraPainter-$version-$RuntimeIdentifier.zip"
     if (Test-Path $zip) { Remove-Item $zip -Force }
     Write-Host "Zipping to $zip" -ForegroundColor Cyan
 
@@ -167,15 +171,15 @@ if (-not $SkipZip) {
         foreach ($entry in $probe.Entries) { [void]$names.Add($entry.FullName) }
 
         $required = @(
-            "Run.bat", $shortcutMakerName, "README.md", "LICENSE", "RUNNING.txt",
-            "app/NaraDreamPainter.exe", "launcher/NaraDreamPainter.exe"
+            $shortcutMakerName, "README.md", "LICENSE", "RUNNING.txt",
+            "app/NaraPainter.exe", "launcher/NaraPainter.exe"
         )
         $missing = @($required | Where-Object { -not $names.Contains($_) })
         if ($missing.Count -gt 0) { throw "The zip is missing expected entries: $($missing -join ', ')" }
 
         # Nothing but the documented items may sit at the root, which is the whole point of the split.
         $allowed = @(
-            "Run.bat", $shortcutMakerName, "README.md", "LICENSE", "RUNNING.txt", "app", "launcher"
+            $shortcutMakerName, "README.md", "LICENSE", "RUNNING.txt", "app", "launcher"
         )
         $topLevel = @($probe.Entries | ForEach-Object { $_.FullName.Split('/')[0] } | Sort-Object -Unique)
         $unexpected = @($topLevel | Where-Object { $_ -notin $allowed })
@@ -192,6 +196,6 @@ if (-not $SkipZip) {
 Write-Host ""
 Write-Host "Done." -ForegroundColor Green
 Write-Host "  staging : $staging"
-Write-Host "  run     : launcher\NaraDreamPainter.exe (or Run.bat)"
-if (-not $SkipZip) { Write-Host "  zip     : dist\NaraDreamPainter-$version-$RuntimeIdentifier.zip" }
+Write-Host "  run     : launcher\NaraPainter.exe"
+if (-not $SkipZip) { Write-Host "  zip     : dist\NaraPainter-$version-$RuntimeIdentifier.zip" }
 Write-Host "  installer: run installer\build-msix.ps1 for the signed setup package"

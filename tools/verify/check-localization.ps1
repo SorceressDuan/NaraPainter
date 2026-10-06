@@ -14,7 +14,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$appRoot = Join-Path $Root "src\NaraDreamPainter.App"
+$appRoot = Join-Path $Root "src\NaraPainter.App"
 $neutralPath = Join-Path $appRoot "Resources\Strings.resx"
 $chinesePath = Join-Path $appRoot "Resources\Strings.zh-CN.resx"
 $stringsPath = Join-Path $appRoot "Strings.cs"

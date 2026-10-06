@@ -1,12 +1,14 @@
-Nara Dream Painter for Windows（非官方移植版）
+Nara Painter for Windows（非官方移植版）
 
-运行方式：双击本目录下的「NaraDreamPainter」快捷方式即可，无需安装 .NET 或 Windows App SDK。
+运行方式：双击本目录下的 launcher\NaraPainter.exe，无需安装 .NET 或 Windows App SDK。
 
 目录结构：
-  NaraDreamPainter.lnk   双击这个启动程序
-  Run.bat                效果同上，习惯用批处理的可以用它
-  launcher\              启动器，自己不含界面
+  launcher\              双击里面的 NaraPainter.exe 启动程序
   app\                   程序本体与运行库，请勿删除或移动里面的文件
+  创建桌面快捷方式.bat     生成快捷方式，可拖到桌面或开始菜单
+
+更省事的做法：先双击「创建桌面快捷方式.bat」，它会在本目录生成 NaraPainter.lnk，
+之后从桌面或开始菜单启动，就不必每次都进 launcher\。
 
 不要把 app\ 里的文件单独复制到别处，程序需要同目录的 DLL 才能启动。
 首次运行如果出现 SmartScreen 提示，选择「更多信息」，再选「仍要运行」。

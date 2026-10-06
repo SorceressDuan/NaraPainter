@@ -7,7 +7,7 @@ param(
 )
 
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if (-not (Test-Path (Join-Path $root "NaraDreamPainter.sln"))) {
+if (-not (Test-Path (Join-Path $root "NaraPainter.sln"))) {
     Write-Host "FAIL: $root is not the repository root."
     exit 1
 }
@@ -31,19 +31,19 @@ foreach ($directory in @($env:APPDATA, $env:TEMP)) {
 }
 Set-Location $root
 
-$TestsProject = "tests\NaraDreamPainter.Tests\NaraDreamPainter.Tests.csproj"
+$TestsProject = "tests\NaraPainter.Tests\NaraPainter.Tests.csproj"
 $TestAssemblyCandidates = @(
-    "tests\NaraDreamPainter.Tests\bin\x64\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.Tests.dll",
-    "tests\NaraDreamPainter.Tests\bin\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.Tests.dll"
+    "tests\NaraPainter.Tests\bin\x64\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraPainter.Tests.dll",
+    "tests\NaraPainter.Tests\bin\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraPainter.Tests.dll"
 )
-$RunnerProject = "tools\verify\NaraDreamPainter.TestRunner\NaraDreamPainter.TestRunner.csproj"
+$RunnerProject = "tools\verify\NaraPainter.TestRunner\NaraPainter.TestRunner.csproj"
 # The runner is self-contained and pinned to x64, so its output sits one level deeper than a plain
 # framework-dependent build.
 $RunnerAssemblyCandidates = @(
-    "tools\verify\NaraDreamPainter.TestRunner\bin\x64\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.TestRunner.dll",
-    "tools\verify\NaraDreamPainter.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\NaraDreamPainter.TestRunner.dll"
+    "tools\verify\NaraPainter.TestRunner\bin\x64\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraPainter.TestRunner.dll",
+    "tools\verify\NaraPainter.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\NaraPainter.TestRunner.dll"
 )
-$FallbackNote = "tools/verify/NaraDreamPainter.TestRunner, because vstest cannot keep its test host alive here (the host opens a handle to the vstest process and the sandbox denies it)"
+$FallbackNote = "tools/verify/NaraPainter.TestRunner, because vstest cannot keep its test host alive here (the host opens a handle to the vstest process and the sandbox denies it)"
 $script:VstestBlocked = $false
 
 function Invoke-Dotnet {
@@ -134,7 +134,7 @@ function Invoke-Tests {
 }
 
 Write-Host "=== restore ==="
-$restore = Invoke-Dotnet @("restore", "NaraDreamPainter.sln", "-m:1", "-nodeReuse:false")
+$restore = Invoke-Dotnet @("restore", "NaraPainter.sln", "-m:1", "-nodeReuse:false")
 if ($restore.ExitCode -ne 0) {
     Write-Host "restore failed:"
     Show-FailureLines $restore.Output
@@ -144,7 +144,7 @@ $restoreRunner = Invoke-Dotnet @("restore", $RunnerProject, "-m:1", "-nodeReuse:
 
 Write-Host ""
 Write-Host "=== build ($Configuration) ==="
-$build = Invoke-Dotnet @("build", "NaraDreamPainter.sln", "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
+$build = Invoke-Dotnet @("build", "NaraPainter.sln", "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
 $errors = Count-Diagnostics $build.Output "error"
 $warnings = Count-Diagnostics $build.Output "warning"
 if ($build.ExitCode -ne 0 -or $errors -gt 0) {
@@ -175,7 +175,7 @@ if ($tests.ExitCode -ne 0) {
 
 Write-Host ""
 Write-Host "=== package layout ==="
-$packageZip = @(Get-ChildItem -Path (Join-Path $root "dist") -Filter "NaraDreamPainter-*-win-x64.zip" -File -ErrorAction SilentlyContinue |
+$packageZip = @(Get-ChildItem -Path (Join-Path $root "dist") -Filter "NaraPainter-*-win-x64.zip" -File -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTime -Descending) | Select-Object -First 1
 
 $packageStatus = "SKIP"
@@ -202,19 +202,19 @@ else {
             $atRoot = @($names | Where-Object { -not $_.Contains("/") })
             $nested = @($names | Where-Object { $_.Contains("/") })
             $firstSegments = @($nested | ForEach-Object { ($_ -split "/")[0] } | Sort-Object -Unique)
-            $packageExeAtRoot = ($names -contains "launcher/NaraDreamPainter.exe") -and ($atRoot -contains "Run.bat")
+            $packageExeAtRoot = $names -contains "launcher/NaraPainter.exe"
 
             $problems = @()
             # The runtime lives in app\ and the launcher in launcher\; only the documents and the two
             # batch files sit at the top level. Both executables matter, but the one a user runs is the
             # launcher, so that is what has to be present.
-            foreach ($name in @("Run.bat", "README.md", "LICENSE", "RUNNING.txt", "app/NaraDreamPainter.exe", "launcher/NaraDreamPainter.exe")) {
+            foreach ($name in @("README.md", "LICENSE", "RUNNING.txt", "app/NaraPainter.exe", "launcher/NaraPainter.exe")) {
                 if ($names -notcontains $name) { $problems += "missing from the archive: $name" }
             }
             foreach ($folder in @("app", "launcher")) {
                 if ($firstSegments -notcontains $folder) { $problems += "missing folder in the archive: $folder" }
             }
-            $allowedAtRoot = @("Run.bat", "README.md", "LICENSE", "RUNNING.txt")
+            $allowedAtRoot = @("README.md", "LICENSE", "RUNNING.txt")
             $unexpected = @($atRoot | Where-Object { $_ -notin $allowedAtRoot -and $_ -notlike "*.bat" })
             if ($unexpected.Count -gt 0) { $problems += "unexpected items at the archive root: $($unexpected -join ', ')" }
             if ($atRoot.Count -eq 0 -and $firstSegments.Count -eq 1) {
@@ -286,7 +286,7 @@ if ($packageStatus -eq "SKIP") {
     Write-Host "PACKAGE   : SKIP (package not built; run packaging/pack.ps1 to check the layout)"
 }
 else {
-    Write-Host ("PACKAGE   : {0} ({1} entries, {2} MB, {3})" -f $packageStatus, $packageEntries, $packageMegabytes, $(if ($packageExeAtRoot) { "exe at root" } else { "exe missing from root" }))
+    Write-Host ("PACKAGE   : {0} ({1} entries, {2} MB, {3})" -f $packageStatus, $packageEntries, $packageMegabytes, $(if ($packageExeAtRoot) { "launcher in launcher\" } else { "launcher missing" }))
 }
 Write-Host ("LOCALIZATION: {0}" -f $(if ($localizationPass) { "PASS" } else { "FAIL" }))
 

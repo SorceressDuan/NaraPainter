@@ -1,4 +1,4 @@
-# 本地化（NaraDreamPainter.App）
+# 本地化（NaraPainter.App）
 
 界面文案全部走资源文件，代码与 XAML 里不出现用户可见的字面量。
 这份文档写清**取文案的方式**（XAML 评审按这个来）、加键的步骤、以及哪些东西故意不翻译。
@@ -65,11 +65,11 @@
 
 **注意 `Interpolate` 收的是模板，不是键。** `Strings.StatusOpened` 本身就是 `"已打开 {0} · {1} · 耗时 {2} 毫秒"`，
 把它交给按键查表的那套就会得到 `!Status_Opened!` 这种半成品——这个坑踩过一次，窗口标题直接显示成
-`!Nara Dream Painter — 未命名!`。自检里因此加了两条守卫：`window.Title` 含 `!` 即失败，
+`!Nara Painter — 未命名!`。自检里因此加了两条守卫：`window.Title` 含 `!` 即失败，
 `chrome.texts` 会把窗口里实际显示的文字打出来。
 
 命名规则：**属性名 == 资源键去掉下划线**（`Toolbar_Open` → `ToolbarOpen`），
-`tests/NaraDreamPainter.Tests/LocalizationTests.cs` 会断言这条，写错名字测试就红。
+`tests/NaraPainter.Tests/LocalizationTests.cs` 会断言这条，写错名字测试就红。
 
 键按界面分区：`App_`、`Status_`、`Toolbar_`、`Layers_`、`Properties_`、`Adjust_`、`Channel_`、
 `Range_`、`Curve_`、`BlendMode_`、`Shape_`、`Mask_`、`Selection_`、`Fill_`、`Undo_`、`Format_`、
@@ -134,13 +134,13 @@ powershell -ExecutionPolicy Bypass -File tools/verify/check-localization.ps1
   `{x:Bind Text.X}` 在加载时确实解析了（绑定路径写错不会抛异常，只会留下空标签，这种失败在无窗口
   环境里看不出来），并留一行 `chrome culture=zh-CN texts=NN checked=6 missing=0`。
 
-再配合 `window.title=Nara Dream Painter — 未命名`，可以确认资源确实在运行时生效，而不是只有文件里对齐。
+再配合 `window.title=Nara Painter — 未命名`，可以确认资源确实在运行时生效，而不是只有文件里对齐。
 
 
 ## 语言切换
 
 状态栏右下角的「语言 / Language」下拉框切换界面语言，**即时生效、无需重启**，选择保存在
-`%LOCALAPPDATA%\NaraDreamPainter\settings.json`，下次启动沿用；没有保存过时按系统语言决定
+`%LOCALAPPDATA%\NaraPainter\settings.json`，下次启动沿用；没有保存过时按系统语言决定
 （中文系统 → 简体中文，其它 → English）。
 
 链路：`Localization.Culture` 的 setter 保存偏好并抛 `CultureChanged`，`LocalizedStrings.Refresh()`

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace NaraDreamPainter.Launcher;
+namespace NaraPainter.Bootstrap;
 
 /// <summary>
 /// Starts the application that lives in the app folder next to this executable.
@@ -17,9 +17,14 @@ namespace NaraDreamPainter.Launcher;
 internal static class Program
 {
     private const string AppFolder = "..\\app";
-    private const string AppExecutable = "NaraDreamPainter.exe";
+    private const string AppExecutable = "NaraPainter.exe";
 
     private const uint IconError = 0x00000010;
+
+    // The product name as the interface shows it. Escaped rather than typed out so this file stays
+    // ASCII, and kept here rather than read from the application's resources because this is a
+    // separate assembly that has to work even when the application folder is missing.
+    private static readonly string Product = new([(char)0x90A3, (char)0x83C8, (char)0x7ED8, (char)0x68A6]);
 
     [STAThread]
     private static int Main(string[] arguments)
@@ -59,7 +64,7 @@ internal static class Program
     }
 
     private static void Report(string message) =>
-        MessageBoxW(IntPtr.Zero, message, "Nara Dream Painter", IconError);
+        MessageBoxW(IntPtr.Zero, message, Product, IconError);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "MessageBoxW")]
     private static extern int MessageBoxW(IntPtr owner, string text, string caption, uint type);
