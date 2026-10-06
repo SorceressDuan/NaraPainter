@@ -134,11 +134,47 @@ public sealed class DocumentViewModel : ObservableObject
     {
         var stopwatch = Stopwatch.StartNew();
         CanvasDocument document = _importer.ReadDocument(path);
-        _document = document;
-        History.Clear();
-        ReloadLayers();
-        Status = Localization.Interpolate(Strings.StatusOpened, Path.GetFileName(path), SizeLabel, stopwatch.ElapsedMilliseconds);
+
+        // Replacing the picture is undoable once there is a picture to go back to. The blank canvas
+        // the window opens with is not one: nothing has been done to it yet, so recording an undo
+        // step for the first import would mean the first Ctrl+Z after opening emptied the window.
+        bool replacesSomething = !_isStartupCanvas;
+        TakeDocument(document, stopwatch, Path.GetFileName(path), withUndo: replacesSomething);
+        _isStartupCanvas = false;
     }
+
+    /// <summary>
+    /// Swaps in a document read from disk. Shared by the open dialog and the drop target so both
+    /// behave the same, including leaving one undo step behind.
+    /// </summary>
+    private void TakeDocument(CanvasDocument document, Stopwatch stopwatch, string fileName, bool withUndo)
+    {
+        CanvasDocument previous = _document;
+        _document = document;
+
+        // The history belongs to the document that was just replaced.
+        History.Clear();
+
+        if (withUndo)
+        {
+            History.Push(new DelegateAction(
+                Localization.Interpolate(Strings.UndoOpenImage, fileName),
+                () => SwapDocument(previous),
+                () => SwapDocument(document)));
+        }
+
+        ReloadLayers();
+        Status = Localization.Interpolate(Strings.StatusOpened, fileName, SizeLabel, stopwatch.ElapsedMilliseconds);
+    }
+
+    private void SwapDocument(CanvasDocument document)
+    {
+        _document = document;
+        ReloadLayers();
+    }
+
+    /// <summary>True until the first picture is imported, which is when undo starts to mean something.</summary>
+    private bool _isStartupCanvas = true;
 
     public LayerViewModel AddLayer()
     {

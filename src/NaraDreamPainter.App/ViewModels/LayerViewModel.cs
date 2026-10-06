@@ -18,8 +18,13 @@ public sealed class LayerViewModel : ObservableObject
     private readonly IAdjustmentFilter _filter;
     private readonly AdjustmentSettings?[] _adjustments = new AdjustmentSettings?[AdjustmentKinds.Count];
     private PixelBuffer? _source;
+
+    // Zero means no edit is open, so each change of its own. BeginOpacityEdit moves to a fresh number
+    // and every change until the next one shares it, which is what turns a drag into one undo step.
     private int _opacitySession;
     private int _nameSession;
+    private int _opacityKey;
+    private int _nameKey;
 
     internal LayerViewModel(Layer layer, DocumentViewModel owner, IAdjustmentFilter filter)
     {
@@ -57,7 +62,7 @@ public sealed class LayerViewModel : ObservableObject
 
             string previous = _layer.Name;
             SetName(name);
-            _owner.History.Push(new PropertyChange<string>(Strings.UndoRenameLayer, previous, name, SetName, $"layer:{_layer.Id}:name:{_nameSession}"));
+            _owner.History.Push(new PropertyChange<string>(Strings.UndoRenameLayer, previous, name, SetName, MergeKey("name", _nameSession, ref _nameKey)));
         }
     }
 
@@ -87,7 +92,7 @@ public sealed class LayerViewModel : ObservableObject
             if (Math.Abs(previous - next) < 0.05) return;
 
             SetOpacity(next);
-            _owner.History.Push(new PropertyChange<double>(Strings.UndoLayerOpacity, previous, next, SetOpacity, $"layer:{_layer.Id}:opacity:{_opacitySession}"));
+            _owner.History.Push(new PropertyChange<double>(Strings.UndoLayerOpacity, previous, next, SetOpacity, MergeKey("opacity", _opacitySession, ref _opacityKey)));
         }
     }
 
@@ -128,6 +133,22 @@ public sealed class LayerViewModel : ObservableObject
     public void BeginOpacityEdit() => _opacitySession++;
 
     public void BeginNameEdit() => _nameSession++;
+
+    /// <summary>
+    /// The key two edits of one property have to share before the history collapses them.
+    /// </summary>
+    /// <remarks>
+    /// An open edit gives every change the same key, so a drag lands as one undo step. With no edit
+    /// open each change gets a key of its own, because otherwise a second value set outside a drag -
+    /// an arrow key, a typed number - would silently merge into the one before it.
+    /// </remarks>
+    private string MergeKey(string property, int session, ref int issued)
+    {
+        if (session > 0) return $"layer:{_layer.Id}:{property}:{session}";
+
+        issued++;
+        return $"layer:{_layer.Id}:{property}:solo:{issued}";
+    }
 
     internal AdjustmentSettings? Adjustment(AdjustmentKind kind) => _adjustments[(int)kind];
 

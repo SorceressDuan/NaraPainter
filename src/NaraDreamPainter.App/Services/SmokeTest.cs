@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using NaraDreamPainter.App.ViewModels;
+using NaraDreamPainter.Imaging.Services;
 using NaraDreamPainter.Models.Adjustments;
 using NaraDreamPainter.Models.Layers;
 using NaraDreamPainter.Models.Pixels;
@@ -43,6 +44,8 @@ public static class SmokeTest
             CheckResources(log);
             await CheckChrome(window, log);
             await CheckLanguageSwitch(window, log);
+            CheckUnreadableFileIsRefused(log);
+            CheckUndoMerge(log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -424,6 +427,76 @@ public static class SmokeTest
             await Task.Delay(50);
             (window.Content as UIElement)?.UpdateLayout();
         }
+    }
+
+    /// <summary>
+    /// A damaged or unsupported file has to come back as a refusal, not as a crash, and it must leave
+    /// whatever was open alone.
+    /// </summary>
+    private static void CheckUnreadableFileIsRefused(List<string> log)
+    {
+        // Placed next to the running executable rather than in the system temp folder, which is not
+        // always writable - a portable build can be unzipped into a read-only place.
+        string path = Path.Combine(AppContext.BaseDirectory, "naradreampainter-not-an-image.png");
+        File.WriteAllBytes(path, [0x89, 0x50, 0x4E, 0x47, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05]);
+
+        var codec = new ImageCodec();
+        bool refused = false;
+        try
+        {
+            new DocumentViewModel(new ImageImporter(codec), codec, new AdjustmentFilter(), new SelectionMaskBuilder()).Open(path);
+        }
+        catch (Exception error) when (error is not OutOfMemoryException)
+        {
+            refused = true;
+            log.Add($"unreadable refused={error.GetType().Name}");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+
+        if (!refused) throw new InvalidOperationException("Opening a damaged file did not report a failure.");
+    }
+
+    /// <summary>
+    /// A drag of a slider is one undo step; a value set on its own is its own. The history merges by
+    /// key, so both are visible in one place here.
+    /// </summary>
+    private static void CheckUndoMerge(List<string> log)
+    {
+        var codec = new ImageCodec();
+        var document = new DocumentViewModel(
+            new ImageImporter(codec), codec,
+            new AdjustmentFilter(), new SelectionMaskBuilder());
+        LayerViewModel layer = document.Layers[0];
+
+        layer.BeginOpacityEdit();
+        for (int value = 99; value >= 81; value--) layer.Opacity = value;
+        int afterDrag = document.History.UndoName is null ? 0 : 1;
+        document.Undo();
+
+        if (layer.Opacity != 100 || afterDrag != 1)
+        {
+            throw new InvalidOperationException($"A drag left opacity at {layer.Opacity} and {afterDrag} undo step(s) instead of one.");
+        }
+
+        // Two values with no edit around them are two steps, so one undo only takes the last one back.
+        // A fresh document, because the drag above left the value at its starting point already.
+        var solo = new DocumentViewModel(
+            new ImageImporter(codec), codec,
+            new AdjustmentFilter(), new SelectionMaskBuilder());
+        LayerViewModel soloLayer = solo.Layers[0];
+        soloLayer.Opacity = 90;
+        soloLayer.Opacity = 70;
+        solo.Undo();
+
+        if (soloLayer.Opacity != 90)
+        {
+            throw new InvalidOperationException($"A standalone value change merged with the one before it: expected 90, got {soloLayer.Opacity}.");
+        }
+
+        log.Add("undo drag=oneStep standalone=ownSteps ok");
     }
 
     private static CommandBar? FindCommandBar(DependencyObject? node)

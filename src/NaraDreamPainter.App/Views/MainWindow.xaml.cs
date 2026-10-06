@@ -179,9 +179,10 @@ public sealed partial class MainWindow : Window
         {
             Document.Export(path);
         }
-        catch (Exception error)
+        catch (Exception error) when (error is not OutOfMemoryException)
         {
-            await ShowMessageAsync(Strings.DialogExportFailed, error.Message);
+            CrashReport.Write("export", error);
+            await ShowMessageAsync(Strings.DialogExportFailed, Strings.DialogExportFailedDetail);
         }
     }
 
@@ -220,6 +221,8 @@ public sealed partial class MainWindow : Window
             root.KeyboardAccelerators.Add(accelerator);
         }
     }
+
+    private async void OnAboutClick(object sender, RoutedEventArgs e) => await AboutDialog.ShowAsync(Content.XamlRoot);
 
     private void OnUndoClick(object sender, RoutedEventArgs e) => Document.Undo();
 
@@ -459,9 +462,13 @@ public sealed partial class MainWindow : Window
         {
             Document.Open(path);
         }
-        catch (Exception error)
+        catch (Exception error) when (error is not OutOfMemoryException)
         {
-            await ShowMessageAsync(Strings.DialogOpenFailed, error.Message);
+            // A damaged file, an unsupported format or a path that went away all end up here. The
+            // reader's own message is not something to show a user, so the dialog is fixed text and
+            // the detail goes to the crash log instead.
+            CrashReport.Write("open", error);
+            await ShowMessageAsync(Strings.DialogOpenFailed, Strings.DialogOpenFailedDetail);
         }
     }
 

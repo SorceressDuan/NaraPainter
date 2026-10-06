@@ -188,3 +188,40 @@ exit=0
 - 选区只能输入数值，不能画布上拖框；蒙版也不可视化。
 - 关闭窗口不提示未保存；文档本身也没有自己的保存格式，只能导出成图片。
 - `--selftest` 是给无显示环境用的自检入口，正常启动时不走它。
+
+
+## 撤销粒度
+
+一次拖动 = 一个撤销步，独立的一次改动 = 一个撤销步。
+
+`UndoStack` 按 `MergeKey` 合并相邻动作，所以「合并」这件事完全由键决定：同一个键会collapse成一步，
+不同的键各自成步。两条规则：
+
+- `BeginOpacityEdit()` / `BeginEdit()` 打开一次编辑，此后到下一次打开之间的所有值共用一个键
+- 没有打开编辑时，每个值拿一个**独立**键
+
+第二条是关键，也是踩过的坑：键里原来用的是初始为 0 的 session 计数，而 session 只有 `BeginEdit` 才会递增，
+于是「没有 BeginEdit 的两次独立改动」键相同、被静默合并——用户按方向键改两次值，一次 Ctrl+Z 会退回两次。
+现在 session 为 0 时发一个递增的独立键。
+
+滑条这一侧还有第二个坑：`AdjustmentSlider` 原本同时监听 `Track` 的焦点事件。按下滑条时 Slider 稍后会把焦点
+交给 Thumb，于是 `PointerPressed` 开的 session 立刻被 `GotFocus` 顶掉、又被 `PointerCaptureLost` 关掉，
+拖动中的每个值都走了「独立」分支，一步也合并不了。现在滑条**只认指针事件**，焦点事件只留给数字输入框
+（输入框需要它，一次输入才算一次编辑）。
+
+## 打开与导入的撤销
+
+`DocumentViewModel.Open` 会替换整个文档（像素与画布尺寸），所以撤销它必须换回上一个文档对象，
+`PropertyChange` 那套改不了画布尺寸。走的是 `DelegateAction` + `SwapDocument`。
+
+**首次导入不记撤销步**：窗口启动时那张空白画布不算「上一个状态」，否则打开图片后第一次 Ctrl+Z 会把窗口清空。
+`_isStartupCanvas` 记录这一点，第二次导入起才可撤销。
+
+## 崩溃与容错
+
+- `CrashReport` 写 `%LOCALAPPDATA%\NaraDreamPainter\crash.log`（便携包可能解压在只读位置，exe 旁边不一定能写），
+  同时弹一个 user32 的 `MessageBox`。用 user32 而不是 XAML 对话框：这条路径在 UI 线程已经出问题时执行，
+  再创建 XAML 对象很可能跟着失败。文案走 `Crash_Message` 资源键。
+- `App` 挂了 `UnhandledException` 与 `TaskScheduler.UnobservedTaskException`（后者 `SetObserved`，避免进程被带走）。
+- 打开/拖拽失败、导出失败都回固定中文文案（`Dialog_OpenFailedDetail` / `Dialog_ExportFailedDetail`），
+  真实异常写进 crash.log。给用户看读取器抛出的英文异常没有意义。

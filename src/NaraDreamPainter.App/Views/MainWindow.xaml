@@ -192,6 +192,11 @@
                     Orientation="Horizontal"
                     Spacing="6"
                     VerticalAlignment="Center">
+                    <Button
+                        Content="{x:Bind Text.AboutTitle, Mode=OneWay}"
+                        Padding="8,2"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        Click="OnAboutClick" />
                     <TextBlock
                         Text="{x:Bind Text.LanguageLabel, Mode=OneWay}"
                         Style="{StaticResource CaptionTextBlockStyle}"

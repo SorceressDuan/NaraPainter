@@ -673,4 +673,37 @@
   <data name="Status_LanguageChanged" xml:space="preserve">
     <value>Language changed</value>
   </data>
+  <data name="Undo_OpenImage" xml:space="preserve">
+    <value>Open image</value>
+  </data>
+  <data name="Dialog_OpenFailedDetail" xml:space="preserve">
+    <value>Could not open this file. The format is not supported, or the file is damaged.</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>Released under the MIT licence.</value>
+  </data>
+  <data name="About_Upstream" xml:space="preserve">
+    <value>An unofficial Windows port of the macOS project Compositor, by Robbie Tilton.</value>
+  </data>
+  <data name="About_UpstreamLink" xml:space="preserve">
+    <value>github.com/robbietilton/Compositor</value>
+  </data>
+  <data name="About_Unofficial" xml:space="preserve">
+    <value>Not affiliated with, or endorsed by, the original author.</value>
+  </data>
+  <data name="About_DesignerLabel" xml:space="preserve">
+    <value>Design: </value>
+  </data>
+  <data name="Dialog_ExportFailedDetail" xml:space="preserve">
+    <value>Could not export to that location. Check the folder and the file name.</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>The application has run into a problem and will close.{0}{0}Please send this log file to the developer:{0}</value>
+  </data>
 </root>

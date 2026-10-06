@@ -671,4 +671,37 @@
   <data name="Status_LanguageChanged" xml:space="preserve">
     <value>界面语言已切换</value>
   </data>
+  <data name="Undo_OpenImage" xml:space="preserve">
+    <value>打开图片</value>
+  </data>
+  <data name="Dialog_OpenFailedDetail" xml:space="preserve">
+    <value>无法打开该文件，格式不支持或文件已损坏。</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>以 MIT 许可证发布。</value>
+  </data>
+  <data name="About_Upstream" xml:space="preserve">
+    <value>macOS 项目 Compositor（作者 Robbie Tilton）的非官方 Windows 移植版。</value>
+  </data>
+  <data name="About_UpstreamLink" xml:space="preserve">
+    <value>github.com/robbietilton/Compositor</value>
+  </data>
+  <data name="About_Unofficial" xml:space="preserve">
+    <value>与原作者无隶属或背书关系。</value>
+  </data>
+  <data name="About_DesignerLabel" xml:space="preserve">
+    <value>设计：</value>
+  </data>
+  <data name="Dialog_ExportFailedDetail" xml:space="preserve">
+    <value>无法导出到该位置，请检查文件夹与文件名。</value>
+  </data>
+  <data name="Crash_Message" xml:space="preserve">
+    <value>程序遇到问题，即将关闭。{0}{0}请把下面的日志文件发送给开发者：{0}</value>
+  </data>
 </root>

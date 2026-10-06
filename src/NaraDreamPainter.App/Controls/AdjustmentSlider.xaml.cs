@@ -32,13 +32,18 @@ public sealed partial class AdjustmentSlider : UserControl
     {
         InitializeComponent();
 
+        // The slider tracks the pointer only. Watching its focus as well splits a drag into several
+        // sessions, because pressing the thumb hands focus to it a moment after the press and then
+        // takes it away again when the slider captures the pointer - and every value that arrives
+        // with no session open is treated as an edit of its own, so one drag left dozens of undo
+        // steps behind. With pointer events alone the whole drag shares one merge key.
         Track.ValueChanged += OnTrackValueChanged;
         Track.PointerPressed += (_, _) => BeginEdit();
         Track.PointerReleased += (_, _) => EndEdit();
         Track.PointerCaptureLost += (_, _) => EndEdit();
-        Track.GotFocus += (_, _) => BeginEdit();
-        Track.LostFocus += (_, _) => EndEdit();
 
+        // The number box keeps the focus pair: typing a value and leaving the box is one edit, and
+        // the value only reaches us once the box commits it.
         Box.ValueChanged += OnBoxValueChanged;
         Box.GotFocus += (_, _) => BeginEdit();
         Box.LostFocus += (_, _) => EndEdit();

@@ -1,4 +1,3 @@
-using System.Text;
 using NaraDreamPainter.App.Services;
 using NaraDreamPainter.App.Views;
 using Microsoft.UI.Xaml;
@@ -11,7 +10,14 @@ public partial class App : Application
 
     public App()
     {
-        UnhandledException += (_, args) => Report("unhandled", args.Exception);
+        // Both places a failure can surface from: the UI thread and a task nobody awaited. Neither is
+        // allowed to take the window down without leaving a log and a message behind.
+        UnhandledException += (_, args) => CrashReport.Report("unhandled", args.Exception);
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            CrashReport.Write("unobserved task", args.Exception);
+            args.SetObserved();
+        };
 
         try
         {
@@ -19,7 +25,7 @@ public partial class App : Application
         }
         catch (Exception error)
         {
-            Report("app resources", error);
+            CrashReport.Report("app resources", error);
             throw;
         }
     }
@@ -43,7 +49,7 @@ public partial class App : Application
         }
         catch (Exception error)
         {
-            Report("main window", error);
+            CrashReport.Report("main window", error);
             Environment.Exit(3);
             return;
         }
@@ -59,31 +65,5 @@ public partial class App : Application
             StartupLog.Record("selfTest", $"finished exit={exitCode}");
             Environment.Exit(exitCode);
         });
-    }
-
-    /// <summary>
-    /// A desktop app has no console to fall back on, so failures during startup are hard to see.
-    /// This writes them next to the executable and to stderr when the caller redirected it.
-    /// </summary>
-    private static void Report(string stage, Exception error)
-    {
-        var text = new StringBuilder();
-        for (Exception? current = error; current is not null; current = current.InnerException)
-        {
-            text.AppendLine($"[{stage}] {current.GetType().FullName}: {current.Message}");
-            text.AppendLine(current.StackTrace);
-        }
-
-        string message = text.ToString();
-        Console.Error.WriteLine(message);
-        StartupLog.Record(stage, message);
-
-        try
-        {
-            File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "crash.log"), message + Environment.NewLine);
-        }
-        catch (Exception writeError) when (writeError is IOException or UnauthorizedAccessException)
-        {
-        }
     }
 }

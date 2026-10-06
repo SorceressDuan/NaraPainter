@@ -27,7 +27,9 @@ public sealed class AdjustmentViewModel : ObservableObject
     private int _levelsChannelIndex;
     private int _curveChannelIndex;
     private int _selectedCurvePointIndex = -1;
+    // Zero means no edit is open, so each change of its own; see LayerViewModel.MergeKey.
     private int _session;
+    private int _issued;
 
     /// <summary>Rebuilt on each read so a language change is picked up; order matches ColorRange.</summary>
     public IReadOnlyList<string> RangeNames => LocalizedLists.RangeNames;
@@ -234,6 +236,18 @@ public sealed class AdjustmentViewModel : ObservableObject
     /// <summary>Opens a new merge key, so the edits that follow leave one undo step behind.</summary>
     public void BeginEdit() => _session++;
 
+    /// <summary>
+    /// The key two edits of one adjustment have to share before the history collapses them. A drag
+    /// shares one; anything set outside a drag stands alone.
+    /// </summary>
+    private string MergeKey(LayerViewModel target, AdjustmentKind kind)
+    {
+        if (_session > 0) return $"adjust:{target.Model.Id}:{kind}:{_session}";
+
+        _issued++;
+        return $"adjust:{target.Model.Id}:{kind}:solo:{_issued}";
+    }
+
     public void Reset(AdjustmentKind kind)
     {
         if (!CanEdit(kind) || _target is null) return;
@@ -420,7 +434,7 @@ public sealed class AdjustmentViewModel : ObservableObject
                 target.SetAdjustment(kind, value);
                 if (ReferenceEquals(_target, target)) Reload();
             },
-            $"adjust:{target.Model.Id}:{kind}:{_session}"));
+            MergeKey(target, kind)));
     }
 
     private void Reload()

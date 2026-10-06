@@ -381,6 +381,28 @@ public static class Strings
     public static string FillSelectPixelLayer => Localization.Get("Fill_SelectPixelLayer");
 
     // History entries. Not shown today; named in the language of the session that recorded them.
+    public static string DialogExportFailedDetail => Localization.Get("Dialog_ExportFailedDetail");
+
+    public static string DialogOpenFailedDetail => Localization.Get("Dialog_OpenFailedDetail");
+
+    public static string CrashMessage => Localization.Get("Crash_Message");
+
+    public static string AboutTitle => Localization.Get("About_Title");
+
+    public static string AboutVersion => Localization.Get("About_Version");
+
+    public static string AboutLicense => Localization.Get("About_License");
+
+    public static string AboutUpstream => Localization.Get("About_Upstream");
+
+    public static string AboutUpstreamLink => Localization.Get("About_UpstreamLink");
+
+    public static string AboutUnofficial => Localization.Get("About_Unofficial");
+
+    public static string AboutDesignerLabel => Localization.Get("About_DesignerLabel");
+
+    public static string UndoOpenImage => Localization.Get("Undo_OpenImage");
+
     public static string UndoNewLayer => Localization.Get("Undo_NewLayer");
 
     public static string UndoDeleteLayer => Localization.Get("Undo_DeleteLayer");

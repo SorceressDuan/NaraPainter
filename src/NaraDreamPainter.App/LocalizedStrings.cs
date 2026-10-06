@@ -454,6 +454,28 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string DropOpenImage => Strings.DropOpenImage;
 
+    public string AboutTitle => Strings.AboutTitle;
+
+    public string DialogOpenFailedDetail => Strings.DialogOpenFailedDetail;
+
+    public string DialogExportFailedDetail => Strings.DialogExportFailedDetail;
+
+    public string AboutUpstream => Strings.AboutUpstream;
+
+    public string AboutDesignerLabel => Strings.AboutDesignerLabel;
+
+    public string AboutLicense => Strings.AboutLicense;
+
+    public string CrashMessage => Strings.CrashMessage;
+
+    public string AboutVersion => Strings.AboutVersion;
+
+    public string AboutUpstreamLink => Strings.AboutUpstreamLink;
+
+    public string UndoOpenImage => Strings.UndoOpenImage;
+
+    public string AboutUnofficial => Strings.AboutUnofficial;
+
     public string StatusLanguageChanged => Strings.StatusLanguageChanged;
 
     public string LanguageLabel => Strings.LanguageLabel;
