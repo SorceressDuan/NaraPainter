@@ -141,14 +141,14 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 `dotnet test`。推测是 testhost 起不来与临时目录不可写叠加所致，但没往下追究——只要改了
 `TEMP` 就能跑，这一点连续三次验收复现过。
 
-仓库里仍保留反射 runner（`tools/verify/Compositor.TestRunner`，在本进程里加载测试程序集，
+仓库里仍保留反射 runner（`tools/verify/NaraDreamPainter.TestRunner`，在本进程里加载测试程序集，
 逐个执行 `[Fact]`/`[Theory]`），它是 `dotnet test` 不可用时的备用证据链。verify.ps1 先试
 `dotnet test`，一旦检测到 testhost abort 就回退过去，并在汇总里注明 `via fallback runner`，
 不会把回退结果冒充成 `dotnet test` 的结果。
 
 ### 发布包布局检查
 
-`PACKAGE` 一段断言 `dist\Compositor-*-win-x64.zip`：顶层有 `Compositor.exe` 与它同级的依赖、
+`PACKAGE` 一段断言 `dist\Compositor-*-win-x64.zip`：顶层有 `NaraDreamPainter.exe` 与它同级的依赖、
 有 `LICENSE` 与 `README.md`、没有把所有内容包住的套层文件夹、README 含运行指引那句。
 `dist` 里没有 zip 时记 `SKIP`（默认验收跑 Debug 构建，而 zip 来自 Release），不影响总结果。
 重新生成发布包用 `packaging/pack.ps1`。
@@ -156,7 +156,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 ## 运行
 
 ```powershell
-& "src\Compositor.App\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Compositor.exe"
+& "src\NaraDreamPainter.App\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.exe"
 ```
 
 调试构建是自包含的，进程会在后台起来，沙箱里看不到窗口截图，验证靠 `MainWindowTitle`。
@@ -164,7 +164,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 
 ### 改了 App 的 XAML 之后要清掉 App 的 obj/bin
 
-改了 `Compositor.App` 的 XAML 或代码后再做增量构建，产物可能坏掉，表现是启动即
+改了 `NaraDreamPainter.App` 的 XAML 或代码后再做增量构建，产物可能坏掉，表现是启动即
 `XamlParseException`（退出码 `0xC000027B`）。这时 `startup.log` 里只有 `[unhandled]`
 而没有 `[OnLaunched]`，因为应用死在 XAML 解析阶段，`App` 构造函数里的兜底都没跑到。
 
@@ -172,12 +172,12 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 
 ```powershell
 dotnet build-server shutdown
-Remove-Item -Recurse -Force src\Compositor.App\obj, src\Compositor.App\bin
+Remove-Item -Recurse -Force src\NaraDreamPainter.App\obj, src\NaraDreamPainter.App\bin
 dotnet build Compositor.sln -c Debug
 ```
 
 **不要用 `dotnet build -t:Rebuild`。** 它会把依赖项目一起重建，而 App 的 PRI 合并正好撞上
-`Compositor.Compositing.pri` 被清掉的瞬间，报 `PRI252 ... not found`，或者留下比增量构建
+`NaraDreamPainter.Compositing.pri` 被清掉的瞬间，报 `PRI252 ... not found`，或者留下比增量构建
 更坏的中间产物。只删 App 自己的 `obj`/`bin` 再整体构建是唯一稳定的做法。
 
 ### 启动进程不要用 Start-Process

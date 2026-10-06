@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1D7F3B15-AF06-463C-BC21-101DC3B187E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaraDreamPainter.Models", "src\NaraDreamPainter.Models\NaraDreamPainter.Models.csproj", "{F92CE0F4-4540-4622-92E9-C3E17F3122AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaraDreamPainter.Imaging", "src\NaraDreamPainter.Imaging\NaraDreamPainter.Imaging.csproj", "{35031F14-86AF-493F-86DB-ADE6081CEED3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaraDreamPainter.Compositing", "src\NaraDreamPainter.Compositing\NaraDreamPainter.Compositing.csproj", "{64C1DFCC-C4ED-4376-B28C-3FB2CCA4DE2B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaraDreamPainter.App", "src\NaraDreamPainter.App\NaraDreamPainter.App.csproj", "{F725F87D-E389-4ECE-BB37-1DB5D26C8698}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{98C7E7D1-9A62-4EDA-B6EB-94EEF5C4C813}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaraDreamPainter.Tests", "tests\NaraDreamPainter.Tests\NaraDreamPainter.Tests.csproj", "{972A7482-5393-40AC-8CA2-FFE443949F57}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F92CE0F4-4540-4622-92E9-C3E17F3122AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F92CE0F4-4540-4622-92E9-C3E17F3122AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F92CE0F4-4540-4622-92E9-C3E17F3122AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F92CE0F4-4540-4622-92E9-C3E17F3122AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35031F14-86AF-493F-86DB-ADE6081CEED3}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{35031F14-86AF-493F-86DB-ADE6081CEED3}.Debug|Any CPU.Build.0 = Debug|x64
+		{35031F14-86AF-493F-86DB-ADE6081CEED3}.Release|Any CPU.ActiveCfg = Release|x64
+		{35031F14-86AF-493F-86DB-ADE6081CEED3}.Release|Any CPU.Build.0 = Release|x64
+		{64C1DFCC-C4ED-4376-B28C-3FB2CCA4DE2B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{64C1DFCC-C4ED-4376-B28C-3FB2CCA4DE2B}.Debug|Any CPU.Build.0 = Debug|x64
+		{64C1DFCC-C4ED-4376-B28C-3FB2CCA4DE2B}.Release|Any CPU.ActiveCfg = Release|x64
+		{64C1DFCC-C4ED-4376-B28C-3FB2CCA4DE2B}.Release|Any CPU.Build.0 = Release|x64
+		{F725F87D-E389-4ECE-BB37-1DB5D26C8698}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F725F87D-E389-4ECE-BB37-1DB5D26C8698}.Debug|Any CPU.Build.0 = Debug|x64
+		{F725F87D-E389-4ECE-BB37-1DB5D26C8698}.Release|Any CPU.ActiveCfg = Release|x64
+		{F725F87D-E389-4ECE-BB37-1DB5D26C8698}.Release|Any CPU.Build.0 = Release|x64
+		{972A7482-5393-40AC-8CA2-FFE443949F57}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{972A7482-5393-40AC-8CA2-FFE443949F57}.Debug|Any CPU.Build.0 = Debug|x64
+		{972A7482-5393-40AC-8CA2-FFE443949F57}.Release|Any CPU.ActiveCfg = Release|x64
+		{972A7482-5393-40AC-8CA2-FFE443949F57}.Release|Any CPU.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F92CE0F4-4540-4622-92E9-C3E17F3122AA} = {1D7F3B15-AF06-463C-BC21-101DC3B187E8}
+		{35031F14-86AF-493F-86DB-ADE6081CEED3} = {1D7F3B15-AF06-463C-BC21-101DC3B187E8}
+		{64C1DFCC-C4ED-4376-B28C-3FB2CCA4DE2B} = {1D7F3B15-AF06-463C-BC21-101DC3B187E8}
+		{F725F87D-E389-4ECE-BB37-1DB5D26C8698} = {1D7F3B15-AF06-463C-BC21-101DC3B187E8}
+		{972A7482-5393-40AC-8CA2-FFE443949F57} = {98C7E7D1-9A62-4EDA-B6EB-94EEF5C4C813}
+	EndGlobalSection
+EndGlobal

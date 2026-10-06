@@ -27,9 +27,9 @@
   </Resources>
 
   <Applications>
-    <Application Id="Compositor" Executable="Compositor.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="NaraDreamPainter" Executable="NaraDreamPainter.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Compositor"
+        DisplayName="NaraDreamPainter"
         Description="Unofficial Windows port of the Compositor image editor."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"

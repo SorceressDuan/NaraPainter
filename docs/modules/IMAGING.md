@@ -1,10 +1,10 @@
-# Compositor.Imaging — OpenCvSharp 影像层
+# NaraDreamPainter.Imaging — OpenCvSharp 影像层
 
-`src/Compositor.Imaging/`。这一层只碰像素：解码、编码、调整、选区覆盖度。文档模型、图层顺序、
-混合公式都在 `Compositor.Models`，这里不重复实现。
+`src/NaraDreamPainter.Imaging/`。这一层只碰像素：解码、编码、调整、选区覆盖度。文档模型、图层顺序、
+混合公式都在 `NaraDreamPainter.Models`，这里不重复实现。
 
-接口定义在 `src/Compositor.Models/Services/`（`Compositor.Models.Services`），实现类都在
-`Compositor.Imaging.Services`，都是无参构造，界面直接 `new`。
+接口定义在 `src/NaraDreamPainter.Models/Services/`（`NaraDreamPainter.Models.Services`），实现类都在
+`NaraDreamPainter.Imaging.Services`，都是无参构造，界面直接 `new`。
 
 | 文件 | 职责 |
 | --- | --- |
@@ -70,7 +70,7 @@ alpha 不进表，最后 `Cv2.Merge` 合回去。设置对象给的表是 RGB �
 
 ## 验证方式
 
-一次性 harness（不提交进仓库）在临时目录里引用 `Compositor.Imaging`，覆盖：
+一次性 harness（不提交进仓库）在临时目录里引用 `NaraDreamPainter.Imaging`，覆盖：
 
 - 七种扩展名 → `ImageFileFormat` 的映射，大小写与未知扩展名
 - 五种格式往返：PNG/BMP/TIFF 逐字节一致，JPEG q90 与 WebP q90 在噪点+硬边图案上 mean 差 12.4 / 11.9
@@ -85,6 +85,6 @@ alpha 不进表，最后 `Cv2.Merge` 合回去。设置对象给的表是 RGB �
 - 4000×3000 读 6 次计时
 
 跑仓库测试要绕开一个沙箱限制：`dotnet test` / `dotnet vstest` 都起不来 testhost
-（`Win32Exception (5) 拒绝访问`，testhost 拿不到父进程句柄做退出回调），仓库里 `tools/verify/Compositor.TestRunner`
+（`Win32Exception (5) 拒绝访问`，testhost 拿不到父进程句柄做退出回调），仓库里 `tools/verify/NaraDreamPainter.TestRunner`
 就是为此写的反射 runner，直接吃测试 dll。`ImageCodecTests` 覆盖了上面大部分编码路径，
 `SelectionMaskBuilder` 目前只有这个一次性 harness 覆盖。

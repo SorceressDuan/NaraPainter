@@ -7,7 +7,7 @@ param(
 )
 
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if (-not (Test-Path (Join-Path $root "Compositor.sln"))) {
+if (-not (Test-Path (Join-Path $root "NaraDreamPainter.sln"))) {
     Write-Host "FAIL: $root is not the repository root."
     exit 1
 }
@@ -31,11 +31,11 @@ foreach ($directory in @($env:APPDATA, $env:TEMP)) {
 }
 Set-Location $root
 
-$TestsProject = "tests\Compositor.Tests\Compositor.Tests.csproj"
-$TestAssembly = "tests\Compositor.Tests\bin\$Configuration\net8.0-windows10.0.19041.0\win-x64\Compositor.Tests.dll"
-$RunnerProject = "tools\verify\Compositor.TestRunner\Compositor.TestRunner.csproj"
-$RunnerAssembly = "tools\verify\Compositor.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\Compositor.TestRunner.dll"
-$FallbackNote = "tools/verify/Compositor.TestRunner, because vstest cannot keep its test host alive here (the host opens a handle to the vstest process and the sandbox denies it)"
+$TestsProject = "tests\NaraDreamPainter.Tests\NaraDreamPainter.Tests.csproj"
+$TestAssembly = "tests\NaraDreamPainter.Tests\bin\$Configuration\net8.0-windows10.0.19041.0\win-x64\NaraDreamPainter.Tests.dll"
+$RunnerProject = "tools\verify\NaraDreamPainter.TestRunner\NaraDreamPainter.TestRunner.csproj"
+$RunnerAssembly = "tools\verify\NaraDreamPainter.TestRunner\bin\$Configuration\net8.0-windows10.0.19041.0\NaraDreamPainter.TestRunner.dll"
+$FallbackNote = "tools/verify/NaraDreamPainter.TestRunner, because vstest cannot keep its test host alive here (the host opens a handle to the vstest process and the sandbox denies it)"
 $script:VstestBlocked = $false
 
 function Invoke-Dotnet {
@@ -111,7 +111,7 @@ function Invoke-Tests {
 }
 
 Write-Host "=== restore ==="
-$restore = Invoke-Dotnet @("restore", "Compositor.sln", "-m:1", "-nodeReuse:false")
+$restore = Invoke-Dotnet @("restore", "NaraDreamPainter.sln", "-m:1", "-nodeReuse:false")
 if ($restore.ExitCode -ne 0) {
     Write-Host "restore failed:"
     Show-FailureLines $restore.Output
@@ -121,7 +121,7 @@ $restoreRunner = Invoke-Dotnet @("restore", $RunnerProject, "-m:1", "-nodeReuse:
 
 Write-Host ""
 Write-Host "=== build ($Configuration) ==="
-$build = Invoke-Dotnet @("build", "Compositor.sln", "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
+$build = Invoke-Dotnet @("build", "NaraDreamPainter.sln", "-c", $Configuration, "--no-restore", "-m:1", "-nodeReuse:false")
 $errors = Count-Diagnostics $build.Output "error"
 $warnings = Count-Diagnostics $build.Output "warning"
 if ($build.ExitCode -ne 0 -or $errors -gt 0) {
@@ -179,10 +179,10 @@ else {
             $atRoot = @($names | Where-Object { -not $_.Contains("/") })
             $nested = @($names | Where-Object { $_.Contains("/") })
             $firstSegments = @($nested | ForEach-Object { ($_ -split "/")[0] } | Sort-Object -Unique)
-            $packageExeAtRoot = $atRoot -contains "Compositor.exe"
+            $packageExeAtRoot = $atRoot -contains "NaraDreamPainter.exe"
 
             $problems = @()
-            foreach ($name in @("Compositor.exe", "Compositor.dll", "Compositor.deps.json", "Compositor.runtimeconfig.json", "LICENSE", "README.md")) {
+            foreach ($name in @("NaraDreamPainter.exe", "Compositor.dll", "Compositor.deps.json", "Compositor.runtimeconfig.json", "LICENSE", "README.md")) {
                 if ($atRoot -notcontains $name) { $problems += "missing from the archive root: $name" }
             }
             if ($atRoot.Count -eq 0 -and $firstSegments.Count -eq 1) {

@@ -1,7 +1,7 @@
-# Compositor.Compositing — Win2D 画布与 GPU 合成
+# NaraDreamPainter.Compositing — Win2D 画布与 GPU 合成
 
-`src/Compositor.Compositing/`。界面上的画布、缩放平移、逐图层合成，以及 GPU 不可用时的
-CPU 回退。只引用 `Compositor.Models`，不引用 `Compositor.Imaging`。
+`src/NaraDreamPainter.Compositing/`。界面上的画布、缩放平移、逐图层合成，以及 GPU 不可用时的
+CPU 回退。只引用 `NaraDreamPainter.Models`，不引用 `NaraDreamPainter.Imaging`。
 
 | 文件 | 职责 |
 | --- | --- |
@@ -133,7 +133,7 @@ CPU 路径与 `BlendCompositor` 逐字节相同。要逐像素一致就设 `Forc
 构建（环境变量见 [BUILD.md](../BUILD.md)，沙箱里也要带 `-m:1 -nodeReuse:false`）：
 
 ```powershell
-dotnet build src\Compositor.Compositing\Compositor.Compositing.csproj -c Debug -p:Platform=x64
+dotnet build src\NaraDreamPainter.Compositing\NaraDreamPainter.Compositing.csproj -c Debug -p:Platform=x64
 # 0 个警告 0 个错误
 ```
 
@@ -149,4 +149,4 @@ dotnet build src\Compositor.Compositing\Compositor.Compositing.csproj -c Debug -
 - `CanvasView` 在 WinUI 线程上可实例化，公开成员可用，可加入 XAML 面板
 
 首帧数字来自 1600×1000 视口、0.28 倍缩放（即整篇文档在屏上）的测量；
-真实窗口的端到端计时仍以 `Compositor.exe` 启动后的实测为准。
+真实窗口的端到端计时仍以 `NaraDreamPainter.exe` 启动后的实测为准。

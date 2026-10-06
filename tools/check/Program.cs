@@ -1,13 +1,13 @@
-using Compositor.Models.Adjustments;
-using Compositor.Models.Blending;
-using Compositor.Models.Documents;
-using Compositor.Models.Layers;
-using Compositor.Models.Pixels;
+using NaraDreamPainter.Models.Adjustments;
+using NaraDreamPainter.Models.Blending;
+using NaraDreamPainter.Models.Documents;
+using NaraDreamPainter.Models.Layers;
+using NaraDreamPainter.Models.Pixels;
 
 namespace Compositor.Tools.Check;
 
 // Spot checks for the model layer, independent of the xUnit suite: useful when only
-// Compositor.Models is buildable, and as a second opinion on the numbers.
+// NaraDreamPainter.Models is buildable, and as a second opinion on the numbers.
 internal static class Program
 {
     private static int _failures;

@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>NaraDreamPainter.App</RootNamespace>
+    <AssemblyName>NaraDreamPainter</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;ARM64</Platforms>
+    <!-- Win2D only ships native binaries, so the default build cannot be AnyCPU. -->
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <!--
+      Generates a strongly typed accessor for Resources/Strings.resx, so UI code writes
+      Strings.SaveLayer rather than a stringly-typed resource lookup. The initial culture is set in
+      App.OnLaunched; see Localization.cs for the zh-CN first, English fallback rule.
+    -->
+    <GenerateResxSource>true</GenerateResxSource>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NaraDreamPainter.Models\NaraDreamPainter.Models.csproj" />
+    <ProjectReference Include="..\NaraDreamPainter.Imaging\NaraDreamPainter.Imaging.csproj" />
+    <ProjectReference Include="..\NaraDreamPainter.Compositing\NaraDreamPainter.Compositing.csproj" />
+  </ItemGroup>
+
+</Project>

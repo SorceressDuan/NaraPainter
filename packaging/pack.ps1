@@ -12,7 +12,7 @@
 # Layout contract, asserted at the end of this script:
 #   - the archive has no wrapper folder: unpacking drops the payload straight into the folder
 #     the user picks
-#   - Compositor.exe sits at the top level, with every DLL and resource it loads next to it,
+#   - NaraDreamPainter.exe sits at the top level, with every DLL and resource it loads next to it,
 #     because that is where the host resolves them from
 #   - LICENSE and README.md sit at the top level as well
 param(
@@ -51,7 +51,7 @@ $msixDir = Join-Path $root "dist\msix"
 Write-Host "Publishing $version ($Configuration / $RuntimeIdentifier)" -ForegroundColor Cyan
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 
-& dotnet publish "src\Compositor.App\Compositor.App.csproj" `
+& dotnet publish "src\NaraDreamPainter.App\NaraDreamPainter.App.csproj" `
     -c $Configuration `
     -r $RuntimeIdentifier `
     -p:Platform=x64 `
@@ -61,15 +61,15 @@ if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed with $LASTEXITCODE" }
 
 # Do not pass -p:SelfContained or -p:WindowsAppSDKSelfContained here. A global property override
-# reaches every project in the graph, including Compositor.Compositing, which then stages its own
+# reaches every project in the graph, including NaraDreamPainter.Compositing, which then stages its own
 # copy of the Windows App SDK payload and collides with the app's: NETSDK1152, duplicate
 # CoreMessagingXP.dll and friends. The app project already declares both, so they are not needed.
 
 # The executable is named Compositor already: AssemblyName in the app project, and nothing in the
 # code derives paths from the process name, so nothing has to be rewritten on rename. Confirm it
 # rather than assume it.
-$exePath = Join-Path $publishDir "Compositor.exe"
-if (-not (Test-Path $exePath)) { throw "Compositor.exe is missing from $publishDir - the layout contract requires it at the top level." }
+$exePath = Join-Path $publishDir "NaraDreamPainter.exe"
+if (-not (Test-Path $exePath)) { throw "NaraDreamPainter.exe is missing from $publishDir - the layout contract requires it at the top level." }
 
 # The MIT license and the provenance notice travel with the binaries; both are required by the
 # licence terms and by the project's own compliance rules.
@@ -87,7 +87,7 @@ $noteText = [System.IO.File]::ReadAllText((Join-Path $root "packaging\RUNNING.tx
 [System.IO.File]::WriteAllText((Join-Path $publishDir "RUNNING.txt"), $noteText, (New-Object System.Text.UTF8Encoding($false)))
 
 if (-not $SkipZip) {
-    $zip = Join-Path $root "dist\Compositor-$version-$RuntimeIdentifier.zip"
+    $zip = Join-Path $root "dist\NaraDreamPainter-$version-$RuntimeIdentifier.zip"
     if (Test-Path $zip) { Remove-Item $zip -Force }
     Write-Host "Zipping to $zip" -ForegroundColor Cyan
 
@@ -132,7 +132,7 @@ if (-not $SkipZip) {
         $names = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         foreach ($entry in $probe.Entries) { [void]$names.Add($entry.FullName) }
 
-        $required = @("Compositor.exe", "Compositor.dll", "Compositor.deps.json", "LICENSE", "README.md", "RUNNING.txt")
+        $required = @("NaraDreamPainter.exe", "Compositor.dll", "Compositor.deps.json", "LICENSE", "README.md", "RUNNING.txt")
         $missing = @($required | Where-Object { -not $names.Contains($_) })
         if ($missing.Count -gt 0) { throw "The zip is missing top-level entries: $($missing -join ', ')" }
 
@@ -156,5 +156,5 @@ Write-Host ""
 Write-Host "Done." -ForegroundColor Green
 Write-Host "  payload : $publishDir"
 Write-Host "  run     : $exePath"
-if (-not $SkipZip) { Write-Host "  zip     : dist\Compositor-$version-$RuntimeIdentifier.zip" }
-Write-Host "  msix    : $msixDir (run makeappx pack /d `"$msixDir`" /p dist\Compositor.msix)"
+if (-not $SkipZip) { Write-Host "  zip     : dist\NaraDreamPainter-$version-$RuntimeIdentifier.zip" }
+Write-Host "  msix    : $msixDir (run makeappx pack /d `"$msixDir`" /p dist\NaraDreamPainter.msix)"
