@@ -152,7 +152,7 @@ if ($tests.ExitCode -ne 0) {
 
 Write-Host ""
 Write-Host "=== package layout ==="
-$packageZip = @(Get-ChildItem -Path (Join-Path $root "dist") -Filter "Compositor-*-win-x64.zip" -File -ErrorAction SilentlyContinue |
+$packageZip = @(Get-ChildItem -Path (Join-Path $root "dist") -Filter "NaraDreamPainter-*-win-x64.zip" -File -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTime -Descending) | Select-Object -First 1
 
 $packageStatus = "SKIP"
@@ -182,7 +182,7 @@ else {
             $packageExeAtRoot = $atRoot -contains "NaraDreamPainter.exe"
 
             $problems = @()
-            foreach ($name in @("NaraDreamPainter.exe", "Compositor.dll", "Compositor.deps.json", "Compositor.runtimeconfig.json", "LICENSE", "README.md")) {
+            foreach ($name in @("NaraDreamPainter.exe", "NaraDreamPainter.dll", "NaraDreamPainter.deps.json", "NaraDreamPainter.runtimeconfig.json", "LICENSE", "README.md", "RUNNING.txt", "Run.bat")) {
                 if ($atRoot -notcontains $name) { $problems += "missing from the archive root: $name" }
             }
             if ($atRoot.Count -eq 0 -and $firstSegments.Count -eq 1) {
@@ -216,11 +216,21 @@ else {
     }
 }
 
+Write-Host ""
+Write-Host "=== localization ==="
+# Own process: the checker is a script with its own exit code, and calling it in-process would end this
+# one instead of just failing a section. Its output is pure ASCII by design, so it needs no decoding.
+$localizationScript = Join-Path $PSScriptRoot "check-localization.ps1"
+$localizationText = (& powershell -ExecutionPolicy Bypass -File $localizationScript -Root $root 2>&1 | Out-String).Trim()
+$localizationCode = $LASTEXITCODE
+Write-Host $localizationText
+
 $buildPass = $restore.ExitCode -eq 0 -and $build.ExitCode -eq 0 -and $errors -eq 0 -and $warnings -eq 0
 $runnerPass = $restoreRunner.ExitCode -eq 0 -and $runnerBuild.ExitCode -eq 0
 $structurePass = $structure.ExitCode -eq 0 -and $null -ne $structure.Summary -and $structure.Summary.Failed -eq 0 -and $structure.Summary.Passed -ge 4
 $testsPass = $tests.ExitCode -eq 0 -and $null -ne $tests.Summary -and $tests.Summary.Failed -eq 0 -and $tests.Summary.Passed -gt 0
 $packagePass = $packageStatus -ne "FAIL"
+$localizationPass = $localizationCode -eq 0
 
 Write-Host ""
 Write-Host "=== summary ==="
@@ -246,8 +256,9 @@ if ($packageStatus -eq "SKIP") {
 else {
     Write-Host ("PACKAGE   : {0} ({1} entries, {2} MB, {3})" -f $packageStatus, $packageEntries, $packageMegabytes, $(if ($packageExeAtRoot) { "exe at root" } else { "exe missing from root" }))
 }
+Write-Host ("LOCALIZATION: {0}" -f $(if ($localizationPass) { "PASS" } else { "FAIL" }))
 
-if ($buildPass -and $runnerPass -and $structurePass -and $testsPass -and $packagePass) {
+if ($buildPass -and $runnerPass -and $structurePass -and $testsPass -and $packagePass -and $localizationPass) {
     Write-Host "RESULT: PASS"
     exit 0
 }

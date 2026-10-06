@@ -4,7 +4,7 @@ WinUI 3 外壳：窗口布局、图层与属性面板、文件对话框、拖放
 `NaraDreamPainter.Compositing`，像素操作在 `NaraDreamPainter.Imaging`，界面只通过 `NaraDreamPainter.Models.Services`
 下的三个接口和 `CanvasView` 的公开成员接触它们。
 
-界面文字用英文，和原 macOS 应用的术语保持一致（Layers、Blend Mode、Curves 一类）。
+界面文字全部来自资源文件，默认简体中文、英文系统回退英文，见 [LOCALIZATION.md](LOCALIZATION.md)。
 
 ## 文件
 

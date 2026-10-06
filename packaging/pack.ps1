@@ -1,10 +1,10 @@
-# Publishes the app and lays out the MSIX payload. Run from the repository root.
+# Builds the portable package. Run from the repository root.
 #
 #   powershell -ExecutionPolicy Bypass -File packaging/pack.ps1
 #
 # Produces:
 #   dist/Compositor-<version>-win-x64.zip   self-contained, unpack and run
-#   dist/msix/                              MSIX payload ready for makeappx
+# The signed installer is a separate artifact: see installer/build-msix.ps1.
 #
 # The zip is the supported way to hand this to someone. The app is self-contained, so the
 # recipient needs neither the .NET runtime nor the Windows App SDK.
@@ -46,7 +46,7 @@ $version = ([xml](Get-Content "Directory.Build.props")).Project.PropertyGroup.Ve
 if (-not $version) { $version = "0.1.0" }
 
 $publishDir = Join-Path $root "dist\publish\$RuntimeIdentifier"
-$msixDir = Join-Path $root "dist\msix"
+
 
 Write-Host "Publishing $version ($Configuration / $RuntimeIdentifier)" -ForegroundColor Cyan
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
@@ -65,11 +65,26 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed with $LASTEXITCODE" }
 # copy of the Windows App SDK payload and collides with the app's: NETSDK1152, duplicate
 # CoreMessagingXP.dll and friends. The app project already declares both, so they are not needed.
 
-# The executable is named Compositor already: AssemblyName in the app project, and nothing in the
-# code derives paths from the process name, so nothing has to be rewritten on rename. Confirm it
-# rather than assume it.
+# The executable is named NaraDreamPainter by AssemblyName in the app project. Nothing in the code
+# derives paths from the process name, so a rename would need no code changes - but confirm the file
+# is where the layout contract says rather than assume it.
 $exePath = Join-Path $publishDir "NaraDreamPainter.exe"
 if (-not (Test-Path $exePath)) { throw "NaraDreamPainter.exe is missing from $publishDir - the layout contract requires it at the top level." }
+
+# A one-line launcher at the root, because the folder holds several hundred runtime files and finding
+# the executable among them is exactly the problem this is here to solve.
+Copy-Item "packaging\Run.bat" (Join-Path $publishDir "Run.bat") -Force
+
+# Drop the language folders the app will never load and the debug symbols nobody unpacks. The AI and
+# ML payload is left alone on purpose: removing it makes WinUI fail to create its own controls
+# (TextBox comes back as a XamlParseException), so it is not dead weight this build can shed.
+$keepCultures = @("zh-CN", "zh-TW", "en-us")
+foreach ($folder in Get-ChildItem $publishDir -Directory) {
+    if ($folder.Name -match '^[a-z]{2}(-[A-Za-z]+)?$' -and $folder.Name -notin $keepCultures) {
+        Remove-Item $folder.FullName -Recurse -Force
+    }
+}
+Get-ChildItem $publishDir -Recurse -File -Filter *.pdb | Remove-Item -Force
 
 # The MIT license and the provenance notice travel with the binaries; both are required by the
 # licence terms and by the project's own compliance rules.
@@ -111,19 +126,6 @@ if (-not $SkipZip) {
     }
 }
 
-Write-Host "Laying out the MSIX payload in $msixDir" -ForegroundColor Cyan
-if (Test-Path $msixDir) { Remove-Item $msixDir -Recurse -Force }
-New-Item -ItemType Directory -Path $msixDir | Out-Null
-Copy-Item (Join-Path $publishDir "*") $msixDir -Recurse -Force
-Copy-Item "packaging\Package.appxmanifest" (Join-Path $msixDir "AppxManifest.xml") -Force
-
-$assets = Join-Path $msixDir "Assets"
-New-Item -ItemType Directory -Force -Path $assets | Out-Null
-Copy-Item "assets\icon\compositor-256.png" (Join-Path $assets "Square150x150Logo.png") -Force
-Copy-Item "assets\icon\compositor-64.png" (Join-Path $assets "Square44x44Logo.png") -Force
-Copy-Item "assets\icon\compositor-256.png" (Join-Path $assets "Wide310x150Logo.png") -Force
-Copy-Item "assets\icon\compositor-64.png" (Join-Path $assets "StoreLogo.png") -Force
-
 # Assert the layout contract on the artifact that actually ships, not on the staging folder.
 if (-not $SkipZip) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -132,7 +134,7 @@ if (-not $SkipZip) {
         $names = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         foreach ($entry in $probe.Entries) { [void]$names.Add($entry.FullName) }
 
-        $required = @("NaraDreamPainter.exe", "Compositor.dll", "Compositor.deps.json", "LICENSE", "README.md", "RUNNING.txt")
+        $required = @("NaraDreamPainter.exe", "NaraDreamPainter.dll", "NaraDreamPainter.deps.json", "LICENSE", "README.md", "RUNNING.txt", "Run.bat")
         $missing = @($required | Where-Object { -not $names.Contains($_) })
         if ($missing.Count -gt 0) { throw "The zip is missing top-level entries: $($missing -join ', ')" }
 
@@ -157,4 +159,4 @@ Write-Host "Done." -ForegroundColor Green
 Write-Host "  payload : $publishDir"
 Write-Host "  run     : $exePath"
 if (-not $SkipZip) { Write-Host "  zip     : dist\NaraDreamPainter-$version-$RuntimeIdentifier.zip" }
-Write-Host "  msix    : $msixDir (run makeappx pack /d `"$msixDir`" /p dist\NaraDreamPainter.msix)"
+Write-Host "  installer: run installer\build-msix.ps1 for the signed setup package"

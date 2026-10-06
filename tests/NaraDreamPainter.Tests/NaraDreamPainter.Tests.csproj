@@ -19,6 +19,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\NaraDreamPainter.Models\NaraDreamPainter.Models.csproj" />
     <ProjectReference Include="..\..\src\NaraDreamPainter.Imaging\NaraDreamPainter.Imaging.csproj" />
+    <!-- UndoStack and the view models live with the app; the WinUI surface is confined to Views,
+         Controls and the launcher, so plain types still load without a XAML tree. -->
+    <ProjectReference Include="..\..\src\NaraDreamPainter.App\NaraDreamPainter.App.csproj" />
   </ItemGroup>
 
   <ItemGroup>

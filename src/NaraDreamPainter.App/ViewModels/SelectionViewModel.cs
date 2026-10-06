@@ -26,6 +26,14 @@ public sealed class SelectionViewModel : ObservableObject
 
     public IReadOnlyList<string> ShapeNames { get; } = ["Rectangle", "Ellipse"];
 
+    public SelectionShape Shape => (SelectionShape)_shapeIndex;
+
+    /// <summary>
+    /// Whether the typed region actually covers something. The tool starts at zero size, and an empty
+    /// region has to read as "no selection" rather than "a selection of nothing".
+    /// </summary>
+    public bool HasRegion => _width >= 1 && _height >= 1;
+
     public int ShapeIndex
     {
         get => _shapeIndex;
@@ -47,13 +55,21 @@ public sealed class SelectionViewModel : ObservableObject
     public double Width
     {
         get => _width;
-        set => SetProperty(ref _width, Round(value));
+        set
+        {
+            if (!SetProperty(ref _width, Round(value))) return;
+            OnPropertyChanged(nameof(HasRegion));
+        }
     }
 
     public double Height
     {
         get => _height;
-        set => SetProperty(ref _height, Round(value));
+        set
+        {
+            if (!SetProperty(ref _height, Round(value))) return;
+            OnPropertyChanged(nameof(HasRegion));
+        }
     }
 
     public double Feather
@@ -64,7 +80,17 @@ public sealed class SelectionViewModel : ObservableObject
 
     public bool HasMask => _owner.SelectedLayer?.IsMasked == true;
 
-    public string MaskLabel => HasMask ? "Mask applied to the selected layer" : "No mask on the selected layer";
+    public string MaskLabel => HasMask ? Localization.Get("Selection_MaskApplied") : Localization.Get("Selection_NoMask");
+
+    /// <summary>Whether the typed region or a painted mask gives the fill something to work on.</summary>
+    public string SelectionLabel
+    {
+        get
+        {
+            if (HasRegion) return Localization.Get("Selection_Active");
+            return HasMask ? Localization.Get("Selection_FromMask") : Localization.Get("Selection_None");
+        }
+    }
 
     public void ResetToCanvas()
     {
@@ -75,24 +101,33 @@ public sealed class SelectionViewModel : ObservableObject
         OnPropertyChanged(string.Empty);
     }
 
+    public void Clear()
+    {
+        _x = 0;
+        _y = 0;
+        _width = 0;
+        _height = 0;
+        OnPropertyChanged(string.Empty);
+    }
+
     public void ApplyMask()
     {
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null)
         {
-            _owner.Status = "Select a layer before applying a mask";
+            _owner.Status = Localization.Get("Status_SelectLayerForMask");
             return;
         }
 
         var region = new SelectionRegion((SelectionShape)_shapeIndex, (int)_x, (int)_y, (int)_width, (int)_height);
         if (region.IsEmpty)
         {
-            _owner.Status = "The selection is empty";
+            _owner.Status = Localization.Get("Status_SelectionEmpty");
             return;
         }
 
-        SetMask(layer, _masks.Build(region, _owner.Document.Width, _owner.Document.Height, _feather), "Apply Mask");
-        _owner.Status = $"Mask applied to {layer.Name}";
+        SetMask(layer, _masks.Build(region, _owner.Document.Width, _owner.Document.Height, _feather), Localization.Get("Undo_ApplyMask"));
+        _owner.Status = Localization.Format("Status_MaskApplied", layer.Name);
     }
 
     public void SelectAll()
@@ -100,12 +135,12 @@ public sealed class SelectionViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null)
         {
-            _owner.Status = "Select a layer before applying a mask";
+            _owner.Status = Localization.Get("Status_SelectLayerForMask");
             return;
         }
 
-        SetMask(layer, _masks.Full(_owner.Document.Width, _owner.Document.Height), "Select All");
-        _owner.Status = $"Whole canvas selected on {layer.Name}";
+        SetMask(layer, _masks.Full(_owner.Document.Width, _owner.Document.Height), Localization.Get("Undo_SelectAll"));
+        _owner.Status = Localization.Format("Status_SelectAll", layer.Name);
     }
 
     public void ClearMask()
@@ -113,14 +148,16 @@ public sealed class SelectionViewModel : ObservableObject
         LayerViewModel? layer = _owner.SelectedLayer;
         if (layer is null || !layer.IsMasked) return;
 
-        SetMask(layer, null, "Clear Mask");
-        _owner.Status = $"Mask cleared on {layer.Name}";
+        SetMask(layer, null, Localization.Get("Undo_ClearMask"));
+        _owner.Status = Localization.Format("Status_MaskCleared", layer.Name);
     }
 
     public void Refresh()
     {
         OnPropertyChanged(nameof(HasMask));
         OnPropertyChanged(nameof(MaskLabel));
+        OnPropertyChanged(nameof(HasRegion));
+        OnPropertyChanged(nameof(SelectionLabel));
     }
 
     private void SetMask(LayerViewModel layer, byte[]? mask, string label)

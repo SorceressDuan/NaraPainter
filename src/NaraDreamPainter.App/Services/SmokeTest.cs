@@ -35,6 +35,7 @@ public static class SmokeTest
             logPath = Option(commandLine, "--log") ?? logPath;
             StartupLog.Record("smokeTest", $"image={imagePath}", $"export={exportPath}", $"log={logPath}");
             log.Add($"options image={imagePath} export={exportPath} log={logPath} cwd={Environment.CurrentDirectory}");
+            CheckResources(log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -168,6 +169,33 @@ public static class SmokeTest
         }
 
         return exitCode;
+    }
+
+    /// <summary>
+    /// Reads every key in the active language off the bindable resource object. A key that is missing
+    /// from the .resx comes back as "!Key!", which would otherwise only surface as a strange label in
+    /// a window this sandbox cannot look at; here it fails the run and lands in the log.
+    /// </summary>
+    private static void CheckResources(List<string> log)
+    {
+        var resolved = typeof(LocalizedStrings)
+            .GetProperties()
+            .Select(property => (property.Name, Value: property.GetValue(LocalizedStrings.Instance) as string))
+            .ToList();
+
+        string[] broken =
+        [
+            .. resolved
+                .Where(entry => string.IsNullOrEmpty(entry.Value) || (entry.Value.Length > 2 && entry.Value[0] == '!' && entry.Value[^1] == '!'))
+                .Select(entry => entry.Name)
+        ];
+
+        log.Add($"resources culture={Localization.Culture.Name} keys={resolved.Count} broken={broken.Length}"
+            + $" sample={Strings.ToolbarUndo}/{Strings.LayersTitle}/{Strings.StatusReady}");
+        if (broken.Length > 0)
+        {
+            throw new InvalidOperationException($"These resource keys did not resolve: {string.Join(", ", broken)}");
+        }
     }
 
     private static string Sample(DocumentViewModel document)

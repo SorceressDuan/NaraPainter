@@ -5,16 +5,18 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
+  <!-- __VERSION__ and __PUBLISHER__ are filled in by installer/build-msix.ps1. The publisher has to
+       match the signing certificate's subject exactly. -->
   <Identity
-    Name="CompositorForWindows.Unofficial"
-    Publisher="CN=Compositor for Windows"
-    Version="0.1.0.0"
+    Name="NaraDreamPainter.Unofficial"
+    Publisher="__PUBLISHER__"
+    Version="__VERSION__"
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Compositor for Windows</DisplayName>
-    <PublisherDisplayName>Compositor for Windows contributors</PublisherDisplayName>
-    <Description>Unofficial Windows port of the Compositor image editor.</Description>
+    <DisplayName>Nara Dream Painter</DisplayName>
+    <PublisherDisplayName>Nara Dream Painter contributors</PublisherDisplayName>
+    <Description>Non-official Windows port of the Compositor image editor.</Description>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -23,14 +25,15 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="en-us" />
+    <Resource Language="zh-CN" />
+    <Resource Language="en-US" />
   </Resources>
 
   <Applications>
     <Application Id="NaraDreamPainter" Executable="NaraDreamPainter.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="NaraDreamPainter"
-        Description="Unofficial Windows port of the Compositor image editor."
+        DisplayName="Nara Dream Painter"
+        Description="Non-official Windows port of the Compositor image editor."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">

@@ -11,11 +11,12 @@
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
 
             <!--
-                YaHei UI carries the Chinese glyphs and sits on the system either way, so mixed
-                Chinese and Latin runs share one family and keep the same baseline. Segoe UI backs it
-                up for the Latin-only case where YaHei is absent.
+                One family, not a comma-separated chain: WinUI 3 does not document WPF's fallback-list
+                syntax, and an unparsed chain silently drops back to the default font. DirectWrite
+                already falls back per glyph when a family is absent, so Chinese still renders (with
+                Latin sharing the fallback) without listing Segoe UI here.
             -->
-            <FontFamily x:Key="AppFontFamily">Microsoft YaHei UI, Segoe UI</FontFamily>
+            <FontFamily x:Key="AppFontFamily">Microsoft YaHei UI</FontFamily>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

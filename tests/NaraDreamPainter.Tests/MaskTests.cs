@@ -296,6 +296,81 @@ public class MaskTests
         Assert.Throws<ArgumentOutOfRangeException>(() => BrushStroke.Interpolate([(0, 0), (10, 0)], spacing));
     }
 
+    [Fact]
+    public void ASingleHardStampIsSolidAllTheWayToItsCentre()
+    {
+        const int size = 64;
+        var mask = new byte[size * size];
+
+        MaskService.Paint(mask, size, size, [(32, 32)], radius: 12, hardness: 1, opacity: 1, erase: false);
+
+        // The hard tip is full strength up to the last pixel inside the radius and nothing at the rim.
+        Assert.Equal(255, mask[(32 * size) + 32]);
+        Assert.Equal(255, mask[(32 * size) + 43]);
+        Assert.Equal(0, mask[(32 * size) + 44]);
+    }
+
+    [Fact]
+    public void OverlappingDabsInOneStrokeDoNotAccumulate()
+    {
+        const int size = 64;
+        var mask = new byte[size * size];
+
+        // Six dabs of the same stroke all cover the middle, and stamping them one after another must
+        // not push the coverage past full or wrap it back around.
+        MaskService.Paint(mask, size, size, [(28, 32), (30, 32), (32, 32), (34, 32), (36, 32), (38, 32)],
+            radius: 10, hardness: 1, opacity: 1, erase: false);
+
+        Assert.Equal(255, mask[(32 * size) + 32]);
+        Assert.Equal(255, mask[(32 * size) + 31]);
+        Assert.Equal(255, mask[(32 * size) + 33]);
+    }
+
+    [Fact]
+    public void OverlappingDabsInOneStrokeKeepTheStrongestCoverage()
+    {
+        const int size = 64;
+        var single = new byte[size * size];
+        var overlapped = new byte[size * size];
+
+        MaskService.Paint(single, size, size, [(32, 32)], radius: 10, hardness: 0, opacity: 0.5, erase: false);
+        MaskService.Paint(overlapped, size, size, [(30, 32), (32, 32), (34, 32)], radius: 10, hardness: 0, opacity: 0.5, erase: false);
+
+        // The dab centred on the pixel is the strongest one, so the overlap cannot read any higher.
+        Assert.Equal(single[(32 * size) + 32], overlapped[(32 * size) + 32]);
+    }
+
+    [Fact]
+    public void EraseSaturatesAtZeroAndNeverWraps()
+    {
+        const int size = 64;
+        var mask = new byte[size * size];
+        MaskService.Fill(mask, 255);
+
+        for (int pass = 0; pass < 3; pass++)
+        {
+            MaskService.Paint(mask, size, size, [(32, 32)], radius: 10, hardness: 1, opacity: 1, erase: true);
+        }
+
+        Assert.Equal(0, mask[(32 * size) + 32]);
+        Assert.Equal(0, mask[(32 * size) + 40]);
+        Assert.Equal(255, mask[(10 * size) + 10]);
+
+        var empty = new byte[size * size];
+        MaskService.Paint(empty, size, size, [(32, 32)], radius: 10, hardness: 1, opacity: 1, erase: true);
+
+        Assert.Equal(0, empty[(32 * size) + 32]);
+    }
+
+    [Fact]
+    public void PaintRejectsANonPositiveRadius()
+    {
+        var mask = new byte[16];
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => MaskService.Paint(mask, 4, 4, [(1, 1)], 0, 1, 1, false));
+        Assert.Throws<ArgumentOutOfRangeException>(() => MaskService.Paint(mask, 4, 4, [(1, 1)], -3, 1, 1, false));
+    }
+
     // legacy/Compositor/Document/BrushStroke.swift draws the tip as a radial gradient with these
     // stops: a normalized Gaussian ramped from radius * hardness out to the rim, flat inside it.
     private static byte UpstreamCoverage(double distance, double radius, double hardness)

@@ -17,7 +17,7 @@ public sealed class LayerViewModel : ObservableObject
     private readonly DocumentViewModel _owner;
     private readonly IAdjustmentFilter _filter;
     private readonly AdjustmentSettings?[] _adjustments = new AdjustmentSettings?[AdjustmentKinds.Count];
-    private readonly PixelBuffer? _source;
+    private PixelBuffer? _source;
     private int _opacitySession;
     private int _nameSession;
 
@@ -151,6 +151,23 @@ public sealed class LayerViewModel : ObservableObject
         OnPropertyChanged(nameof(IsMasked));
         OnPropertyChanged(nameof(MaskLabel));
         _owner.NotifyChanged();
+    }
+
+    internal void RefreshMaskState()
+    {
+        OnPropertyChanged(nameof(IsMasked));
+        OnPropertyChanged(nameof(MaskLabel));
+    }
+
+    /// <summary>
+    /// Swaps the pixels an edit works from and re-derives the layer. The adjustment stack is replayed
+    /// over the new buffer, so undoing a destructive pixel edit also restores what the adjustments
+    /// produced from the old one.
+    /// </summary>
+    internal void ReplacePixels(PixelBuffer pixels)
+    {
+        _source = pixels;
+        RebuildPixels();
     }
 
     private void SetName(string value)

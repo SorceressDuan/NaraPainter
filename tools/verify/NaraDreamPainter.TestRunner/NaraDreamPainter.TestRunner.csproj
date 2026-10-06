@@ -7,6 +7,11 @@
     <RootNamespace>NaraDreamPainter.TestRunner</RootNamespace>
     <AssemblyName>NaraDreamPainter.TestRunner</AssemblyName>
     <Platforms>x64</Platforms>
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <!-- The test project pulls in the app, which is a self-contained WinUI executable, and a
+         framework-dependent project cannot reference that. -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

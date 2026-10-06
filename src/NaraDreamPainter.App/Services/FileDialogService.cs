@@ -60,12 +60,12 @@ public sealed class FileDialogService
     }
 
     /// <summary>One picker entry per format; jpg/jpeg and tif/tiff are the same encoder.</summary>
-    private static readonly (string Label, string[] Extensions)[] ExportChoices =
+    private static (string Label, string[] Extensions)[] ExportChoices =>
     [
-        ("PNG image", ["png"]),
-        ("JPEG image", ["jpg", "jpeg"]),
-        ("WebP image", ["webp"]),
-        ("BMP image", ["bmp"]),
-        ("TIFF image", ["tif", "tiff"])
+        (Strings.FormatPng, ["png"]),
+        (Strings.FormatJpeg, ["jpg", "jpeg"]),
+        (Strings.FormatWebP, ["webp"]),
+        (Strings.FormatBmp, ["bmp"]),
+        (Strings.FormatTiff, ["tif", "tiff"])
     ];
 }

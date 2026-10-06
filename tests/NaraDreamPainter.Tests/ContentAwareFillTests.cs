@@ -64,7 +64,9 @@ public class ContentAwareFillTests
         {
             for (int x = 0; x < 32; x++)
             {
-                Set(image, x, y, new Rgba32(40, 90, 160, 200));
+                // Every pixel carries its own alpha, so a fill that copies a neighbour's alpha into
+                // the hole cannot pass by accident.
+                Set(image, x, y, new Rgba32(40, 90, 160, (byte)((x * 7) + (y * 13))));
             }
         }
 
@@ -72,7 +74,7 @@ public class ContentAwareFillTests
         {
             for (int x = 10; x < 20; x++)
             {
-                Set(image, x, y, new Rgba32(250, 250, 250, 77));
+                Set(image, x, y, new Rgba32(250, 250, 250, (byte)((x * 7) + (y * 13))));
                 mask[(y * 32) + x] = 255;
             }
         }
@@ -84,7 +86,7 @@ public class ContentAwareFillTests
             Assert.Equal(image.Data[i], filled.Data[i]);
         }
 
-        Assert.Equal(77, filled[15, 15].A);
+        Assert.Equal(image[15, 15].A, filled[15, 15].A);
     }
 
     [Fact]

@@ -33,6 +33,6 @@ public sealed class ImageImporter
     private static string NameFor(string path)
     {
         string name = Path.GetFileNameWithoutExtension(path);
-        return string.IsNullOrWhiteSpace(name) ? "Layer" : name;
+        return string.IsNullOrWhiteSpace(name) ? Strings.LayersDefaultName : name;
     }
 }

@@ -245,6 +245,68 @@
                         Style="{StaticResource CaptionTextBlockStyle}"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextWrapping="Wrap" />
+
+                    <TextBlock
+                        Text="{Binding Selection.SelectionLabel}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </ContentControl>
+
+            <ContentControl IsEnabled="{Binding HasSelection}" HorizontalContentAlignment="Stretch">
+                <StackPanel Spacing="8">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                    <ToggleSwitch
+                        IsOn="{Binding MaskBrush.IsActive, Mode=TwoWay}" />
+
+                    <controls:AdjustmentSlider
+                        Minimum="1"
+                        Maximum="400"
+                        Value="{Binding MaskBrush.Size, Mode=TwoWay}" />
+
+                    <controls:AdjustmentSlider
+                        Minimum="0"
+                        Maximum="1"
+                        Value="{Binding MaskBrush.Hardness, Mode=TwoWay}" />
+
+                    <controls:AdjustmentSlider
+                        Minimum="0"
+                        Maximum="1"
+                        Value="{Binding MaskBrush.Opacity, Mode=TwoWay}" />
+
+                    <ToggleSwitch
+                        IsOn="{Binding MaskBrush.Erase, Mode=TwoWay}" />
+
+                    <controls:AdjustmentSlider
+                        Minimum="0.5"
+                        Maximum="100"
+                        Value="{Binding MaskBrush.FeatherRadius, Mode=TwoWay}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button Click="OnFeatherMask" />
+                        <Button Click="OnInvertMask" />
+                        <Button Click="OnClearSelection" />
+                    </StackPanel>
+                </StackPanel>
+            </ContentControl>
+
+            <ContentControl IsEnabled="{Binding HasSelection}" HorizontalContentAlignment="Stretch">
+                <StackPanel Spacing="8">
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                    <controls:AdjustmentSlider
+                        Minimum="1"
+                        Maximum="50"
+                        Value="{Binding ContentFill.Radius, Mode=TwoWay}" />
+
+                    <ToggleSwitch
+                        IsOn="{Binding ContentFill.UseNikolai, Mode=TwoWay}" />
+
+                    <Button
+                        Click="OnContentAwareFill"
+                        IsEnabled="{Binding ContentFill.CanFill}" />
                 </StackPanel>
             </ContentControl>
         </StackPanel>

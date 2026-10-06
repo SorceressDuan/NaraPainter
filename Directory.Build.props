@@ -10,7 +10,7 @@
     <Company>Compositor for Windows</Company>
     <Product>Compositor for Windows</Product>
     <Authors>Compositor for Windows contributors</Authors>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
 
     <!--
       CS9057 comes from OpenCvSharp4 4.13: its Roslyn analyzer is built against a 4.14 compiler and

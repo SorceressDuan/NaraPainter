@@ -69,6 +69,23 @@
                 </AppBarButton.Flyout>
             </AppBarButton>
             <AppBarSeparator />
+            <AppBarToggleButton
+                x:Name="MaskBrushButton"
+                Icon="Edit"
+                Label="Mask Brush"
+                Click="OnMaskBrushClick" />
+            <AppBarButton Icon="Repair" Label="Content-Aware Fill" Click="OnContentAwareFillClick">
+                <AppBarButton.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="Fill Selection" Click="OnContentAwareFillClick" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Text="Feather Mask" Click="OnFeatherMaskClick" />
+                        <MenuFlyoutItem Text="Invert Mask" Click="OnInvertMaskClick" />
+                        <MenuFlyoutItem Text="Clear Mask" Click="OnClearMaskClick" />
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarSeparator />
             <AppBarButton Icon="ZoomOut" Label="Zoom Out" Click="OnZoomOutClick" />
             <AppBarButton Icon="ZoomIn" Label="Zoom In" Click="OnZoomInClick" />
             <AppBarButton Icon="Zoom" Label="Fit" Click="OnFitClick" />

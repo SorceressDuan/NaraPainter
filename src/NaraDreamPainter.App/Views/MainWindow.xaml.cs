@@ -5,6 +5,7 @@ using NaraDreamPainter.Imaging.Services;
 using NaraDreamPainter.Models.Documents;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace NaraDreamPainter.App.Views;
@@ -26,6 +27,13 @@ public sealed partial class MainWindow : Window
         Canvas.ViewChanged += OnViewChanged;
         Canvas.Loaded += (_, _) => FitCanvas();
 
+        // The canvas control marks its own pointer events handled while panning, so the brush has to
+        // subscribe at the CanvasView level and ask for handled events too.
+        Canvas.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnCanvasPointerPressed), true);
+        Canvas.AddHandler(UIElement.PointerMovedEvent, new PointerEventHandler(OnCanvasPointerMoved), true);
+        Canvas.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(OnCanvasPointerReleased), true);
+        Canvas.AddHandler(UIElement.PointerCaptureLostEvent, new PointerEventHandler(OnCanvasPointerCaptureLost), true);
+
         Layers.Attach(Document);
         Properties.Attach(Document);
 
@@ -37,6 +45,8 @@ public sealed partial class MainWindow : Window
 
     /// <summary>Initialized before InitializeComponent so the compiled bindings in the XAML have a document.</summary>
     public DocumentViewModel Document { get; } = CreateDocument();
+
+    private bool _paintingMask;
 
     private static DocumentViewModel CreateDocument()
     {
@@ -80,6 +90,67 @@ public sealed partial class MainWindow : Window
     }
 
     private void OnZoomInClick(object sender, RoutedEventArgs e) => Canvas.ZoomTo(Canvas.Zoom * 1.25);
+
+    private void OnMaskBrushClick(object sender, RoutedEventArgs e)
+    {
+        // The toggle owns the state; read it back rather than tracking a second copy here.
+        Document.MaskBrush.IsActive = MaskBrushButton.IsChecked == true;
+    }
+
+    private void OnContentAwareFillClick(object sender, RoutedEventArgs e) => Document.ContentFill.Fill();
+
+    private void OnFeatherMaskClick(object sender, RoutedEventArgs e) => Document.MaskBrush.Feather(Document.MaskBrush.FeatherRadius);
+
+    private void OnInvertMaskClick(object sender, RoutedEventArgs e) => Document.MaskBrush.Invert();
+
+    private void OnClearMaskClick(object sender, RoutedEventArgs e) => Document.Selection.ClearMask();
+
+    private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (!Document.MaskBrush.IsActive) return;
+
+        var point = e.GetCurrentPoint(Canvas);
+        if (!point.Properties.IsLeftButtonPressed) return;
+
+        var document = ToDocument(point.Position);
+        Document.MaskBrush.BeginStroke(document.X, document.Y);
+        _paintingMask = true;
+        Canvas.CapturePointer(e.Pointer);
+    }
+
+    private void OnCanvasPointerMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (!_paintingMask) return;
+
+        var document = ToDocument(e.GetCurrentPoint(Canvas).Position);
+        Document.MaskBrush.ContinueStroke(document.X, document.Y);
+    }
+
+    private void OnCanvasPointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        if (!_paintingMask) return;
+
+        _paintingMask = false;
+        Document.MaskBrush.EndStroke();
+        Canvas.ReleasePointerCapture(e.Pointer);
+    }
+
+    private void OnCanvasPointerCaptureLost(object sender, PointerRoutedEventArgs e)
+    {
+        if (!_paintingMask) return;
+
+        _paintingMask = false;
+        Document.MaskBrush.EndStroke();
+    }
+
+    /// <summary>Control coordinates to canvas pixels, matching how the renderer places the document.</summary>
+    private System.Numerics.Vector2 ToDocument(Windows.Foundation.Point position)
+    {
+        double zoom = Canvas.Zoom > 0 ? Canvas.Zoom : 1;
+        return new System.Numerics.Vector2(
+            (float)((position.X - Canvas.PanX) / zoom),
+            (float)((position.Y - Canvas.PanY) / zoom));
+    }
 
     private void OnZoomOutClick(object sender, RoutedEventArgs e) => Canvas.ZoomTo(Canvas.Zoom / 1.25);
 

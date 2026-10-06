@@ -57,4 +57,15 @@ public sealed partial class PropertiesPanel : UserControl
     private void OnSelectAll(object sender, RoutedEventArgs e) => _document?.Selection.SelectAll();
 
     private void OnClearMask(object sender, RoutedEventArgs e) => _document?.Selection.ClearMask();
+
+    private void OnClearSelection(object sender, RoutedEventArgs e) => _document?.Selection.Clear();
+
+    private void OnFeatherMask(object sender, RoutedEventArgs e)
+    {
+        if (_document is { } document) document.MaskBrush.Feather(document.MaskBrush.FeatherRadius);
+    }
+
+    private void OnInvertMask(object sender, RoutedEventArgs e) => _document?.MaskBrush.Invert();
+
+    private void OnContentAwareFill(object sender, RoutedEventArgs e) => _document?.ContentFill.Fill();
 }

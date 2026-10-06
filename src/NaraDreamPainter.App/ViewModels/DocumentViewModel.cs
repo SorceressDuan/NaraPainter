@@ -35,6 +35,8 @@ public sealed class DocumentViewModel : ObservableObject
         _document = CreateDocument(DefaultCanvasWidth, DefaultCanvasHeight);
         Adjustment = new AdjustmentViewModel();
         Selection = new SelectionViewModel(this, masks);
+        MaskBrush = new MaskBrushViewModel(this, masks);
+        ContentFill = new ContentAwareFillViewModel(this, masks);
 
         Layers.CollectionChanged += (_, _) => OnPropertyChanged(nameof(LayerCountLabel));
 
@@ -58,6 +60,12 @@ public sealed class DocumentViewModel : ObservableObject
     public AdjustmentViewModel Adjustment { get; }
 
     public SelectionViewModel Selection { get; }
+
+    /// <summary>Paints the selected layer's mask; the canvas routes pointer drags here when active.</summary>
+    public MaskBrushViewModel MaskBrush { get; }
+
+    /// <summary>Fills the selection, or the masked-out pixels, from what surrounds them.</summary>
+    public ContentAwareFillViewModel ContentFill { get; }
 
     public ObservableCollection<LayerViewModel> Layers { get; } = [];
 
@@ -104,6 +112,8 @@ public sealed class DocumentViewModel : ObservableObject
 
             Adjustment.Target = value;
             Selection.Refresh();
+            MaskBrush.Refresh();
+            ContentFill.Refresh();
             OnPropertyChanged(nameof(HasSelection));
         }
     }
@@ -261,7 +271,11 @@ public sealed class DocumentViewModel : ObservableObject
         }
 
         SelectedLayer = Layers.FirstOrDefault();
-        Selection.ResetToCanvas();
+
+        // A freshly opened document has no selection. Defaulting it to the whole canvas made every
+        // fill treat the entire image as its target, which reads as "the button does nothing".
+        Selection.Clear();
+        Selection.Refresh();
 
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(WindowTitle));
