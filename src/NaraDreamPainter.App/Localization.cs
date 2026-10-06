@@ -34,11 +34,16 @@ public static class Localization
         set
         {
             ArgumentNullException.ThrowIfNull(value);
+
+            // Choosing the language already in effect still counts as a choice: the picker sets this
+            // on start-up, and without recording it a user whose system language happens to match the
+            // default would never get a settings file until they picked something else.
+            Preference.Save(value);
+
             if (_culture.Name == value.Name) return;
 
             _culture = value;
             CultureInfo.CurrentUICulture = value;
-            Preference.Save(value);
             CultureChanged?.Invoke(null, EventArgs.Empty);
         }
     }

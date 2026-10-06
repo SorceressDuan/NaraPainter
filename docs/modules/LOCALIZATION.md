@@ -112,19 +112,10 @@ WinUI 3 没有承诺；整串被当成一个非法族名时会**静默**落回�
 - `Views/MainWindow.xaml` 的 `CommandBar` 与状态栏文本；
 - 错误对话框 `ContentDialog`：它不在窗口视觉树里，继承不到，必须单独设。
 
-## 运行时切换语言（本轮未接菜单）
+## 加一门新语言
 
-资源结构本身已经支持多语言，缺的只是一个入口。V0.2 不做语言菜单，因为它要动三个面板与视图模型，
-而这一轮的交付重点是主线功能；加一个新语言仍然只需要加一个 `Strings.<culture>.resx`。
-
-将来接入时的位置：
-
-- `Localization.Culture` 的 setter 已经会抛 `CultureChanged`，切过去之后所有取文案的地方都会读到新语言。
-- `LocalizedStrings` 在构造函数里订阅了 `CultureChanged`，切换时对自己的每个属性发一次
-  `PropertyChanged`，XAML 的 `Mode=OneWay` 绑定随之更新——不需要重建窗口（重建会丢掉当前文档）。
-- 视图模型里的文案（图层行标签、调整名、选区状态）由一个 `DocumentViewModel.RefreshLocalization()`
-  逐级 `OnPropertyChanged` 通知；窗口标题在 `MainWindow` 里重设（`Title = Document.WindowTitle`）。
-- `MenuFlyout` 里的项是 code-behind 赋值的，同样订阅 `CultureChanged` 重设。
+加一个 `Strings.<culture>.resx`，再往 `LanguageCatalog.Options` 加一行。别的代码不用动：
+`Localization` 通过 `ResourceManager` 查表，语言选择器、持久化、刷新链路都不知道具体语言有几种。
 
 ## 验证
 
@@ -144,3 +135,42 @@ powershell -ExecutionPolicy Bypass -File tools/verify/check-localization.ps1
   环境里看不出来），并留一行 `chrome culture=zh-CN texts=NN checked=6 missing=0`。
 
 再配合 `window.title=Nara Dream Painter — 未命名`，可以确认资源确实在运行时生效，而不是只有文件里对齐。
+
+
+## 语言切换
+
+状态栏右下角的「语言 / Language」下拉框切换界面语言，**即时生效、无需重启**，选择保存在
+`%LOCALAPPDATA%\NaraDreamPainter\settings.json`，下次启动沿用；没有保存过时按系统语言决定
+（中文系统 → 简体中文，其它 → English）。
+
+链路：`Localization.Culture` 的 setter 保存偏好并抛 `CultureChanged`，`LocalizedStrings.Refresh()`
+给每个绑定属性发 `PropertyChanged`，`MainWindow.OnCultureChanged()` 另外处理三类声明式绑定覆盖不到
+的地方——视觉树之外的 flyout、自行拼接文案的视图模型（`Document.RefreshLocalization()`）、以及窗口标题。
+
+### 已知显示缺陷：两个选择器的选中项文本不重绘
+
+切换语言后，**混合模式**与**选区形状**两个下拉框会暂时空白，重新打开下拉框选一次即恢复。
+原因是 WinUI 的 ComboBox 在 `ItemsSource` 变化后不总会重绘已关闭状态下显示选中项的文本。
+
+背后的数据是对的，不是丢数据：`SmokeTest` 里打印过切换后的 `layerIndex=0`、
+`names=[Normal,Darken,…]`，即视图模型与列表都是新语言，只有显示层停住了。
+
+试过三种修法都没用：把列表改成 `ObservableCollection` 原地替换项；每次读取返回新列表并通知
+`ItemsSource`；把 `SelectedIndex` 从 `TwoWay` 改成 `OneWay`。
+
+**有效的修法**：`MainWindow.RepaintSelections()` 在切换后遍历视觉树，把每个 ComboBox 的
+`SelectedIndex` 先设为 -1 再设回原值，强制它重绘选中项文本。这样一来**形状**与**语言**两个
+选择器都恢复了。
+
+**仍然空白的只剩一个**：`LayersPanel` 图层行模板里的**混合模式**选择器（`LayersPanel.xaml:105`，
+在 `ListView` 的 `DataTemplate` 内）。同一个混合模式选择器在 `PropertiesPanel` 里是好的，差别在于
+模板实例。自检日志会如实记录数量：
+```
+language pickers=4 blank=1 values=' / 混合模式混合模式混合模式 / 形状形状形状 / 简体中文'
+```
+数据是对的（`firstMode='Normal'`），只是显示层停住，用户点开该下拉框选一次即恢复。要彻底修，
+方向是给模板内的选择器换成 `ObservableCollection<可通知的项对象>`，让项自己发 `PropertyChanged`。
+
+因此 `SmokeTest.CheckLanguageSwitch` **刻意不对整棵视觉树做快照比对**——那会把空白报成切换失败，
+却说明不了切换是否生效。它断言的是文化、窗口标题、工具栏标签、以及选择器背后的取值，把选择器的
+空白数**记录**在日志里而不是抛出。

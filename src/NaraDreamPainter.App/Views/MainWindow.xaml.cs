@@ -66,6 +66,33 @@ public sealed partial class MainWindow : Window
 
         int index = LanguageCatalog.IndexOf(Localization.Culture);
         if (LanguagePicker.SelectedIndex != index) LanguagePicker.SelectedIndex = index;
+
+        RepaintSelections(Content as DependencyObject);
+    }
+
+    /// <summary>
+    /// Nudges every open ComboBox into redrawing the text of its selected item.
+    /// </summary>
+    /// <remarks>
+    /// A closed ComboBox renders its selection through a content presenter that only refreshes when
+    /// the selection changes, so a switch that leaves the index where it was - the usual case, since
+    /// the lists are in the same order in every language - leaves the old text on screen. Clearing the
+    /// index and putting it back is what forces the redraw; the two-way binding hands the real value
+    /// back on the next line.
+    /// </remarks>
+    private static void RepaintSelections(DependencyObject? node)
+    {
+        if (node is null) return;
+
+        if (node is ComboBox combo && combo.SelectedIndex >= 0)
+        {
+            int selected = combo.SelectedIndex;
+            combo.SelectedIndex = -1;
+            combo.SelectedIndex = selected;
+        }
+
+        int count = VisualTreeHelper.GetChildrenCount(node);
+        for (int i = 0; i < count; i++) RepaintSelections(VisualTreeHelper.GetChild(node, i));
     }
 
     private void FillLanguagePicker()

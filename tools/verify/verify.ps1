@@ -89,6 +89,20 @@ function Normalize-Text {
     return $flat.Trim()
 }
 
+# Resolved after the builds, not before: the test project is written under bin\<cfg>\ when the solution
+# builds it and under bin\x64\<cfg>\ when the x64 runner drives it, so take whichever was built last.
+function Select-NewestAssembly {
+    param([string[]]$Candidates)
+
+    $existing = @($Candidates |
+        ForEach-Object { Join-Path $root $_ } |
+        Where-Object { Test-Path $_ } |
+        ForEach-Object { Get-Item $_ })
+    if ($existing.Count -eq 0) { return $Candidates[0] }
+
+    return ($existing | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName.Substring($root.Length + 1)
+}
+
 # Runs the xUnit suite through "dotnet test" and falls back to the bundled runner when vstest aborts
 # before a single test runs.
 function Invoke-Tests {
@@ -110,7 +124,7 @@ function Invoke-Tests {
         Write-Host ""
     }
 
-    $runnerArguments = @("exec", $RunnerAssembly, $TestAssembly)
+    $runnerArguments = @("exec", (Select-NewestAssembly $RunnerAssemblyCandidates), (Select-NewestAssembly $TestAssemblyCandidates))
     if ($RunnerFilter) { $runnerArguments += $RunnerFilter }
     $fallback = Invoke-Dotnet $runnerArguments
     return [pscustomobject]@{ ExitCode = $fallback.ExitCode; Output = $fallback.Output; Summary = (Get-TestSummary $fallback.Output); Mode = "fallback runner" }

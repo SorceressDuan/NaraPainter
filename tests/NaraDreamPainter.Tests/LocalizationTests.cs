@@ -87,6 +87,36 @@ public class LocalizationTests
         Assert.Contains("无隶属", readme, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void TheLanguageNamesAreReadableFromInsideBothLanguages()
+    {
+        Dictionary<string, string> neutral = ResourceValues("Strings.resx");
+        Dictionary<string, string> chinese = ResourceValues("Strings.zh-CN.resx");
+
+        foreach (Dictionary<string, string> resources in new[] { neutral, chinese })
+        {
+            Assert.True(resources.ContainsKey("Language_Chinese"), "Language_Chinese is missing");
+            Assert.True(resources.ContainsKey("Language_English"), "Language_English is missing");
+        }
+
+        // The picker has to be usable whatever the current language is, so each file names the
+        // languages in their own script instead of translating them.
+        Assert.Contains("Chinese", neutral["Language_Chinese"], StringComparison.Ordinal);
+        Assert.Equal("English", neutral["Language_English"]);
+        Assert.Equal("English", chinese["Language_English"]);
+        Assert.True(ChineseCharacters.IsMatch(chinese["Language_Chinese"]),
+            $"'{chinese["Language_Chinese"]}' is not a Chinese name");
+    }
+
+    internal static Dictionary<string, string> ResourceValues(string fileName)
+    {
+        var document = new XmlDocument();
+        document.LoadXml(TestFiles.ReadText(Path.Combine(AppRoot(), "Resources", fileName)));
+
+        return document.SelectNodes("/root/data")!.Cast<XmlNode>()
+            .ToDictionary(node => node.Attributes!["name"]!.Value, node => node.SelectSingleNode("value")!.InnerText);
+    }
+
     private static HashSet<string> ResourceKeys(string fileName)
     {
         var document = new XmlDocument();

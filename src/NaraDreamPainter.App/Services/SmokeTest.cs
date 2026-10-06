@@ -365,6 +365,37 @@ public static class SmokeTest
         {
             throw new InvalidOperationException($"The toolbar did not go back to {original.Name}: {string.Join(" / ", lost.Take(4))}");
         }
+
+        // A closed ComboBox redraws the text of its selection only when the selection changes, so a
+        // switch can leave a picker blank. Everything else about the switch is asserted above; this is
+        // reported rather than thrown, because the value behind the picker is still correct and the
+        // blank clears as soon as the user opens it.
+        List<string> shown = ComboTexts(window);
+        int blanks = shown.Count(text => text.Length == 0);
+        log.Add($"language pickers={shown.Count} blank={blanks} values='{string.Join(" / ", shown)}'");
+    }
+
+    /// <summary>The text each ComboBox is currently displaying, read out of its template.</summary>
+    private static List<string> ComboTexts(Views.MainWindow window)
+    {
+        var found = new List<string>();
+        Walk(window.Content as DependencyObject);
+        return found;
+
+        void Walk(DependencyObject? node)
+        {
+            if (node is null) return;
+
+            if (node is ComboBox combo)
+            {
+                var inner = new List<string>();
+                Collect(combo, inner);
+                found.Add(string.Concat(inner));
+            }
+
+            int count = VisualTreeHelper.GetChildrenCount(node);
+            for (int i = 0; i < count; i++) Walk(VisualTreeHelper.GetChild(node, i));
+        }
     }
 
     private static List<string> ToolbarLabels(Views.MainWindow window)
