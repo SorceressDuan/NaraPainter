@@ -13,6 +13,7 @@ namespace NaraPainter.Tests;
 /// rather than edit the current one. The blank canvas the window opens with is not a previous
 /// picture, so the first import is not recorded as undoable.
 /// </summary>
+[Collection(LocalizedState.Name)]
 public class ImportUndoTests
 {
     [Fact]

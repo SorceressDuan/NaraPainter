@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:compositing="using:NaraPainter.Compositing.Controls"
+    xmlns:app="using:NaraPainter.App"
     xmlns:views="using:NaraPainter.App.Views">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -104,7 +105,8 @@
             <AppBarSeparator />
             <AppBarButton
                 Icon="Rotate"
-                Label="{x:Bind Text.ToolbarTransform, Mode=OneWay}">
+                Label="{x:Bind Text.ToolbarTransform, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind app:Strings.ToolbarTransformHint}">
                 <AppBarButton.Flyout>
                     <!-- Flyouts are outside the page's visual tree, so these are labelled in
                          code-behind; see LabelFlyouts. -->
@@ -124,10 +126,12 @@
                 x:Name="ColorPickerButton"
                 Icon="Highlight"
                 Label="{x:Bind Text.ToolbarColorPicker, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind app:Strings.ToolbarColorPickerHint}"
                 Click="OnColorPickerClick" />
             <AppBarButton
                 Icon="Filter"
-                Label="{x:Bind Text.ToolbarFilters, Mode=OneWay}">
+                Label="{x:Bind Text.ToolbarFilters, Mode=OneWay}"
+                ToolTipService.ToolTip="{x:Bind app:Strings.ToolbarFiltersHint}">
                 <AppBarButton.Flyout>
                     <MenuFlyout x:Name="FilterFlyout">
                         <MenuFlyoutItem Click="OnGaussianBlurClick" />

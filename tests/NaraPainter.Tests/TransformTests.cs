@@ -12,6 +12,7 @@ namespace NaraPainter.Tests;
 /// Crop, rotate and flip work on one layer's pixels; a resize replaces the canvas. Both leave one
 /// undo step behind, and undoing the resize has to restore every layer, not just the one on screen.
 /// </summary>
+[Collection(LocalizedState.Name)]
 public class TransformTests
 {
     [Fact]

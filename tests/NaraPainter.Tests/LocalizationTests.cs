@@ -4,6 +4,7 @@ using Xunit;
 
 namespace NaraPainter.Tests;
 
+[Collection(LocalizedState.Name)]
 public class LocalizationTests
 {
     // CJK ideographs, their compatibility forms, CJK punctuation and fullwidth forms. The resource

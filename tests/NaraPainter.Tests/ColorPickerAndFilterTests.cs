@@ -12,6 +12,7 @@ namespace NaraPainter.Tests;
 /// The eyedropper reads the flattened canvas, and the two filters edit one layer's pixels as a single
 /// undoable step.
 /// </summary>
+[Collection(LocalizedState.Name)]
 public class ColorPickerAndFilterTests
 {
     [Fact]

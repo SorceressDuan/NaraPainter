@@ -9,6 +9,7 @@ namespace NaraPainter.Tests;
 /// The language picker: which culture a start-up lands on, how the choice is remembered, and that the
 /// resources behind it can actually label the picker.
 /// </summary>
+[Collection(LocalizedState.Name)]
 public class LanguageSwitchTests
 {
     [Fact]

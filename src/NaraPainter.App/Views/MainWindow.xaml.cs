@@ -163,6 +163,8 @@ public sealed partial class MainWindow : Window
             if (entry is MenuFlyoutItem item && index < fill.Length) item.Text = fill[index++];
         }
 
+        // Each entry carries its gesture, taken from the accelerator table rather than typed again, so
+        // a menu cannot advertise a key that no longer does anything.
         string[] transform =
         [
             text.TransformRotateRight,
@@ -172,19 +174,38 @@ public sealed partial class MainWindow : Window
             text.TransformCropToSelection,
             text.TransformResize
         ];
-        Label(TransformFlyout, transform);
+
+        string[] transformActions =
+        [
+            nameof(OnAcceleratorRotateRight),
+            nameof(OnAcceleratorRotateLeft),
+            nameof(OnAcceleratorFlipHorizontal),
+            nameof(OnAcceleratorFlipVertical),
+            nameof(OnAcceleratorCrop),
+            nameof(OnAcceleratorResizeCanvas)
+        ];
+
+        Label(TransformFlyout, transform, transformActions);
 
         string[] filters = [text.FilterGaussianBlur, text.FilterSharpen];
-        Label(FilterFlyout, filters);
+        string[] filterActions = [nameof(OnAcceleratorGaussianBlur), nameof(OnAcceleratorSharpen)];
+        Label(FilterFlyout, filters, filterActions);
     }
 
-    /// <summary>Names the menu items of a flyout in order, skipping its separators.</summary>
-    private static void Label(MenuFlyout flyout, string[] labels)
+    /// <summary>
+    /// Names the menu items of a flyout in order, skipping its separators, and appends the gesture each
+    /// one is bound to.
+    /// </summary>
+    private void Label(MenuFlyout flyout, string[] labels, string[] actions)
     {
         int index = 0;
         foreach (object entry in flyout.Items)
         {
-            if (entry is MenuFlyoutItem item && index < labels.Length) item.Text = labels[index++];
+            if (entry is not MenuFlyoutItem item || index >= labels.Length) continue;
+
+            string hint = index < actions.Length ? HintFor(actions[index]) : string.Empty;
+            item.Text = hint.Length > 0 ? $"{labels[index]}    {hint}" : labels[index];
+            index++;
         }
     }
 
@@ -324,36 +345,83 @@ public sealed partial class MainWindow : Window
     /// Declares the keyboard shortcuts once, on the window's content.
     /// </summary>
     /// <remarks>
-    /// Attached here rather than in the XAML because <c>Window</c> has no accelerators collection of
-    /// its own, and a table is easier to read - and to check for duplicates - than scattered
-    /// per-button lists. A control with focus that handles the key itself still wins, so typing in the
-    /// layer name box or dragging a slider is unaffected.
+    /// One table rather than scattered per-button lists: it keeps the gestures in a single place to
+    /// read and to check for duplicates, and it lets the menu items show the same text the accelerator
+    /// uses, so a hint cannot drift away from the key it describes. A control with focus that handles
+    /// the key itself still wins, so typing in the layer name box or dragging a slider is unaffected.
     /// </remarks>
     private void AddAccelerators()
     {
         if (Content is not UIElement root) return;
 
-        Add(VirtualKey.O, VirtualKeyModifiers.Control, OnAcceleratorOpen);
-        Add(VirtualKey.E, VirtualKeyModifiers.Control, OnAcceleratorExport);
-        Add(VirtualKey.Z, VirtualKeyModifiers.Control, OnAcceleratorUndo);
-        Add(VirtualKey.Y, VirtualKeyModifiers.Control, OnAcceleratorRedo);
-        Add(VirtualKey.N, VirtualKeyModifiers.Control, OnAcceleratorNewLayer);
-        Add(VirtualKey.J, VirtualKeyModifiers.Control, OnAcceleratorDuplicateLayer);
-        Add(VirtualKey.A, VirtualKeyModifiers.Control, OnAcceleratorSelectAll);
-        Add(VirtualKey.D, VirtualKeyModifiers.Control, OnAcceleratorDeselect);
-        Add(VirtualKey.Add, VirtualKeyModifiers.Control, OnAcceleratorZoomIn);
-        Add(VirtualKey.Subtract, VirtualKeyModifiers.Control, OnAcceleratorZoomOut);
-        Add(VirtualKey.Number0, VirtualKeyModifiers.Control, OnAcceleratorFit);
-        Add(VirtualKey.Number1, VirtualKeyModifiers.Control, OnAcceleratorActualSize);
-        Add(VirtualKey.M, VirtualKeyModifiers.None, OnAcceleratorMaskBrush);
-        Add(VirtualKey.Escape, VirtualKeyModifiers.None, OnAcceleratorCancelStroke);
-
-        void Add(VirtualKey key, VirtualKeyModifiers modifiers, TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> handler)
+        foreach (Shortcut shortcut in Shortcuts())
         {
-            var accelerator = new KeyboardAccelerator { Key = key, Modifiers = modifiers };
-            accelerator.Invoked += handler;
+            var accelerator = new KeyboardAccelerator { Key = shortcut.Key, Modifiers = shortcut.Modifiers };
+            accelerator.Invoked += shortcut.Invoked;
             root.KeyboardAccelerators.Add(accelerator);
         }
+    }
+
+    /// <summary>A gesture, what it does, and the words the menu shows for it.</summary>
+    internal sealed record Shortcut(
+        VirtualKey Key,
+        VirtualKeyModifiers Modifiers,
+        string Hint,
+        TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> Invoked)
+    {
+        /// <summary>What a menu item appends to its own text, such as "Gaussian Blur  Ctrl+Shift+B".</summary>
+        public string MenuText(string label) => $"{label}    {Hint}";
+    }
+
+    internal Shortcut[] Shortcuts() =>    [
+        new(VirtualKey.O, VirtualKeyModifiers.Control, "Ctrl+O", OnAcceleratorOpen),
+        new(VirtualKey.E, VirtualKeyModifiers.Control, "Ctrl+E", OnAcceleratorExport),
+        new(VirtualKey.Z, VirtualKeyModifiers.Control, "Ctrl+Z", OnAcceleratorUndo),
+        new(VirtualKey.Y, VirtualKeyModifiers.Control, "Ctrl+Y", OnAcceleratorRedo),
+        new(VirtualKey.N, VirtualKeyModifiers.Control, "Ctrl+N", OnAcceleratorNewLayer),
+        new(VirtualKey.J, VirtualKeyModifiers.Control, "Ctrl+J", OnAcceleratorDuplicateLayer),
+        new(VirtualKey.A, VirtualKeyModifiers.Control, "Ctrl+A", OnAcceleratorSelectAll),
+        new(VirtualKey.D, VirtualKeyModifiers.Control, "Ctrl+D", OnAcceleratorDeselect),
+        new(VirtualKey.Add, VirtualKeyModifiers.Control, "Ctrl++", OnAcceleratorZoomIn),
+        new(VirtualKey.Subtract, VirtualKeyModifiers.Control, "Ctrl+-", OnAcceleratorZoomOut),
+        new(VirtualKey.Number0, VirtualKeyModifiers.Control, "Ctrl+0", OnAcceleratorFit),
+        new(VirtualKey.Number1, VirtualKeyModifiers.Control, "Ctrl+1", OnAcceleratorActualSize),
+        new(VirtualKey.M, VirtualKeyModifiers.None, "M", OnAcceleratorMaskBrush),
+        new(VirtualKey.Escape, VirtualKeyModifiers.None, "Esc", OnAcceleratorCancelStroke),
+
+        // The tools added after the first release. C is deliberately avoided for the crop: this
+        // program crops at once rather than entering a crop mode, and a bare letter would be too easy
+        // to hit while a picture is open.
+        new(VirtualKey.I, VirtualKeyModifiers.None, "I", OnAcceleratorColorPicker),
+        new(VirtualKey.X, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+X", OnAcceleratorCrop),
+        new(VirtualKey.L, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+L", OnAcceleratorRotateRight),
+        new(VirtualKey.R, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+R", OnAcceleratorRotateLeft),
+        new(VirtualKey.H, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+H", OnAcceleratorFlipHorizontal),
+        new(VirtualKey.V, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+V", OnAcceleratorFlipVertical),
+        new(VirtualKey.C, VirtualKeyModifiers.Control | VirtualKeyModifiers.Menu, "Ctrl+Alt+C", OnAcceleratorResizeCanvas),
+        new(VirtualKey.B, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+B", OnAcceleratorGaussianBlur),
+        new(VirtualKey.U, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+U", OnAcceleratorSharpen)
+    ];
+
+    /// <summary>The hint for one action, or an empty string when it has no shortcut.</summary>
+    private string HintFor(string action)
+    {
+        // Actions are matched by their delegate so the table stays the only list of gestures.
+        TypedEventHandler<KeyboardAccelerator, KeyboardAcceleratorInvokedEventArgs> handler = action switch
+        {
+            nameof(OnAcceleratorColorPicker) => OnAcceleratorColorPicker,
+            nameof(OnAcceleratorCrop) => OnAcceleratorCrop,
+            nameof(OnAcceleratorRotateRight) => OnAcceleratorRotateRight,
+            nameof(OnAcceleratorRotateLeft) => OnAcceleratorRotateLeft,
+            nameof(OnAcceleratorFlipHorizontal) => OnAcceleratorFlipHorizontal,
+            nameof(OnAcceleratorFlipVertical) => OnAcceleratorFlipVertical,
+            nameof(OnAcceleratorResizeCanvas) => OnAcceleratorResizeCanvas,
+            nameof(OnAcceleratorGaussianBlur) => OnAcceleratorGaussianBlur,
+            nameof(OnAcceleratorSharpen) => OnAcceleratorSharpen,
+            _ => throw new ArgumentOutOfRangeException(nameof(action), action, "No shortcut is declared for that action.")
+        };
+
+        return Shortcuts().First(shortcut => shortcut.Invoked == handler).Hint;
     }
 
     private async void OnAboutClick(object sender, RoutedEventArgs e) => await AboutDialog.ShowAsync(Content.XamlRoot);
@@ -440,6 +508,61 @@ public sealed partial class MainWindow : Window
         Document.Status = Strings.ColorPickerCopied;
     }
 
+    private void OnAcceleratorColorPicker(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.ColorPicker.IsActive = !Document.ColorPicker.IsActive;
+        ColorPickerButton.IsChecked = Document.ColorPicker.IsActive;
+    }
+
+    private void OnAcceleratorCrop(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        CropToSelection();
+    }
+
+    private void OnAcceleratorRotateRight(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Transform.Rotate(QuarterTurn.Clockwise);
+    }
+
+    private void OnAcceleratorRotateLeft(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Transform.Rotate(QuarterTurn.CounterClockwise);
+    }
+
+    private void OnAcceleratorFlipHorizontal(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Transform.Flip(FlipAxis.Horizontal);
+    }
+
+    private void OnAcceleratorFlipVertical(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Transform.Flip(FlipAxis.Vertical);
+    }
+
+    private void OnAcceleratorResizeCanvas(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        _ = ResizeCanvasAsync();
+    }
+
+    private void OnAcceleratorGaussianBlur(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Transform.GaussianBlur(FilterRadius);
+    }
+
+    private void OnAcceleratorSharpen(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.Transform.Sharpen(FilterRadius, FilterAmount);
+    }
+
     private void OnRotateRightClick(object sender, RoutedEventArgs e) => Document.Transform.Rotate(QuarterTurn.Clockwise);
 
     private void OnRotateLeftClick(object sender, RoutedEventArgs e) => Document.Transform.Rotate(QuarterTurn.CounterClockwise);
@@ -448,7 +571,13 @@ public sealed partial class MainWindow : Window
 
     private void OnFlipVerticalClick(object sender, RoutedEventArgs e) => Document.Transform.Flip(FlipAxis.Vertical);
 
-    private void OnCropToSelectionClick(object sender, RoutedEventArgs e)
+    private void OnCropToSelectionClick(object sender, RoutedEventArgs e) => CropToSelection();
+
+    /// <summary>
+    /// Crops to the selection, or says why it cannot. Shared by the menu item and the shortcut so the
+    /// two cannot drift apart.
+    /// </summary>
+    private void CropToSelection()
     {
         if (Document.Selection.HasRegion)
         {

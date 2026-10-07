@@ -12,6 +12,7 @@ namespace NaraPainter.Tests;
 /// The mask brush and the content-aware fill each record one history step per operation, so a whole
 /// drag undoes in one go and a fill restores exactly the pixels it replaced.
 /// </summary>
+[Collection(LocalizedState.Name)]
 public class UndoRedoTests
 {
     [Fact]

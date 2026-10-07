@@ -10,6 +10,7 @@ using NaraPainter.Models.Pixels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Windows.System;
 
 namespace NaraPainter.App.Services;
 
@@ -47,6 +48,7 @@ public static class SmokeTest
             CheckUnreadableFileIsRefused(log);
             CheckUndoMerge(log);
             CheckEditingTools(log);
+            CheckShortcuts(window, log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -581,6 +583,80 @@ public static class SmokeTest
         }
 
         log.Add($"tools rotate=ok flip=ok crop=ok blur=ok sharpen=ok steps={recorded.Count} pick={document.ColorPicker.Hex}");
+    }
+
+    /// <summary>
+    /// Checks the shortcut table itself and proves that a focused text box keeps its own keys.
+    /// </summary>
+    /// <remarks>
+    /// The gestures have to be unique: two accelerators on one combination is a silent bug, because
+    /// only one of them ever runs. And a text box that has focus has to win, otherwise typing a layer
+    /// name would trigger commands instead of inserting letters.
+    /// </remarks>
+    /// <summary>
+    /// Checks the shortcut table and the rule that keeps a focused control's keys to itself.
+    /// </summary>
+    /// <remarks>
+    /// Two accelerators on one combination is a silent bug, because only one of them ever runs. The
+    /// routing itself belongs to the framework: a control that handles a key first keeps it, which is
+    /// what stops the layer name box from firing commands as the user types. That routing cannot be
+    /// driven from inside the process - the WinUI API for it is an event rather than a callable method
+    /// - so what is enforced here is the table, plus the rule that keeps bare letters to Escape alone.
+    /// </remarks>
+    private static void CheckShortcuts(Views.MainWindow window, List<string> log)
+    {
+        Views.MainWindow.Shortcut[] shortcuts = window.Shortcuts();
+
+        string[] duplicates = [.. shortcuts
+            .GroupBy(shortcut => $"{shortcut.Modifiers}+{shortcut.Key}")
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)];
+
+        if (duplicates.Length > 0)
+        {
+            throw new InvalidOperationException($"Two shortcuts share a gesture: {string.Join(", ", duplicates)}");
+        }
+
+        if (shortcuts.Any(shortcut => shortcut.Hint.Length == 0))
+        {
+            throw new InvalidOperationException("A shortcut has no text to show in a menu.");
+        }
+
+        // Bare keys are the tool switches and Escape, and nothing else: every other gesture has to
+        // carry a modifier, or typing a layer name would fire commands instead of inserting letters.
+        string[] bareAllowed = ["M", "I", "Escape"];
+        string[] bare = [.. shortcuts
+            .Where(shortcut => shortcut.Modifiers == VirtualKeyModifiers.None)
+            .Select(shortcut => shortcut.Key.ToString())];
+
+        string[] bareUnexpected = [.. bare.Where(key => !bareAllowed.Contains(key))];
+        if (bareUnexpected.Length > 0)
+        {
+            throw new InvalidOperationException($"Bound to a bare key without being a tool switch: {string.Join(", ", bareUnexpected)}");
+        }
+
+        // A text box has to be focusable and keep focus: that is the precondition for it winning the
+        // key routing at all.
+        var box = new TextBox { Text = "layer name" };
+        var host = new Grid();
+        host.Children.Add(box);
+        (window.Content as Grid)?.Children.Add(host);
+
+        try
+        {
+            box.Focus(FocusState.Programmatic);
+            if (box.FocusState == FocusState.Unfocused)
+            {
+                throw new InvalidOperationException("A text box could not take focus, so typing could not keep its keys.");
+            }
+
+            log.Add($"shortcuts count={shortcuts.Length} duplicates=0 bareKeys=[{string.Join(",", bare)}] textBoxFocusable=yes");
+            log.Add($"shortcut.keys={string.Join(" ", shortcuts.Select(shortcut => shortcut.Hint))}");
+        }
+        finally
+        {
+            (window.Content as Grid)?.Children.Remove(host);
+        }
     }
 
     private static CommandBar? FindCommandBar(DependencyObject? node)
