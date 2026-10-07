@@ -209,15 +209,115 @@ public sealed partial class MainWindow : Window
         string? path = await _dialogs.PickExportPathAsync(Document.SuggestedExportName);
         if (path is null) return;
 
+        (int width, int height, int quality)? options = await AskExportOptionsAsync(path);
+        if (options is null) return;
+
         try
         {
-            Document.Export(path);
+            Document.Export(path, options.Value.width, options.Value.height, options.Value.quality);
         }
         catch (Exception error) when (error is not OutOfMemoryException)
         {
             CrashReport.Write("export", error);
             await ShowMessageAsync(Strings.DialogExportFailed, Strings.DialogExportFailedDetail);
         }
+    }
+
+    /// <summary>
+    /// Asks how big and how compressed. The size starts at the canvas, and a scale field keeps the
+    /// two numbers in step so an export cannot end up stretched by accident.
+    /// </summary>
+    private async Task<(int Width, int Height, int Quality)?> AskExportOptionsAsync(string path)
+    {
+        int originalWidth = Document.Document.Width;
+        int originalHeight = Document.Document.Height;
+
+        var scaleBox = new NumberBox
+        {
+            Header = Strings.ExportScale,
+            Value = 100,
+            Minimum = 1,
+            Maximum = 1600,
+            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact
+        };
+
+        var widthBox = new NumberBox
+        {
+            Header = Strings.ResizeWidth,
+            Value = originalWidth,
+            Minimum = 1,
+            Maximum = 40000,
+            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact
+        };
+
+        var heightBox = new NumberBox
+        {
+            Header = Strings.ResizeHeight,
+            Value = originalHeight,
+            Minimum = 1,
+            Maximum = 40000,
+            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact
+        };
+
+        var qualityBox = new NumberBox
+        {
+            Header = Strings.ExportQuality,
+            Value = 90,
+            Minimum = 1,
+            Maximum = 100,
+            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact
+        };
+
+        bool adjusting = false;
+        scaleBox.ValueChanged += (_, args) =>
+        {
+            if (adjusting || double.IsNaN(args.NewValue)) return;
+            adjusting = true;
+            widthBox.Value = Math.Max(1, Math.Round(originalWidth * args.NewValue / 100));
+            heightBox.Value = Math.Max(1, Math.Round(originalHeight * args.NewValue / 100));
+            adjusting = false;
+        };
+
+        widthBox.ValueChanged += (_, args) =>
+        {
+            if (adjusting || double.IsNaN(args.NewValue)) return;
+            adjusting = true;
+            scaleBox.Value = Math.Round(args.NewValue / originalWidth * 100, 1);
+            heightBox.Value = Math.Max(1, Math.Round(args.NewValue * originalHeight / originalWidth));
+            adjusting = false;
+        };
+
+        var fields = new StackPanel { Spacing = 8 };
+        fields.Children.Add(new TextBlock
+        {
+            Text = Localization.Interpolate(Strings.ExportOriginalSize, $"{originalWidth} × {originalHeight}"),
+            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"]
+        });
+        fields.Children.Add(scaleBox);
+        fields.Children.Add(widthBox);
+        fields.Children.Add(heightBox);
+
+        // Quality only means something for a lossy format, and the codec is the one that knows which.
+        if (Document.Codec.Capabilities(Document.Codec.FormatFromPath(path)).DefaultQuality > 0) fields.Children.Add(qualityBox);
+
+        var dialog = new ContentDialog
+        {
+            Title = Strings.ExportTitle,
+            Content = fields,
+            PrimaryButtonText = Strings.ResizeApply,
+            CloseButtonText = Strings.ResizeCancel,
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = Content.XamlRoot
+        };
+
+        if (Application.Current.Resources.TryGetValue("AppFontFamily", out object? family) && family is FontFamily font)
+        {
+            dialog.FontFamily = font;
+        }
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return null;
+
+        return ((int)widthBox.Value, (int)heightBox.Value, (int)qualityBox.Value);
     }
 
     /// <summary>

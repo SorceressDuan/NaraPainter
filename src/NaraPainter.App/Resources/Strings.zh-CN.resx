@@ -803,4 +803,19 @@
   <data name="Transform_CropNeedsSelection" xml:space="preserve">
     <value>请先框选一块区域，再执行裁剪。</value>
   </data>
+  <data name="Export_Title" xml:space="preserve">
+    <value>导出选项</value>
+  </data>
+  <data name="Export_Size" xml:space="preserve">
+    <value>尺寸</value>
+  </data>
+  <data name="Export_OriginalSize" xml:space="preserve">
+    <value>原始尺寸</value>
+  </data>
+  <data name="Export_Quality" xml:space="preserve">
+    <value>质量</value>
+  </data>
+  <data name="Export_Scale" xml:space="preserve">
+    <value>缩放 %</value>
+  </data>
 </root>

@@ -205,6 +205,41 @@ public class TransformTests
         Assert.Equal(16, document.Document.Width);
     }
 
+    [Fact]
+    public void ExportingAtASmallerSizeWritesThatSizeAndLeavesTheDocumentAlone()
+    {
+        (DocumentViewModel document, LayerViewModel layer) = OpenPattern(64, 48);
+        var codec = new ImageCodec();
+        string path = Path.Combine(ScratchDirectory(), "export-half.png");
+
+        document.Export(path, 32, 24);
+
+        PixelBuffer written = codec.Read(path);
+        Assert.Equal(32, written.Width);
+        Assert.Equal(24, written.Height);
+
+        // The canvas is untouched: exporting at another resolution is not an edit.
+        Assert.Equal(64, document.Document.Width);
+        Assert.Equal(48, document.Document.Height);
+
+        File.Delete(path);
+    }
+
+    [Fact]
+    public void ExportingWithNoSizeWritesTheCanvasSize()
+    {
+        (DocumentViewModel document, LayerViewModel layer) = OpenPattern(40, 30);
+        var codec = new ImageCodec();
+        string path = Path.Combine(ScratchDirectory(), "export-full.png");
+
+        document.Export(path);
+
+        PixelBuffer written = codec.Read(path);
+        Assert.Equal(40, written.Width);
+        Assert.Equal(30, written.Height);
+
+        File.Delete(path);
+    }
     private static PixelBuffer Pattern(int width, int height)
     {
         var buffer = new PixelBuffer(width, height);

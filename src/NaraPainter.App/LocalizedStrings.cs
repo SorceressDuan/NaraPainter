@@ -542,6 +542,16 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string TransformCropNeedsSelection => Strings.TransformCropNeedsSelection;
 
+    public string ExportTitle => Strings.ExportTitle;
+
+    public string ExportSize => Strings.ExportSize;
+
+    public string ExportOriginalSize => Strings.ExportOriginalSize;
+
+    public string ExportQuality => Strings.ExportQuality;
+
+    public string ExportScale => Strings.ExportScale;
+
     public string StatusLanguageChanged => Strings.StatusLanguageChanged;
 
     public string LanguageLabel => Strings.LanguageLabel;

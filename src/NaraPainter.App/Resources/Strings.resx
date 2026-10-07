@@ -805,4 +805,19 @@
   <data name="Transform_CropNeedsSelection" xml:space="preserve">
     <value>Select a region first, then crop to it.</value>
   </data>
+  <data name="Export_Title" xml:space="preserve">
+    <value>Export options</value>
+  </data>
+  <data name="Export_Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Export_OriginalSize" xml:space="preserve">
+    <value>Original size</value>
+  </data>
+  <data name="Export_Quality" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="Export_Scale" xml:space="preserve">
+    <value>Scale %</value>
+  </data>
 </root>

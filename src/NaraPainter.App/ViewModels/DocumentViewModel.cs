@@ -280,11 +280,20 @@ public sealed class DocumentViewModel : ObservableObject
 
     public PixelBuffer Flatten() => _document.Flatten(RunAdjustment);
 
-    public void Export(string path)
+    /// <summary>
+    /// Writes the flattened document. A size may be given to export at a different resolution than
+    /// the canvas; that resamples the flattened copy only, so the document itself is untouched.
+    /// </summary>
+    public void Export(string path, int? width = null, int? height = null, int quality = 90)
     {
         PixelBuffer pixels = Flatten();
+        if (width is > 0 && height is > 0 && (width != pixels.Width || height != pixels.Height))
+        {
+            pixels = Imaging.Services.Geometry.Resize(pixels, width.Value, height.Value);
+        }
+
         var format = _codec.FormatFromPath(path);
-        _codec.Write(pixels, path, new ImageSaveOptions(format));
+        _codec.Write(pixels, path, new ImageSaveOptions(format, Math.Clamp(quality, 1, 100)));
 
         _document.IsDirty = false;
         OnPropertyChanged(nameof(WindowTitle));

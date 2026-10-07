@@ -467,6 +467,16 @@ public static class Strings
 
     public static string TransformCropNeedsSelection => Localization.Get("Transform_CropNeedsSelection");
 
+    public static string ExportTitle => Localization.Get("Export_Title");
+
+    public static string ExportSize => Localization.Get("Export_Size");
+
+    public static string ExportOriginalSize => Localization.Get("Export_OriginalSize");
+
+    public static string ExportQuality => Localization.Get("Export_Quality");
+
+    public static string ExportScale => Localization.Get("Export_Scale");
+
     public static string UndoOpenImage => Localization.Get("Undo_OpenImage");
 
     public static string UndoNewLayer => Localization.Get("Undo_NewLayer");
