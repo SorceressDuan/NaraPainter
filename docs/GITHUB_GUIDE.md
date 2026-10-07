@@ -9,7 +9,7 @@
 | GitHub 用户名 | `SorceressDuan` |
 | 仓库名 | `NaraPainter` |
 | 仓库地址 | `https://github.com/SorceressDuan/NaraPainter` |
-| 本地项目目录 | `C:\Users\Sorce\Downloads\compositor` |
+| 本地项目目录 | `C:\Users\Sorce\Downloads\NaraPainter` |
 | 待上传的 zip | `C:\Users\Sorce\Desktop\NaraPainter-0.2.0-win-x64.zip` |
 | zip 大小 | 149.69 MB（156,965,792 字节） |
 | zip SHA-256 | `7A00DDAB4A360D8FBDD648BD4DEF91136333306F92A96E8F6DDEE88B0A7D5BC5` |
@@ -60,10 +60,10 @@
 粘贴这行，回车：
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 ```
 
-**会看到什么**：命令行提示符前面变成了 `C:\Users\Sorce\Downloads\compositor>`。
+**会看到什么**：命令行提示符前面变成了 `C:\Users\Sorce\Downloads\NaraPainter>`。
 
 ## 2.3 确认当前状态是干净的
 
@@ -180,7 +180,7 @@ branch 'main' set up to track 'origin/main'.
 tag 就是给某个提交起个版本号，GitHub 用它来认 Release。
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 git tag -a v0.2.0 -m "v0.2.0 - first public release"
 ```
 
@@ -221,7 +221,7 @@ To https://github.com/SorceressDuan/NaraPainter.git
 
 4. **Describe this release** 大文本框：把项目根目录 `Release_v0.2.0.md` 的**全部内容**粘进去
 
-   > 怎么复制：用记事本打开 `C:\Users\Sorce\Downloads\compositor\Release_v0.2.0.md`，
+   > 怎么复制：用记事本打开 `C:\Users\Sorce\Downloads\NaraPainter\Release_v0.2.0.md`，
    > `Ctrl+A` 全选 → `Ctrl+C` 复制 → 回到网页文本框 `Ctrl+V` 粘贴。
    >
    > GitHub 的文本框支持 Markdown，表格、标题、链接都会正常渲染。
@@ -285,7 +285,7 @@ To https://github.com/SorceressDuan/NaraPainter.git
 命令行也能验：
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 git status
 ```
 
@@ -363,7 +363,7 @@ Get-ChildItem $tmp
 跑自检：
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 & "$tmp\launcher\NaraPainter.exe" --selftest="$PWD\assets\testimages\photo.jpg" --log="$tmp\selftest.log"
 Start-Sleep -Seconds 30
 Get-Process NaraPainter -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -412,7 +412,7 @@ RESULT PASS
 
 | 症状 | 怎么办 |
 | --- | --- |
-| `fatal: not a git repository` | 忘了 `cd` 到项目目录。先 `cd C:\Users\Sorce\Downloads\compositor` |
+| `fatal: not a git repository` | 忘了 `cd` 到项目目录。先 `cd C:\Users\Sorce\Downloads\NaraPainter` |
 | `git status` 显示一堆改动 | 别急着重置。先看清楚是什么文件，告诉我 |
 | 分支叫 `master` 而不是 `main` | 2.5 步的 `git branch -M main` 会改名，照做即可 |
 | 想撤销刚才的操作 | 只要没 push，本地都能退。**先别自己 `git reset --hard`**，那会丢改动，先问我 |

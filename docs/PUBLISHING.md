@@ -29,7 +29,7 @@ GitHub 的两条限制不一样，别弄混：
 ## 0. 前置：确认干净
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 
 # 工作区必须干净，否则先提交
 git status --short
@@ -52,7 +52,7 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 ## 2. 关联远端并推送代码
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 
 git remote add origin https://github.com/SorceressDuan/NaraPainter.git
 git branch -M main
@@ -82,7 +82,7 @@ git ls-files | Select-String -Pattern '\.(zip|msix)$'
 ## 3. 打 tag
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 
 git tag -a v0.2.0 -m "v0.2.0 - first public release"
 git push origin v0.2.0
@@ -103,7 +103,7 @@ git push origin v0.2.0
 ### 方式 B：GitHub CLI
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 
 gh release create v0.2.0 `
   "dist\NaraPainter-0.2.0-win-x64.zip" `

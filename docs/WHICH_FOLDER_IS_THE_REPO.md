@@ -4,7 +4,7 @@
 
 | 位置 | 是什么 | 有 `.git` | 有源码 | 能 push |
 | --- | --- | --- | --- | --- |
-| `C:\Users\Sorce\Downloads\compositor` | **真仓库**：28 个提交、`main` 分支、`NaraPainter.sln` | ✅ | ✅ | ✅ **只有它** |
+| `C:\Users\Sorce\Downloads\NaraPainter` | **真仓库**：28 个提交、`main` 分支、`NaraPainter.sln` | ✅ | ✅ | ✅ **只有它** |
 | `C:\Users\Sorce\Desktop\NaraPainter` | **发布包解压产物**：`app/`(368 文件) + `launcher/`(186 文件) + 4 个文档 | ❌ | ❌ 无 `src/`、无 `.sln` | ❌ |
 | `C:\Users\Sorce\Desktop\github` | 只有 `github-recovery-codes.txt`，与本项目无关 | ❌ | ❌ | ❌ |
 
@@ -60,7 +60,7 @@ git remote -v
 ### 命令 5：一次性体检（推荐）
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 git rev-parse --show-toplevel
 git branch --show-current
 git status --short
@@ -81,12 +81,12 @@ git remote -v
 把下面这段整个粘贴执行，**任何一项不对它会拒绝继续**：
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 $top = (git rev-parse --show-toplevel) -replace '/', '\'
 $remote = (git remote get-url origin 2>$null)
 
 $ok = $true
-if ($top -ne 'C:\Users\Sorce\Downloads\compositor') { Write-Host "✗ 目录不对: $top" -ForegroundColor Red; $ok = $false } else { Write-Host "✓ 目录: $top" -ForegroundColor Green }
+if ($top -ne 'C:\Users\Sorce\Downloads\NaraPainter') { Write-Host "✗ 目录不对: $top" -ForegroundColor Red; $ok = $false } else { Write-Host "✓ 目录: $top" -ForegroundColor Green }
 if ((git branch --show-current) -ne 'main') { Write-Host "✗ 分支不是 main" -ForegroundColor Red; $ok = $false } else { Write-Host "✓ 分支: main" -ForegroundColor Green }
 if ($remote -ne 'https://github.com/SorceressDuan/NaraPainter.git') { Write-Host "✗ 远端不对: $remote" -ForegroundColor Red; $ok = $false } else { Write-Host "✓ 远端: $remote" -ForegroundColor Green }
 if ((git status --porcelain)) { Write-Host "✗ 工作区不干净" -ForegroundColor Red; $ok = $false } else { Write-Host "✓ 工作区干净" -ForegroundColor Green }
@@ -103,7 +103,7 @@ if ($ok) { Write-Host "`n可以推送: git push -u origin main" -ForegroundColor
 - 总共 558 个文件 373 MB
 
 **它没有任何独有内容**：你桌面上的 `NaraPainter-0.2.0-win-x64.zip`（149.69 MB）解压出来就是它，
-而那个 zip 在 `C:\Users\Sorce\Downloads\compositor\dist\` 里也有一份完全相同的东西。
+而那个 zip 在 `C:\Users\Sorce\Downloads\NaraPainter\dist\` 里也有一份完全相同的东西。
 
 > 注意：它是用**你桌面上那个 zip** 解压的，还是别人给的，都无法从内容区分——但两者内容一致，
 > 所以删掉它不丢任何东西。
@@ -146,10 +146,10 @@ Remove-Item "C:\Users\Sorce\Desktop\NaraPainter-解压产物-可删" -Recurse -F
 ## 三、如果桌面那个才是真仓库怎么办
 
 按第一节的命令 2 检查就能确定，结论是**它不可能是**（没有 `.git`）。
-真仓库的全盘搜索结果只有四处，与本项目相关的只有 `Downloads\compositor`：
+真仓库的全盘搜索结果只有四处，与本项目相关的只有 `Downloads\NaraPainter`：
 
 ```
-C:\Users\Sorce\Downloads\compositor\.git      ← 本项目
+C:\Users\Sorce\Downloads\NaraPainter\.git      ← 本项目
 C:\Users\Sorce\Downloads\知识殿堂\.git
 C:\Users\Sorce\Desktop\是魔法\.git
 C:\Users\Sorce\Desktop\灰眸\模拟器\.git
@@ -173,7 +173,7 @@ git remote -v                               # 远端
 而且不关联到你的账号**（你的贡献图也不会亮）。
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 
 git config user.name  "SorceressDuan"
 git config user.email "你的GitHub邮箱"
@@ -204,7 +204,7 @@ export GIT_COMMITTER_EMAIL="你的GitHub邮箱"
 ## 五、配置远端并推送
 
 ```powershell
-cd C:\Users\Sorce\Downloads\compositor
+cd C:\Users\Sorce\Downloads\NaraPainter
 git remote add origin https://github.com/SorceressDuan/NaraPainter.git
 git push -u origin main
 ```
