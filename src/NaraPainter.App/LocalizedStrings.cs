@@ -540,6 +540,8 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string StatusResized => Strings.StatusResized;
 
+    public string TransformCropNeedsSelection => Strings.TransformCropNeedsSelection;
+
     public string StatusLanguageChanged => Strings.StatusLanguageChanged;
 
     public string LanguageLabel => Strings.LanguageLabel;

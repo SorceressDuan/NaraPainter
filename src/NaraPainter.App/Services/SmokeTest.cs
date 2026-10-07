@@ -46,6 +46,7 @@ public static class SmokeTest
             await CheckLanguageSwitch(window, log);
             CheckUnreadableFileIsRefused(log);
             CheckUndoMerge(log);
+            CheckEditingTools(log);
 
             DocumentViewModel document = window.Document;
             log.Add($"window.title={window.Title}");
@@ -499,6 +500,89 @@ public static class SmokeTest
         log.Add("undo drag=oneStep standalone=ownSteps ok");
     }
 
+    /// <summary>
+    /// The four editing tools, exercised end to end on a real document: each has to change what it
+    /// says it changes and leave exactly one undo step behind.
+    /// </summary>
+    private static void CheckEditingTools(List<string> log)
+    {
+        var codec = new ImageCodec();
+        var document = new DocumentViewModel(
+            new ImageImporter(codec), codec,
+            new AdjustmentFilter(), new SelectionMaskBuilder());
+
+        LayerViewModel layer = document.AddLayer();
+
+        // Written through ReplacePixels rather than by poking Model.Pixels: the tools work from the
+        // layer's source buffer, and those are two different buffers.
+        PixelBuffer withEdge = HorizontalEdge(document.Document.Width, document.Document.Height);
+        layer.ReplacePixels(withEdge);
+
+        int width = withEdge.Width;
+        int height = withEdge.Height;
+        var recorded = new List<string>();
+
+        document.Transform.Rotate(QuarterTurn.Clockwise);
+        recorded.Add(document.History.UndoName ?? string.Empty);
+        if (layer.Source!.Width != height || layer.Source.Height != width)
+        {
+            throw new InvalidOperationException($"Rotating produced {layer.Source.Width} × {layer.Source.Height} instead of {height} × {width}.");
+        }
+
+        document.Transform.Flip(FlipAxis.Horizontal);
+        recorded.Add(document.History.UndoName ?? string.Empty);
+
+        // The turn moved the edge from vertical to horizontal, so the crop has to straddle it; a
+        // corner taken from one side of the edge is a flat colour and nothing would show up in it.
+        PixelBuffer turned = layer.Source!;
+        int edgeY = turned.Height / 2;
+        int cropY = Math.Max(0, Math.Min(edgeY - 12, turned.Height - 24));
+        document.Transform.Crop(0, cropY, 32, 24);
+        recorded.Add(document.History.UndoName ?? string.Empty);
+
+        if (layer.Source!.Width != 32 || layer.Source.Height != 24)
+        {
+            throw new InvalidOperationException($"Cropping produced {layer.Source.Width} × {layer.Source.Height} instead of 32 × 24.");
+        }
+
+        byte[] beforeFilter = (byte[])layer.Source!.Data.Clone();
+        document.Transform.GaussianBlur(4);
+        recorded.Add(document.History.UndoName ?? string.Empty);
+        if (layer.Source!.Data.SequenceEqual(beforeFilter))
+        {
+            throw new InvalidOperationException($"The blur left {layer.Source.Width} × {layer.Source.Height} unchanged.");
+        }
+
+        document.Transform.Sharpen(2, 1.5);
+        recorded.Add(document.History.UndoName ?? string.Empty);
+
+        // Each tool has to have recorded a step of its own, named after what it did.
+        if (recorded.Any(name => name.Length == 0))
+        {
+            throw new InvalidOperationException($"A tool recorded no undo step: {string.Join(", ", recorded)}");
+        }
+
+        if (recorded.Distinct().Count() != recorded.Count)
+        {
+            throw new InvalidOperationException($"Two tools recorded the same undo step: {string.Join(", ", recorded)}");
+        }
+
+        foreach (string _ in recorded) document.Undo();
+
+        if (layer.Source!.Width != width || layer.Source.Height != height)
+        {
+            throw new InvalidOperationException("Undoing the transforms did not restore the layer's size.");
+        }
+
+        document.ColorPicker.Pick(4, 4);
+        if (!document.ColorPicker.HasSample || document.ColorPicker.Hex.Length != 7)
+        {
+            throw new InvalidOperationException($"The eyedropper reported '{document.ColorPicker.Hex}'.");
+        }
+
+        log.Add($"tools rotate=ok flip=ok crop=ok blur=ok sharpen=ok steps={recorded.Count} pick={document.ColorPicker.Hex}");
+    }
+
     private static CommandBar? FindCommandBar(DependencyObject? node)
     {
         if (node is CommandBar bar) return bar;
@@ -554,6 +638,26 @@ public static class SmokeTest
     }
 
     private static string Describe(Rgba32 pixel) => $"{pixel.R},{pixel.G},{pixel.B},{pixel.A}";
+
+    /// <summary>A picture with one strong edge in it, so a blur has something to soften.</summary>
+    private static PixelBuffer HorizontalEdge(int width, int height)
+    {
+        var buffer = new PixelBuffer(width, height);
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                byte value = x < width / 2 ? (byte)30 : (byte)220;
+                int i = buffer.Offset(x, y);
+                buffer.Data[i] = value;
+                buffer.Data[i + 1] = value;
+                buffer.Data[i + 2] = value;
+                buffer.Data[i + 3] = 255;
+            }
+        }
+
+        return buffer;
+    }
 
     private static void Fill(LayerViewModel layer, byte red, byte green, byte blue, byte alpha)
     {

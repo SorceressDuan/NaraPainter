@@ -465,6 +465,8 @@ public static class Strings
 
     public static string ColorPickerCopied => Localization.Get("ColorPicker_Copied");
 
+    public static string TransformCropNeedsSelection => Localization.Get("Transform_CropNeedsSelection");
+
     public static string UndoOpenImage => Localization.Get("Undo_OpenImage");
 
     public static string UndoNewLayer => Localization.Get("Undo_NewLayer");

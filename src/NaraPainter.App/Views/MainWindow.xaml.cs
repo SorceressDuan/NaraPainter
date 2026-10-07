@@ -3,6 +3,7 @@ using System.Globalization;
 using NaraPainter.App.Services;
 using NaraPainter.App.ViewModels;
 using NaraPainter.Imaging.Services;
+using NaraPainter.Models.Pixels;
 using NaraPainter.Models.Documents;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -54,6 +55,15 @@ public sealed partial class MainWindow : Window
 
         Document.Changed += (_, _) => Canvas.Refresh();
         Document.DocumentReplaced += OnDocumentReplaced;
+        // The swatch is the one thing a colour reading needs beyond text, and the picked value only
+        // arrives through the picker's own notification.
+        Document.ColorPicker.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName is nameof(ColorPickerViewModel.Sample) or nameof(ColorPickerViewModel.HasSample))
+            {
+                UpdateSampleSwatch();
+            }
+        };
         Document.PropertyChanged += OnDocumentPropertyChanged;
         Closed += OnClosed;
     }
@@ -152,6 +162,30 @@ public sealed partial class MainWindow : Window
         {
             if (entry is MenuFlyoutItem item && index < fill.Length) item.Text = fill[index++];
         }
+
+        string[] transform =
+        [
+            text.TransformRotateRight,
+            text.TransformRotateLeft,
+            text.TransformFlipHorizontal,
+            text.TransformFlipVertical,
+            text.TransformCropToSelection,
+            text.TransformResize
+        ];
+        Label(TransformFlyout, transform);
+
+        string[] filters = [text.FilterGaussianBlur, text.FilterSharpen];
+        Label(FilterFlyout, filters);
+    }
+
+    /// <summary>Names the menu items of a flyout in order, skipping its separators.</summary>
+    private static void Label(MenuFlyout flyout, string[] labels)
+    {
+        int index = 0;
+        foreach (object entry in flyout.Items)
+        {
+            if (entry is MenuFlyoutItem item && index < labels.Length) item.Text = labels[index++];
+        }
     }
 
     /// <summary>Initialized before InitializeComponent so the compiled bindings in the XAML have a document.</summary>
@@ -223,6 +257,134 @@ public sealed partial class MainWindow : Window
     }
 
     private async void OnAboutClick(object sender, RoutedEventArgs e) => await AboutDialog.ShowAsync(Content.XamlRoot);
+
+    /// <summary>
+    /// Asks for a new canvas size and applies it. The two fields stay in step by default, because
+    /// stretching a picture by accident is the more common mistake.
+    /// </summary>
+    private async Task ResizeCanvasAsync()
+    {
+        int originalWidth = Document.Document.Width;
+        int originalHeight = Document.Document.Height;
+
+        var widthBox = new NumberBox
+        {
+            Header = Strings.ResizeWidth,
+            Value = originalWidth,
+            Minimum = 1,
+            Maximum = 20000,
+            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact
+        };
+
+        var heightBox = new NumberBox
+        {
+            Header = Strings.ResizeHeight,
+            Value = originalHeight,
+            Minimum = 1,
+            Maximum = 20000,
+            SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact
+        };
+
+        var keepRatio = new CheckBox { Content = Strings.ResizeKeepRatio, IsChecked = true };
+        bool adjusting = false;
+
+        widthBox.ValueChanged += (_, args) =>
+        {
+            if (adjusting || keepRatio.IsChecked != true || double.IsNaN(args.NewValue)) return;
+            adjusting = true;
+            heightBox.Value = Math.Max(1, Math.Round(args.NewValue * originalHeight / originalWidth));
+            adjusting = false;
+        };
+
+        heightBox.ValueChanged += (_, args) =>
+        {
+            if (adjusting || keepRatio.IsChecked != true || double.IsNaN(args.NewValue)) return;
+            adjusting = true;
+            widthBox.Value = Math.Max(1, Math.Round(args.NewValue * originalWidth / originalHeight));
+            adjusting = false;
+        };
+
+        var fields = new StackPanel { Spacing = 8 };
+        fields.Children.Add(widthBox);
+        fields.Children.Add(heightBox);
+        fields.Children.Add(keepRatio);
+
+        var dialog = new ContentDialog
+        {
+            Title = Strings.ResizeTitle,
+            Content = fields,
+            PrimaryButtonText = Strings.ResizeApply,
+            CloseButtonText = Strings.ResizeCancel,
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = Content.XamlRoot
+        };
+
+        if (Application.Current.Resources.TryGetValue("AppFontFamily", out object? family) && family is FontFamily font)
+        {
+            dialog.FontFamily = font;
+        }
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+
+        Document.Transform.ResizeCanvas((int)widthBox.Value, (int)heightBox.Value);
+    }
+
+    /// <summary>Puts the sampled colour on the clipboard as hex, which is how it gets used elsewhere.</summary>
+    private void OnCopyColorClick(object sender, RoutedEventArgs e)
+    {
+        if (!Document.ColorPicker.HasSample) return;
+
+        var package = new DataPackage();
+        package.SetText(Document.ColorPicker.Hex);
+        Clipboard.SetContent(package);
+        Document.Status = Strings.ColorPickerCopied;
+    }
+
+    private void OnRotateRightClick(object sender, RoutedEventArgs e) => Document.Transform.Rotate(QuarterTurn.Clockwise);
+
+    private void OnRotateLeftClick(object sender, RoutedEventArgs e) => Document.Transform.Rotate(QuarterTurn.CounterClockwise);
+
+    private void OnFlipHorizontalClick(object sender, RoutedEventArgs e) => Document.Transform.Flip(FlipAxis.Horizontal);
+
+    private void OnFlipVerticalClick(object sender, RoutedEventArgs e) => Document.Transform.Flip(FlipAxis.Vertical);
+
+    private void OnCropToSelectionClick(object sender, RoutedEventArgs e)
+    {
+        if (Document.Selection.HasRegion)
+        {
+            Document.Transform.CropToSelection();
+            return;
+        }
+
+        Document.Status = Strings.TransformCropNeedsSelection;
+    }
+
+    private async void OnResizeCanvasClick(object sender, RoutedEventArgs e) => await ResizeCanvasAsync();
+
+    private void OnColorPickerClick(object sender, RoutedEventArgs e)
+    {
+        Document.ColorPicker.IsActive = ColorPickerButton.IsChecked == true;
+    }
+
+    private void OnGaussianBlurClick(object sender, RoutedEventArgs e) => Document.Transform.GaussianBlur(FilterRadius);
+
+    private void OnSharpenClick(object sender, RoutedEventArgs e) => Document.Transform.Sharpen(FilterRadius, FilterAmount);
+
+    /// <summary>The two filter actions share one radius and one amount, which is what the panel shows.</summary>
+    private double FilterRadius => BlurRadiusSlider.Value;
+
+    private double FilterAmount => SharpenAmountSlider.Value;
+    private void UpdateSampleSwatch()
+    {
+        if (!Document.ColorPicker.HasSample)
+        {
+            SampleSwatch.Background = null;
+            return;
+        }
+
+        Rgba32 sample = Document.ColorPicker.Sample;
+        SampleSwatch.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(sample.A, sample.R, sample.G, sample.B));
+    }
 
     private void OnUndoClick(object sender, RoutedEventArgs e) => Document.Undo();
 
@@ -353,10 +515,18 @@ public sealed partial class MainWindow : Window
 
     private void OnCanvasPointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (!Document.MaskBrush.IsActive) return;
-
         var point = e.GetCurrentPoint(Canvas);
         if (!point.Properties.IsLeftButtonPressed) return;
+
+        // The eyedropper reads one pixel and does not capture the pointer: there is no stroke to follow.
+        if (Document.ColorPicker.IsActive)
+        {
+            var sampled = ToDocument(point.Position);
+            Document.ColorPicker.Pick(sampled.X, sampled.Y);
+            return;
+        }
+
+        if (!Document.MaskBrush.IsActive) return;
 
         var document = ToDocument(point.Position);
         Document.MaskBrush.BeginStroke(document.X, document.Y);

@@ -103,6 +103,40 @@
             </AppBarButton>
             <AppBarSeparator />
             <AppBarButton
+                Icon="Rotate"
+                Label="{x:Bind Text.ToolbarTransform, Mode=OneWay}">
+                <AppBarButton.Flyout>
+                    <!-- Flyouts are outside the page's visual tree, so these are labelled in
+                         code-behind; see LabelFlyouts. -->
+                    <MenuFlyout x:Name="TransformFlyout">
+                        <MenuFlyoutItem Click="OnRotateRightClick" />
+                        <MenuFlyoutItem Click="OnRotateLeftClick" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Click="OnFlipHorizontalClick" />
+                        <MenuFlyoutItem Click="OnFlipVerticalClick" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Click="OnCropToSelectionClick" />
+                        <MenuFlyoutItem Click="OnResizeCanvasClick" />
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarToggleButton
+                x:Name="ColorPickerButton"
+                Icon="Highlight"
+                Label="{x:Bind Text.ToolbarColorPicker, Mode=OneWay}"
+                Click="OnColorPickerClick" />
+            <AppBarButton
+                Icon="Filter"
+                Label="{x:Bind Text.ToolbarFilters, Mode=OneWay}">
+                <AppBarButton.Flyout>
+                    <MenuFlyout x:Name="FilterFlyout">
+                        <MenuFlyoutItem Click="OnGaussianBlurClick" />
+                        <MenuFlyoutItem Click="OnSharpenClick" />
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarSeparator />
+            <AppBarButton
                 Icon="ZoomOut"
                 Label="{x:Bind Text.ToolbarZoomOut, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarZoomOutHint, Mode=OneWay}"
@@ -157,6 +191,10 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
                 <TextBlock
                     Text="{x:Bind Document.Status, Mode=OneWay}"
@@ -207,6 +245,67 @@
                         MinWidth="132"
                         FontFamily="{StaticResource AppFontFamily}"
                         SelectionChanged="OnLanguageChanged" />
+                </StackPanel>
+
+                <!-- Filter settings and the eyedropper's reading. Both are things a user reaches for
+                     while working on the canvas, so they sit in the strip that is always visible. -->
+                <StackPanel
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    Margin="0,4,0,0"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        Text="{x:Bind Text.FilterRadius, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        VerticalAlignment="Center" />
+                    <Slider
+                        x:Name="BlurRadiusSlider"
+                        Width="120"
+                        Minimum="1"
+                        Maximum="40"
+                        StepFrequency="1"
+                        Value="6"
+                        VerticalAlignment="Center" />
+                    <TextBlock
+                        Text="{x:Bind Text.FilterAmount, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        VerticalAlignment="Center" />
+                    <Slider
+                        x:Name="SharpenAmountSlider"
+                        Width="120"
+                        Minimum="0.1"
+                        Maximum="3"
+                        StepFrequency="0.1"
+                        Value="1"
+                        VerticalAlignment="Center" />
+                    <Border
+                        x:Name="SampleSwatch"
+                        Width="18"
+                        Height="18"
+                        CornerRadius="3"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                        VerticalAlignment="Center" />
+                    <TextBlock
+                        Text="{x:Bind Document.ColorPicker.Hex, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        VerticalAlignment="Center" />
+                    <TextBlock
+                        Text="{x:Bind Document.ColorPicker.Channels, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        VerticalAlignment="Center" />
+                    <Button
+                        Content="{x:Bind Text.ColorPickerCopy, Mode=OneWay}"
+                        Padding="8,2"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        Click="OnCopyColorClick" />
                 </StackPanel>
             </Grid>
         </Border>

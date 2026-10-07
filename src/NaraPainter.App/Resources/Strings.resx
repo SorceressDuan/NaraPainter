@@ -802,4 +802,7 @@
   <data name="ColorPicker_Copied" xml:space="preserve">
     <value>Colour copied</value>
   </data>
+  <data name="Transform_CropNeedsSelection" xml:space="preserve">
+    <value>Select a region first, then crop to it.</value>
+  </data>
 </root>
