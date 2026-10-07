@@ -1,19 +1,26 @@
-Dotnet toolchain lives in .tools/ and must never be committed.
+# Dotnet toolchain lives in .tools/ and must never be committed.
 .tools/
 
 # Build output
 bin/
 obj/
+publish/
+
+# Publish output and packages produced by packaging/pack.ps1
+dist/
+*.zip
+*.msix
+
+# The upstream reference checkout is fetched separately
+.upstream-compositor/
 
 # Local editor state
 .vs/
 .vscode/
 *.user
 
-# Upstream reference checkout is fetched separately
-.upstream-compositor/
-
-# Publish output and packages produced by packaging/pack.ps1
-dist/
+# Test fixtures that are generated rather than kept: tools/assets writes these, and the 4000 x 3000
+# one is 7 MB for a single image, which is not worth carrying in the repository.
+assets/testimages/large-*.png
 
 *.log

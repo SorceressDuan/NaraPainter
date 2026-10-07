@@ -31,7 +31,7 @@
 每条命令都要带这套环境变量，别指望 shell 里有：
 
 ```powershell
-$root = "C:\Users\Sorce\Downloads\compositor"
+$root = (Get-Location).Path      # 在仓库根目录执行，不要写死绝对路径
 $env:APPDATA = "$root\.tools\appdata"
 $env:DOTNET_ROOT = "$root\.tools\dotnet"
 $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
@@ -128,6 +128,20 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 
 依次是 restore → 全解决方案构建（要求 0 error 且 0 warning）→ 结构检查 → 全量测试 →
 发布包布局检查，最后打印 PASS/FAIL 汇总。
+
+### 测试图片
+
+`assets/testimages/` 下的图由 `tools/assets` 生成，不是手绘的；`photo.jpg`、`gradient.png`、
+`shapes.png`、`transparent.webp` 都在版本库里，因为多个测试拿它们做逐字节往返比对。
+
+**`large-4000x3000.png` 不入库**：它是 7 MB 的单张图，只被 `--selftest --large` 用来量大图打开耗时。
+`.gitignore` 里排除了 `assets/testimages/large-*.png`。新克隆的仓库里没有这个文件，需要时这样生成：
+
+```powershell
+dotnet run --project tools/assets/NaraPainter.Assets.csproj -- .
+```
+
+文件缺失时 `--large` 那一步会失败，其余自检照常。发布包与单元测试都不依赖它。
 
 `-ExecutionPolicy Bypass` 是必须的：这台机器上 `powershell -File` 对任何脚本都报
 `AuthorizationManager check failed`。
