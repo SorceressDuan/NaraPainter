@@ -47,14 +47,14 @@ powershell -ExecutionPolicy Bypass -File tools/verify/verify.ps1
 
 - 仓库名建议 `NaraPainter`
 - 可见性按你的意愿（公开则需确认合规声明已在 README 顶部）
-- 建完拿到地址，形如 `https://github.com/<你的用户名>/NaraPainter.git`
+- 建完拿到地址，形如 `https://github.com/SorceressDuan/NaraPainter.git`
 
 ## 2. 关联远端并推送代码
 
 ```powershell
 cd C:\Users\Sorce\Downloads\compositor
 
-git remote add origin https://github.com/<你的用户名>/NaraPainter.git
+git remote add origin https://github.com/SorceressDuan/NaraPainter.git
 git branch -M main
 git push -u origin main
 ```
@@ -118,36 +118,37 @@ gh release create v0.2.0 `
 
 需要 token，且 `curl.exe` 在 Windows 10 1803+ 自带。
 
+**注意 `-F` 上传时文件名前面必须带 `@`**，形如 `"file=@C:\path\to.zip"`。
+
 ```powershell
-$token  = "<你的 PAT>"
-$repo   = "<你的用户名>/NaraPainter"
-$tag    = "v0.2.0"
-$zip    = "dist\NaraPainter-0.2.0-win-x64.zip"
+$token = "<你的 PAT>"
+$repo  = "SorceressDuan/NaraPainter"
+$tag   = "v0.2.0"
+$zip   = "C:\Users\Sorce\Desktop\NaraPainter-0.2.0-win-x64.zip"
 
-# 1) 建 release（若网页已建好 release，跳过这步并直接查 upload_url）
-$body = @{
-  tag_name = $tag
-  name     = "v0.2.0 - 那菈绘梦 / Nara Painter"
-  body     = (Get-Content "docs\RELEASE_NOTES_v0.2.0.md" -Raw)
-  draft    = $false
-} | ConvertTo-Json -Depth 3
+# 1) 建 release。若网页已建好 release，跳过这步，直接从网页地址里抄 release id 填到下面。
+$release = curl.exe -s -X POST `
+  -H "Authorization: Bearer $token" `
+  -H "Accept: application/vnd.github+json" `
+  "https://api.github.com/repos/$repo/releases" `
+  -d "{`"tag_name`":`"$tag`",`"name`":`"v0.2.0 Nara Painter`",`"draft`":false}" | ConvertFrom-Json
 
-$release = Invoke-RestMethod -Method Post `
-  -Uri "https://api.github.com/repos/$repo/releases" `
-  -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } `
-  -ContentType "application/json" `
-  -Body $body
-
-# 2) 上传资产。upload_url 形如 https://uploads.github.com/...{?name,label}
+# 2) 上传附件。upload_url 形如 https://uploads.github.com/...{?name,label}，要把末尾的花括号部分去掉。
 $upload = $release.upload_url -replace '\{\?name,label\}', ''
 $name   = Split-Path $zip -Leaf
 
-Invoke-RestMethod -Method Post `
-  -Uri "$upload`?name=$name" `
-  -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } `
-  -ContentType "application/zip" `
-  -InFile $zip
+curl.exe -X POST `
+  -H "Authorization: Bearer $token" `
+  -H "Content-Type: application/zip" `
+  --data-binary "@$zip" `
+  "$upload`?name=$name"
 ```
+
+上面最后一行里 `` `? `` 是 PowerShell 的转义写法（反引号加问号），**那一对反引号和问号都要原样输入**，
+不能写成单独的 `?`——PowerShell 会把 `$upload?name` 当成一个变量名而报错。
+
+**这个方式对 149.69 MB 的断点续传支持不好**，网络不稳定时容易传一半失败。
+如果你网络一般，**用方式 A（网页）或方式 B（gh CLI）更稳**。
 
 上传 149.69 MB 可能要几分钟，不要中途打断。
 
