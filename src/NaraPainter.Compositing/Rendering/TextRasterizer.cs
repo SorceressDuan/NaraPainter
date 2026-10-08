@@ -29,7 +29,9 @@ public static class TextRasterizer
         if (canvasHeight <= 0) throw new ArgumentOutOfRangeException(nameof(canvasHeight));
         if (!style.IsDrawable) return null;
 
-        using var device = CanvasDevice.GetSharedDevice();
+        // Not disposed on the way out: this is the process-wide device the canvas control draws with as
+        // well, and letting the scope take it down left the next frame drawing into a dead device.
+        CanvasDevice device = CanvasDevice.GetSharedDevice();
         using var format = new CanvasTextFormat
         {
             FontFamily = style.FontFamily,

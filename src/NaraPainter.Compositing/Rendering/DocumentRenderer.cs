@@ -440,9 +440,24 @@ public sealed class DocumentRenderer
         return scaled;
     }
 
+    /// <summary>
+    /// How far the buffers have to be shrunk to fit the device's largest texture. A device that has
+    /// already been disposed throws rather than answering, which is a frame that cannot be given its
+    /// own scale; treating that as no limit keeps the draw going and lets the usual lost-device path
+    /// take over instead of failing the whole frame.
+    /// </summary>
     private static double UploadScaleFor(CanvasDocument document, CanvasDevice device)
     {
-        int limit = device.MaximumBitmapSizeInPixels;
+        int limit;
+        try
+        {
+            limit = device.MaximumBitmapSizeInPixels;
+        }
+        catch (ObjectDisposedException)
+        {
+            return 1;
+        }
+
         if (limit <= 0) return 1;
 
         int longest = Math.Max(document.Width, document.Height);
