@@ -240,6 +240,8 @@ src/NaraPainter.App/Assets/Tutorial/
 
 ### 后续接设计师的图
 
+**待办**：16 张 800 × 600 的图片由设计师提供，本版先用界面里的占位框。
+
 1. 建目录 `src/NaraPainter.App/Assets/Tutorial/images/`
 2. 按 JSON 里的文件名放入 16 张 800 × 600 的 PNG
 3. **不用改任何代码**，重新构建即可
