@@ -75,6 +75,92 @@ NaraPainter.exe --selftest            ->  RESULT PASS, exit=0
 
 ## 本轮做了什么
 
+### 五、Tooltip 格式统一
+
+真机发现同一工具栏里格式不一致：「缩小画布」只有描述没有快捷键，「滤镜」只有
+`Ctrl+Shift+B, Ctrl+Shift+U` 没有描述。全面排查后定位到根因：
+
+**`Strings.cs` 里有三条硬编码的快捷键字面量，既没有描述、也不走本地化：**
+
+```csharp
+public static string ToolbarColorPickerHint => "I";                                  // 只有 "I"
+public static string ToolbarTransformHint  => "Ctrl+Shift+L / R / H / V, Ctrl+Alt+C, Ctrl+Shift+X";
+public static string ToolbarFiltersHint    => "Ctrl+Shift+B, Ctrl+Shift+U";          // 只有快捷键
+```
+
+它们绕过了 `Localization.Get`，所以既没有中英双语、也没有 `LocalizedStrings` 孪生属性。
+改成走资源后，`check-localization.ps1` 立刻报出缺三个孪生属性
+——**原来这个缺口是被硬编码掩盖的**。
+
+**统一后的格式**：有快捷键的写 `功能描述 (快捷键)`，多个键用 ` / ` 分隔；
+没有快捷键的只写描述。
+
+**逐区域改动**：
+
+| 区域 | 改动 |
+| --- | --- |
+| 工具栏 | 补上缺失的快捷键（缩小 `Ctrl+-`、放大 `Ctrl++`、适应窗口 `Ctrl+0`、100% `Ctrl+1`、蒙版画笔 `M`、复制 `Ctrl+J`）；滤镜与变换从"只有快捷键"改为描述+键；吸管从 `"I"` 改为"取画布上一点的颜色 (I)" |
+| 工具栏菜单项 | `Label()` 原来把快捷键直接接在文字后面（`模糊    Ctrl+Shift+B`），改为带括号，与 tooltip 同一形状 |
+| 属性面板 | 12 个纯文字按钮补上 tooltip（用各自按钮文字，都没有快捷键）；其中 2 个带 `IsEnabled` 的改为淡出，避免又落进"禁用就没有 tooltip"的坑 |
+| 状态栏 | 关于、语言、教程、复制颜色本就有 tooltip，核对格式一致 |
+
+**顺带修掉一个我引入的问题**：`PropertiesPanel.xaml` 被我的脚本写成了 **CRLF**，
+而其余 XAML 都是 LF。这导致按 `$` 锚定的正则完全匹配不到它——
+**守卫测试因此漏报了 2 个真实违规**。已把该文件规范回 LF。
+
+**新增 3 条守卫测试**（`HintFormatTests`）：
+
+- 禁止"只有快捷键没有描述"（就是用户看到的那个形状）
+- 提示里的快捷键必须写在括号内
+- 工具栏上有绑定的按钮必须在 tooltip 里写出该键
+
+三条都做了失败注入：把滤镜提示还原成 `Ctrl+Shift+B / Ctrl+Shift+U`、
+把吸管还原成裸 `"I"`，对应测试都准确报出是哪个键。
+
+### 四、真机回归发现的四个问题（本轮修）
+
+**问题 4（Tooltip 不显示）——根因是 WinUI 的设计，不是没挂上。**
+
+先用探针在真机上悬停并监听 UIA 树里的 ToolTip 元素，拿到确定结论：
+
+| 按钮 | 状态 | 悬停结果 |
+| --- | --- | --- |
+| 打开 / 导出 | 可用 | **显示** tooltip |
+| 撤销 / 重做 | **不可用** | **不显示** |
+
+**`ToolTipService` 在控件被禁用时不会打开 tooltip**——禁用的控件收不到指针消息，
+而 tooltip 由指针消息驱动。所以它只在常驻可用的按钮上生效，在每一个随文档状态变化的
+按钮上静默失效，看起来就是"时好时坏"。新文档里撤销/重做本来就是灰的，一悬停就没提示。
+
+中途查到一个 GitHub issue 说是"指针捕获后 tooltip 失效"，**那条是错的**：WinUI 团队
+以"不是 bug"关闭，报告人自己撤回了。**我一度按它去找 `CapturePointer` 的问题，白走一段。**
+
+试过并**否决**的做法：把按钮包一层 `Border` 加 tooltip——实测无效，UIA 里工具栏
+和改前完全一样；指针仍然落在被禁用的子控件上。（这一版进过构建又退回了。）
+
+最后做法：**这些按钮改为"淡出"而不是"禁用"**。控件保持 enabled，指针消息照常送达、
+tooltip 正常打开；用 `EnabledToOpacityConverter` 把不可用时的透明度降到 0.4，
+一眼仍能看出不可用。安全性逐个核对：`Undo`/`Redo` 在栈空时提前返回，`DeleteLayer` 判空返回，
+`UngroupSelectedFolder` 判类型返回，`Move` 越界返回，`GroupSelectedLayers` 无选中返回 null。
+**真机验证：连点两次撤销到无历史可撤，程序无异常。**
+
+**问题 2（教程没有退出按钮）**：底部加了「关闭」按钮，与上一步/下一步并排，
+走现有 `Tutorial_Close` 文案。真机验证：点它弹窗关闭。
+
+**问题 1、3（配图错）**：
+
+- **工具栏图标与软件不一致**：原来是我手画的近似图形。查下来 WinUI 的 `Symbol` 枚举
+  就是 **Segoe MDL2 Assets 字体**，于是直接用 `segmdl2.ttf` 渲染应用真正使用的码位
+  （OpenFile E8E5、Save E74E、Undo E7A7、Add E710、Copy E8C8、Delete E74D、Edit E70F、
+  Repair E90F、Rotate E7AD、Highlight E7E6、Font E8D2、Filter E71C、ZoomIn/Zoom E8A3、
+  ZoomOut E71F），并按 XAML 里的真实顺序与分隔符排布。**与真机截图逐一对上了。**
+- **搜索框文字错位**：原来把「搜索」放在了与放大镜同一横坐标、且垂直基线偏移。
+  改为放大镜用 E721 绘制、占位文字左对齐并落在框的中线上。
+
+**新增 5 条测试**：教程图片目录不得留步骤用不到的图；按钮不得同时带 tooltip 与 `IsEnabled`
+绑定（就是丢提示的那个形状）；不可用按钮必须走 `EnabledToOpacity`。后两条守卫都做过失败注入
+——**第一版正则在多行元素上完全匹配不到，注入 bug 后仍然全绿，改对之后才真正拦得住。**
+
 ### 一、Tooltip 覆盖补全
 
 先把「Tooltip 到底有没有挂上」查清楚。**写了一个临时探针**（`--tooltipprobe`，查完已删除）
