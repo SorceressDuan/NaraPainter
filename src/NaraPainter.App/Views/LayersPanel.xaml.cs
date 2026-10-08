@@ -2,6 +2,7 @@ using NaraPainter.App.Services;
 using NaraPainter.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace NaraPainter.App.Views;
@@ -9,8 +10,9 @@ namespace NaraPainter.App.Views;
 public sealed partial class LayersPanel : UserControl
 {
     private DocumentViewModel? _document;
-    private bool _droppedIntoFolder;
 
+    /// <summary>The row currently wearing a drop marker, so it can be cleared again.</summary>
+    private FrameworkElement? _marked;
     public LayersPanel()
     {
         InitializeComponent();
@@ -60,57 +62,125 @@ public sealed partial class LayersPanel : UserControl
         if (LayerFor(sender) is { } folder) _document?.ToggleCollapsed(folder);
     }
 
-    /// <summary>Only a folder accepts a row dropped onto it; anywhere else the list's own reorder wins.</summary>
+    /// <summary>
+    /// Reads where in the row the pointer is and shows what a drop there would do: a line along the
+    /// top or bottom edge for a place in the stack, a wash over the row for going inside a folder.
+    /// </summary>
     private void OnRowDragOver(object sender, DragEventArgs e)
     {
-        if (_document?.DraggedRow is null) return;
-        if (sender is not FrameworkElement { DataContext: LayerViewModel target }) return;
-        if (!target.IsGroup || ReferenceEquals(target, _document.DraggedRow)) return;
+        if (_document?.DraggedRow is not { } dragged) return;
+        if (sender is not FrameworkElement { DataContext: LayerViewModel target } row) return;
 
+        ClearDropMarker();
+        if (ReferenceEquals(target, dragged) || _document.IsDescendantOfRow(target, dragged))
+        {
+            e.AcceptedOperation = DataPackageOperation.None;
+            return;
+        }
+
+        DocumentViewModel.RowDrop where = ZoneFor(e, row, target);
         e.AcceptedOperation = DataPackageOperation.Move;
-        e.DragUIOverride.Caption = Localization.Interpolate(Strings.LayersDropIntoHint, target.Name);
+        e.DragUIOverride.Caption = Localization.Interpolate(
+            where == DocumentViewModel.RowDrop.Into ? Strings.LayersDropIntoHint : Strings.LayersDropBetweenHint,
+            target.Name);
+        ShowDropMarker(row, where);
     }
 
     /// <summary>
-    /// A row dropped onto a folder goes inside it; dropped anywhere else it simply lands in the stack
-    /// order the list already applied.
+    /// Which third of the row the pointer is in: the outer thirds stack the row above or below, the
+    /// middle one puts it inside, and only a folder has a middle that means anything.
     /// </summary>
+    private static DocumentViewModel.RowDrop ZoneFor(DragEventArgs e, FrameworkElement row, LayerViewModel target)
+    {
+        double height = row.ActualHeight;
+        double y = e.GetPosition(row).Y;
+
+        // A row this short has no thirds worth aiming at, so it stacks.
+        if (height < 24 || y < height / 3) return DocumentViewModel.RowDrop.Above;
+        if (y > height * 2 / 3) return DocumentViewModel.RowDrop.Below;
+        return target.IsGroup ? DocumentViewModel.RowDrop.Into : DocumentViewModel.RowDrop.Above;
+    }
+
+    private void ShowDropMarker(FrameworkElement row, DocumentViewModel.RowDrop where)
+    {
+        if (MarkerIn(row) is not { } marker) return;
+
+        marker.Background = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
+        switch (where)
+        {
+            case DocumentViewModel.RowDrop.Above:
+                marker.Height = 2;
+                marker.VerticalAlignment = VerticalAlignment.Top;
+                break;
+            case DocumentViewModel.RowDrop.Below:
+                marker.Height = 2;
+                marker.VerticalAlignment = VerticalAlignment.Bottom;
+                break;
+            default:
+                // Inside: a wash the height of the row rather than a line.
+                marker.Height = double.NaN;
+                marker.VerticalAlignment = VerticalAlignment.Stretch;
+                marker.Opacity = 0.35;
+                break;
+        }
+
+        _marked = row;
+        marker.Visibility = Visibility.Visible;
+    }
+
+    private void ClearDropMarker()
+    {
+        if (_marked is null) return;
+        if (MarkerIn(_marked) is { } marker)
+        {
+            marker.Visibility = Visibility.Collapsed;
+            marker.Opacity = 1;
+        }
+
+        _marked = null;
+    }
+
+    /// <summary>The marker in a row's template, found by name since rows share one template.</summary>
+    private static Border? MarkerIn(FrameworkElement row) => row.FindName("DropMarker") as Border;
+
+    private void OnRowDragLeave(object sender, DragEventArgs e) => ClearDropMarker();
+
+    /// <summary>Puts the dragged row where the marker was showing.</summary>
     private void OnRowDrop(object sender, DragEventArgs e)
     {
+        ClearDropMarker();
         if (_document?.DraggedRow is not { } dragged) return;
-        if (sender is not FrameworkElement { DataContext: LayerViewModel target }) return;
-        if (!target.IsGroup || ReferenceEquals(target, dragged)) return;
+        if (sender is not FrameworkElement { DataContext: LayerViewModel target } row) return;
 
         e.Handled = true;
-        if (_document.MoveLayerInto(dragged, target)) _droppedIntoFolder = true;
+        DocumentViewModel.RowDrop where = ZoneFor(e, row, target);
+        if (!_document.MoveLayerTo(dragged, target, where)) e.Handled = false;
     }
 
     private void OnDragItemsStarting(object sender, DragItemsStartingEventArgs args)
     {
         if (_document is null) return;
 
-        // The list's own reorder only shuffles rows; remembering which one is moving is what lets a drop
-        // onto a folder mean "put this inside".
+        // The list's own reorder only shuffles rows; remembering which one is moving is what lets a
+        // drop say where it should go. The starting arrangement is kept too, because that reorder
+        // rewrites the row order while the pointer moves and a drop has to be measured from the state
+        // the user was looking at.
         _document.DraggedRow = args.Items.Count > 0 ? args.Items[0] as LayerViewModel : null;
-        _droppedIntoFolder = false;
+        _document.BeginDrag();
+        ClearDropMarker();
     }
 
     private void OnDragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
     {
         if (_document is null) return;
 
+        ClearDropMarker();
         _document.DraggedRow = null;
 
-        // A drop onto a folder already decided where the row goes; the list's own reordering would
-        // otherwise undo it by shuffling the rows back into plain order.
-        if (_droppedIntoFolder)
-        {
-            _droppedIntoFolder = false;
-            return;
-        }
-
-        // The list has already moved the rows; the document follows whatever order is showing.
-        _document.ReorderLayers(_document.Layers.ToList());
+        // A drop already placed its row and recorded the step. The list has also shuffled its own order
+        // underneath; putting the rows back the way the drop left them is what stops that shuffle from
+        // reaching the document.
+        _document.SettleRows();
     }
 
     private void OnNameGotFocus(object sender, RoutedEventArgs e)

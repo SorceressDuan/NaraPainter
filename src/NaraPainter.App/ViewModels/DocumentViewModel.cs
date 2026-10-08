@@ -250,7 +250,118 @@ public sealed class DocumentViewModel : ObservableObject
         return true;
     }
 
-    /// <summary>True when <paramref name="candidate"/> sits somewhere inside <paramref name="folder"/>.</summary>
+    /// <summary>Where a row was dropped, which is all the placer needs to know about the pointer.</summary>
+    public enum RowDrop
+    {
+        /// <summary>Land in the stack just above the row it was dropped on.</summary>
+        Above,
+
+        /// <summary>Land in the stack just below the row it was dropped on.</summary>
+        Below,
+
+        /// <summary>Go inside the folder it was dropped on, on top of what is already in there.</summary>
+        Into
+    }
+
+    /// <summary>
+    /// Puts a dragged row above, below or inside the row it was dropped on. Leaving a folder, entering
+    /// one and changing the level all come through here, so a dropped row always matches the level of
+    /// the row it landed against; a row that kept a level nobody could see would be a tree the panel
+    /// cannot draw.
+    /// </summary>
+    public bool MoveLayerTo(LayerViewModel? row, LayerViewModel? target, RowDrop where)
+    {
+        if (row is null || target is null || ReferenceEquals(row, target)) return false;
+        if (where == RowDrop.Into && !target.IsGroup) return false;
+
+        // A folder cannot go inside itself or anything it already holds, or the tree stops being
+        // walkable.
+        if (IsDescendantOf(target, row)) return false;
+
+        // Landing against a row means sharing that row's folder, so a dropped row always matches the
+        // level it was dropped at.
+        LayerViewModel? parent = where == RowDrop.Into ? target : ParentRowOf(target);
+        Guid? parentId = where == RowDrop.Into ? target.Model.Id : parent?.Model.Id;
+
+        // Rewinding first matters: the list reorders its own rows while the pointer moves, so without
+        // this the step would be recorded from a stack that had already been shuffled by the drag and
+        // undoing it would land the row just short of where it started.
+        RewindToDragStart();
+
+        int from = Layers.IndexOf(row);
+        int at = Layers.IndexOf(target);
+        if (from < 0 || at < 0) return false;
+
+        LayerStackSnapshot before = LayerStackSnapshot.Capture(this);
+
+        if (where == RowDrop.Into)
+        {
+            // Dropping into a folded folder has to open it, or the row goes somewhere the user cannot
+            // see it and the drag looks like it did nothing.
+            _collapsed.Remove(target.Model.Id);
+        }
+        else if (where == RowDrop.Below)
+        {
+            at += 1;
+        }
+
+        // Taking the row out first shifts the landing spot when the row was above it.
+        Layers.RemoveAt(from);
+        if (from < at) at--;
+        Layers.Insert(Math.Clamp(at, 0, Layers.Count), row);
+
+        row.Model.ParentId = parentId;
+        ApplyPanelOrder(Layers.ToList());
+        RefreshPlacement();
+
+        SelectedLayer = row;
+        PushStructuralStep(Strings.UndoReorderLayers, before);
+        NotifyChanged();
+        Status = where == RowDrop.Into
+            ? Localization.Interpolate(Strings.StatusLayerMovedInto, row.Name, target.Name)
+            : Localization.Interpolate(Strings.StatusLayerMoved, row.Name);
+        return true;
+    }
+
+    /// <summary>
+    /// Marks where a drag began, taken before the list starts shuffling its rows.
+    /// </summary>
+    public void BeginDrag() =>
+        _dragStart = (Layers.ToList(), Layers.Select(r => r.Model.ParentId).ToList());
+
+    /// <summary>
+    /// Puts the rows back the way they were when the drag began, so what follows is measured from the
+    /// state the user saw rather than from the list's running preview of it.
+    /// </summary>
+    private void RewindToDragStart()
+    {
+        if (_dragStart is not { } start) return;
+        _dragStart = null;
+
+        (List<LayerViewModel> rows, List<Guid?> parents) = start;
+        if (rows.Count != Layers.Count || !rows.All(Layers.Contains)) return;
+
+        for (int i = 0; i < rows.Count; i++) rows[i].Model.ParentId = parents[i];
+
+        Layers.Clear();
+        foreach (LayerViewModel row in rows) Layers.Add(row);
+    }
+
+    private (List<LayerViewModel> Rows, List<Guid?> Parents)? _dragStart;
+
+    /// <summary>The folder a row sits in, or null when it is at the top level.</summary>
+    private LayerViewModel? ParentRowOf(LayerViewModel row) =>
+        row.Model.ParentId is { } parentId
+            ? Layers.FirstOrDefault(candidate => candidate.Model.Id == parentId)
+            : null;
+
+    /// <summary>
+    /// True when <paramref name="candidate"/> sits somewhere inside <paramref name="folder"/>. The panel
+    /// asks before showing a drop marker, so a folder never advertises a landing spot inside itself.
+    /// </summary>
+    public bool IsDescendantOfRow(LayerViewModel candidate, LayerViewModel folder) =>
+        IsDescendantOf(candidate, folder);
+
     private bool IsDescendantOf(LayerViewModel candidate, LayerViewModel folder)
     {
         Guid folderId = folder.Model.Id;
@@ -548,6 +659,17 @@ public sealed class DocumentViewModel : ObservableObject
 
         return found;
     }
+
+    /// <summary>
+    /// Puts the document back in step with the rows after the list has finished a drag.
+    /// </summary>
+    /// <remarks>
+    /// The list reorders its own items as the pointer moves, which is what makes a drag look right. A
+    /// drop has already placed the row properly by then, so the list's shuffle is undone by writing the
+    /// document order from the rows. No step is pushed: the placement already pushed one, and a second
+    /// entry would need two undos for one move.
+    /// </remarks>
+    public void SettleRows() => ApplyPanelOrder(VisibleInPanel(Layers));
 
     /// <summary>
     /// Takes the order the layers panel ended up in, top first, and records the move. The panel only
