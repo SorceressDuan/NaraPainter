@@ -3,6 +3,43 @@
 这份文档给接手具体模块的人看：上游代码在哪、契约是什么、边界在哪。
 环境搭建和沙箱的坑见 [BUILD.md](BUILD.md)。
 
+## 当前策略：优先移植，其次开发
+
+上游 `legacy/` 里的 Swift 实现比我们已移植的多得多。**动手写新功能之前，先在 `legacy/` 里找一遍**：
+
+- 上游有 → 翻译它的算法。难度更低，保真度更高（数值行为、边界情况都是原作者的判断）
+- 上游没有 → 再在 C# 里从零设计
+
+这个顺序不是图省事，是为了不重复犯原作者已经犯过并修正过的错。
+
+## v0.3.0 规划
+
+分三批，**同时只动一个模块**，每个模块独立跑绿再进下一个。
+
+### 第一阶段
+
+| 顺序 | 模块 | 上游是否已有 | 备注 |
+| --- | --- | --- | --- |
+| 1 | **修复画笔 / 污点修复** | 污点修复**已完成**（v0.3.0） | 算法本体是 `legacy/Compositor/Rendering/HealPixels.c` 的 `spot_heal()`，不是 Swift。对照见下表「污点修复」一节 |
+| 2 | **基础文字工具** | 有 —— `ImageLayer.text` | 上游是画布内联编辑，我们改为「弹窗输入 → 生成文本图层」。动手前必须先验证 Win2D 能否渲染中文 |
+| 3 | **图层编组** | 有 —— `ImageLayer.parentID` + `isGroup` | 字段定义可直接照搬。但它同时触及图层模型、`CanvasDocument.Flatten` 递归、撤销栈、图层面板树形 UI 四处，风险最高，放最后 |
+
+### 第二阶段（先出技术方案，暂不开工）
+
+| 模块 | 上游是否已有 | 已知难点 |
+| --- | --- | --- |
+| 完整画笔引擎（颜色、笔刷预设、压感） | 有 —— 上游有 Brush（Paint/Erase、smoothing、Shift 直线） | 需要新增「按颜色在像素上绘制」的路径，与现有蒙版画笔不同；无数位板时压感只能模拟 |
+| 图层样式（描边、投影） | 有 —— `MetalLayerEffects.swift`，上游走 GPU | 上游是 Metal，我们得走 Win2D。渲染时机与混合模式的叠加顺序要重新定 |
+| 魔棒 / 快速选择（GrabCut） | 有 —— 上游 Magic Wand 与 Object 追踪 | GrabCut 的迭代次数与初始化方式直接决定交互延迟，大画布上必须做预览降采样 |
+
+### 第三阶段：明确不实现
+
+PSD 导入导出、CMYK 色彩管理、RAW、智能对象、矢量路径、动作与批处理、插件系统。
+
+**不写代码，也不留空接口。** 逐条理由见
+[MISSING_FEATURES.md](MISSING_FEATURES.md) 的「明确不实现（专业级深水区）」。
+留接口只会让人误以为这些能力在路上。
+
 ## 上游代码
 
 原项目快照在 `legacy/`，只读参考，不要改。有价值的几处：
@@ -11,16 +48,71 @@
 | --- | --- |
 | 24 种混合模式的枚举与分组 | `legacy/Compositor/Document/LayerAppearance.swift` |
 | 图层与文档模型 | `legacy/Compositor/Document/EditorSession.swift` 开头 |
+| 图层组字段（`parentID` / `isGroup`） | 同上，`ImageLayer` 结构体 |
 | 蒙版 | `legacy/Compositor/Document/LayerMask.swift` |
 | 色相/饱和度：色彩立方与 HSL 数学 | `legacy/Compositor/Document/HueSaturation.swift` |
 | 色阶：LevelRange 与查表 | `legacy/Compositor/Document/Levels.swift` |
 | 曲线：单调三次 Hermite | `legacy/Compositor/Document/Curves.swift` |
 | 曝光、黑白、色彩平衡、颗粒 | `legacy/Compositor/Document/ImageAdjustments.swift` |
 | 像素核（C） | `legacy/Compositor/Rendering/AdjustPixels.c`、`LevelsPixels.c` |
+| **污点修复的算法本体（C）** | `legacy/Compositor/Rendering/HealPixels.c`、`HealPixels.h` |
+| 污点修复的笔迹生命周期 | `legacy/Compositor/Document/BrushStroke.swift` 的 `heal()`（约 867 行起） |
+| 上游完整功能清单（自述） | `legacy/README.upstream.md` 的 Features 一节 |
 
 Swift 里的 `CGImage`/`CGContext` 对应 OpenCvSharp 的 `Mat`；
 `Core Image` 那套滤镜没有直接对应，按 W3C 公式自己算（已经在 `NaraPainter.Models` 里做了）。
 `MetalLayerEffects.swift` 那类 GPU 效果走 Win2D。
+
+## 污点修复（v0.3.0 已完成）
+
+上游把它拆成「拖动时攒 coverage，松手时一次性重建」两段，我们照搬了这个节奏：
+
+| 我们这边 | 上游对应 |
+| --- | --- |
+| `src/NaraPainter.Imaging/Services/SpotHeal.cs` | `HealPixels.c` 的 `spot_heal()` / `heal_coverage_bounds()`，逐行对照 |
+| `src/NaraPainter.Imaging/Services/SpotHealBrush.cs` | `BrushStroke.swift` 的 `heal()`，负责裁工作区与 alpha 转换 |
+| `src/NaraPainter.App/ViewModels/SpotHealViewModel.cs` | `EditorSession+Brush.swift` 的 `beginBrush` / `finishBrush` |
+| `tests/NaraPainter.Tests/SpotHealTests.cs` | `legacy/CompositorTests/SpotHealingTests.swift` 的条纹+红斑用例 |
+
+**一处必须记住的差异**：上游的 `HealPixels.h` 要求**预乘 alpha**，而本项目的 `PixelBuffer`
+是直通 alpha（见下面的契约）。转换只在 `SpotHealBrush` 的边界做，算法内核保持与 C 版一致。
+代价是**全透明像素的颜色会在往返中丢失**——预乘空间里 alpha=0 不携带颜色。对不透明照片无影响。
+
+涂过的区域之外，图层像素必须逐字节不变；这条被 `SpotHealTests` 与 `SpotHealStrokeTests` 都锁住了。
+
+## 文字工具（v0.3.0 已完成基础版）
+
+上游 `legacy/Compositor/Document/TypeTool.swift` 是 **472 行 CoreText/AppKit 排版**（行内编辑、
+段落框、字偶距、按字符的颜色与字体分段），**不能移植**——Windows 侧没有对应物。
+只有 `LayerTextStyle` 的字段定义可以照搬，见 `NaraPainter.Models/Text/TextStyle.cs`。
+排版层是重写的，走 Win2D。
+
+| 我们这边 | 上游对应 |
+| --- | --- |
+| `NaraPainter.Compositing/Rendering/TextRasterizer.cs` | `TypeTool.swift` 的排版与绘制 |
+| `NaraPainter.Models/Text/TextStyle.cs` | `LayerTextStyle` 的字段 |
+| `NaraPainter.App/Views/TextDialog.cs` | 上游的画布内联编辑（我们改成弹窗） |
+| `tests/NaraPainter.Tests/TextLayerTests.cs` | 无对应，上游测的是行内编辑 |
+
+### 三个已验证的平台事实
+
+1. **`CanvasDevice.GetSharedDevice()` 可用。** 不需要活动画布、不需要 `CanvasControl`，
+   在本项目的非打包 WinAppSDK 配置下能离屏渲染。这是文字工具与后续任何离屏绘制的前提。
+   （仓库里 `CanvasView.CreateCheckerBrush` 是另一个先例，但它是在 `OnDraw` 内部拿 `session.Device`。）
+2. **`CanvasTextLayout` 的 `requestedWidth` 传 0 是个陷阱。** DirectWrite 会在**每个字符后换行**，
+   一串 8 个汉字会排成 8 行、尺寸变成 48×487.7 而不是 398.2×61。要传一个足够宽的排版边界。
+   这个坑不测就发现不了——`LayoutBounds` 是"合理"的非零值，只是方向反了。
+3. **Win2D 表面是预乘 BGRA，`PixelBuffer` 是直通 RGBA。** 读了要换通道序 + 反预乘。
+   这是本项目第二次付这个学费（第一次是污点修复，见上一节），
+   两处的转换都在各自文件的边界上，没有合并成一份——**下次要动的话先合并**。
+
+### 一条设计约束：文字图层必须是画布大小
+
+`CanvasDocument.Fit` 与 `DocumentRenderer` 会把**非画布尺寸**的图层**拉伸**到画布，
+再合并或导出时字形就被重采样了。所以 `TextRasterizer` 返回的是画布大小的缓冲区、
+文字按点击坐标画在里面，而不是一张紧贴文字的图。`TextLayerTests` 里
+`ATextLayerIsCanvasSizedSoNothingStretchesIt` 锁住了这条。
+
 
 ## 已经定好的契约
 
