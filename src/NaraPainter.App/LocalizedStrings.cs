@@ -410,6 +410,8 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     // Spot healing.
     public string SpotHealTitle => Strings.SpotHealTitle;
 
+    public string SpotHealToggleHint => Strings.SpotHealToggleHint;
+
     public string SpotHealOn => Strings.SpotHealOn;
 
     public string SpotHealMode => Strings.SpotHealMode;

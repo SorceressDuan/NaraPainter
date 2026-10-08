@@ -69,8 +69,7 @@ public class TutorialTests
     [Fact]
     public void EveryPictureIsNamedForTheGuideFolder()
     {
-        // The files are still being drawn, so their absence is expected for now; what has to hold is
-        // that each name is a plain file name inside the folder the catalog declares.
+        // The files ship with the guide, so a name that cannot be placed is a broken step.
         TutorialCatalog catalog = Catalog();
 
         Assert.False(string.IsNullOrWhiteSpace(catalog.ImageDirectory));
@@ -83,6 +82,61 @@ public class TutorialTests
             "A step names a picture that cannot be placed:" + Environment.NewLine
             + string.Join(Environment.NewLine, offenders));
     }
+
+    [Fact]
+    public void EveryPictureNamedByTheGuideIsThere()
+    {
+        TutorialCatalog catalog = Catalog();
+        string folder = PictureFolder(catalog);
+
+        string[] missing = [.. catalog.Steps
+            .Select(step => Path.Combine(folder, step.Image))
+            .Where(path => !File.Exists(path))
+            .Select(path => Path.GetFileName(path))];
+
+        Assert.True(missing.Length == 0,
+            "The guide names pictures that are not in the folder:" + Environment.NewLine
+            + string.Join(Environment.NewLine, missing));
+    }
+
+    [Fact]
+    public void EveryPictureIsTheSizeTheGuidePromises()
+    {
+        // The dialog lays the picture out at the size the JSON gives, so a file of another size would
+        // be stretched. Read straight from the PNG header rather than decoding the whole image.
+        TutorialCatalog catalog = Catalog();
+        string folder = PictureFolder(catalog);
+
+        string[] offenders = [.. catalog.Steps
+            .Select(step => (step, path: Path.Combine(folder, step.Image)))
+            .Where(pair => File.Exists(pair.path))
+            .Select(pair => (pair.step, size: ReadPngSize(pair.path)))
+            .Where(pair => pair.size != (pair.step.ImageWidth, pair.step.ImageHeight))
+            .Select(pair => $"{pair.step.Image} is {pair.size.Item1}x{pair.size.Item2}, "
+                + $"the guide says {pair.step.ImageWidth}x{pair.step.ImageHeight}")];
+
+        Assert.True(offenders.Length == 0,
+            "A picture is not the size the guide lays it out at:" + Environment.NewLine
+            + string.Join(Environment.NewLine, offenders));
+    }
+
+    /// <summary>Width and height from a PNG's IHDR chunk, which sits at a fixed offset.</summary>
+    private static (int Width, int Height) ReadPngSize(string path)
+    {
+        byte[] header = new byte[24];
+        using FileStream stream = File.OpenRead(path);
+        Assert.Equal(24, stream.Read(header, 0, header.Length));
+
+        // 8 bytes of signature, 4 of chunk length, 4 of chunk name, then the two dimensions.
+        Assert.Equal("PNG", System.Text.Encoding.ASCII.GetString(header, 1, 3));
+
+        int width = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(header.AsSpan(16, 4));
+        int height = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(header.AsSpan(20, 4));
+        return (width, height);
+    }
+
+    private static string PictureFolder(TutorialCatalog catalog) =>
+        Path.Combine(RepositoryRoot(), "src", "NaraPainter.App", catalog.ImageDirectory);
 
     [Fact]
     public void EveryPictureSitsWhereTheGuideLooks()

@@ -394,6 +394,8 @@ public static class Strings
     // Spot healing.
     public static string SpotHealTitle => Localization.Get("SpotHeal_Title");
 
+    public static string SpotHealToggleHint => Localization.Get("SpotHeal_ToggleHint");
+
     public static string SpotHealOn => Localization.Get("SpotHeal_On");
 
     public static string SpotHealMode => Localization.Get("SpotHeal_Mode");

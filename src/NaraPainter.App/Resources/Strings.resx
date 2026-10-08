@@ -618,6 +618,9 @@
   </data>
 
   <!-- Spot healing. -->
+  <data name="SpotHeal_ToggleHint" xml:space="preserve">
+    <value>Turn it on with the toolbar button or J</value>
+  </data>
   <data name="SpotHeal_Title" xml:space="preserve">
     <value>Spot Healing</value>
   </data>

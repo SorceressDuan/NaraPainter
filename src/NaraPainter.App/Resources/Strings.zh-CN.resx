@@ -616,6 +616,9 @@
   </data>
 
   <!-- Spot healing. -->
+  <data name="SpotHeal_ToggleHint" xml:space="preserve">
+    <value>用工具栏的按钮或 J 键开关</value>
+  </data>
   <data name="SpotHeal_Title" xml:space="preserve">
     <value>污点修复</value>
   </data>

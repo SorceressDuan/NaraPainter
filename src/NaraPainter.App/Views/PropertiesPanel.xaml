@@ -307,11 +307,13 @@
                 <StackPanel Spacing="8">
                     <TextBlock Text="{x:Bind Text.SpotHealTitle, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
 
-                    <ToggleSwitch
-                        IsOn="{Binding SpotHeal.IsActive, Mode=TwoWay}"
-                        OnContent="{x:Bind Text.CommonOn, Mode=OneWay}"
-                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}"
-                        ToolTipService.ToolTip="{x:Bind Text.PropertiesToolToggleHint, Mode=OneWay}" />
+                    <!-- No on/off switch here: the toolbar button carries the state, and a lone
+                         switch among sliders reads as a separate control rather than a panel row.
+                         The tool is turned on with the button or J; this panel only tunes it. -->
+                    <TextBlock
+                        Text="{x:Bind Text.SpotHealToggleHint, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        TextWrapping="Wrap" />
 
                     <ComboBox
                         Header="{x:Bind Text.SpotHealMode, Mode=OneWay}"
