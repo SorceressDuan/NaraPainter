@@ -87,17 +87,23 @@ public sealed class CanvasDocument
     /// Flattens the stack into one buffer by compositing bottom up. Adjustment layers run over
     /// whatever has been drawn so far, which is what makes them affect the layers below them.
     /// </summary>
+    /// <remarks>
+    /// Folders are pass-through and never composited as a unit, so each layer is drawn straight onto
+    /// what is below it with its folder's opacity and visibility multiplied in. Compositing a folder
+    /// into its own buffer first would change the result for any child that is not a Normal blend.
+    /// </remarks>
     public PixelBuffer Flatten(Func<PixelBuffer, Layer, PixelBuffer>? adjustmentRunner = null)
     {
         var canvas = new PixelBuffer(Width, Height);
-        foreach (var layer in _layers)
+        LayerOrder.ForEach(_layers, (layer, visible, opacity) =>
         {
-            if (!layer.IsVisible || layer.Opacity <= 0) continue;
+            // A folder contributes nothing but the values already folded into its children.
+            if (layer.IsGroup || !visible || opacity <= 0) return;
 
             PixelBuffer contribution;
             if (layer.IsAdjustment)
             {
-                if (adjustmentRunner is null) continue;
+                if (adjustmentRunner is null) return;
                 contribution = adjustmentRunner(canvas, layer);
             }
             else
@@ -107,8 +113,8 @@ public sealed class CanvasDocument
                     : Fit(layer.Pixels);
             }
 
-            canvas = BlendCompositor.Composite(canvas, contribution, layer.BlendMode, layer.Opacity, layer.CoverageFor(Width, Height));
-        }
+            canvas = BlendCompositor.Composite(canvas, contribution, layer.BlendMode, opacity, layer.CoverageFor(Width, Height));
+        });
         return canvas;
     }
 

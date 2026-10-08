@@ -26,6 +26,18 @@ public sealed class Layer
 
     public BlendMode BlendMode { get; set; } = BlendMode.Normal;
 
+    /// <summary>
+    /// The folder this layer sits in, or null at the top level. Layers stay in one flat list and the
+    /// tree is worked out from this, which is what keeps the stack order and the panel in step.
+    /// </summary>
+    public Guid? ParentId { get; set; }
+
+    /// <summary>
+    /// A folder. It holds no pixels and no adjustment of its own: what it contributes is its opacity
+    /// and visibility, multiplied into everything inside it.
+    /// </summary>
+    public bool IsGroup { get; set; }
+
     public PixelBuffer? Pixels { get; set; }
 
     /// <summary>
@@ -47,6 +59,10 @@ public sealed class Layer
         IsVisible = IsVisible,
         Opacity = Opacity,
         BlendMode = BlendMode,
+
+        // Carried across or a clone silently leaves whatever folder it was in.
+        ParentId = ParentId,
+        IsGroup = IsGroup,
         Pixels = Pixels?.Clone(),
         Mask = Mask is null ? null : (byte[])Mask.Clone(),
         Adjustment = Adjustment?.Clone()

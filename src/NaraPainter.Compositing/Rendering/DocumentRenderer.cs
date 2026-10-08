@@ -144,12 +144,17 @@ public sealed class DocumentRenderer
 
         _live.Clear();
         bool hasBackdrop = false;
-        foreach (Layer layer in document.Layers)
+
+        // Walks the tree rather than the list, so a folder's opacity and visibility reach its children
+        // and the folder itself is not drawn. Folders are pass-through: each layer still lands on the
+        // running composite, which is what keeps a non-Normal child blending against the real backdrop.
+        LayerOrder.ForEach(document.Layers, (layer, visible, opacity) =>
         {
-            if (!layer.IsVisible || layer.Opacity <= 0) continue;
+            if (layer.IsGroup || !visible || opacity <= 0) return;
 
             CanvasBitmap? bitmap = GetLayerBitmap(resources, document, layer);
-            if (bitmap is null) continue;
+            if (bitmap is null) return;
+
             _live.Add(layer.Id);
 
             ICanvasImage contribution = bitmap;
@@ -162,7 +167,7 @@ public sealed class DocumentRenderer
                 {
                     session.Clear(Colors.Transparent);
                     if (hasBackdrop) session.DrawImage(_front, full, full);
-                    session.DrawImage(contribution, dest, source, (float)layer.Opacity, interpolation);
+                    session.DrawImage(contribution, dest, source, (float)opacity, interpolation);
                 }
             }
             else
@@ -171,7 +176,7 @@ public sealed class DocumentRenderer
                 using (CanvasDrawingSession session = layerTarget.CreateDrawingSession())
                 {
                     session.Clear(Colors.Transparent);
-                    session.DrawImage(contribution, dest, source, (float)layer.Opacity, interpolation);
+                    session.DrawImage(contribution, dest, source, (float)opacity, interpolation);
                 }
 
                 BlendEffect? effect = BlendEffectFactory.Create(layer.BlendMode, _front, layerTarget)
@@ -185,7 +190,7 @@ public sealed class DocumentRenderer
 
             (_front, _back) = (_back, _front);
             hasBackdrop = true;
-        }
+        });
 
         PruneLayers();
         _compositeRegion = region;
@@ -469,6 +474,11 @@ public sealed class DocumentRenderer
             hash.Add(layer.IsVisible);
             hash.Add(layer.Opacity);
             hash.Add((int)layer.BlendMode);
+
+            // Part of the fingerprint because moving a layer into or out of a folder changes what is
+            // drawn without touching any of the fields above.
+            hash.Add(layer.ParentId);
+            hash.Add(layer.IsGroup);
             hash.Add(layer.Pixels is null ? 0 : RuntimeHelpers.GetHashCode(layer.Pixels));
             hash.Add(layer.Mask is null ? 0 : RuntimeHelpers.GetHashCode(layer.Mask));
             hash.Add(layer.Adjustment is null ? 0 : layer.Adjustment.GetHashCode());

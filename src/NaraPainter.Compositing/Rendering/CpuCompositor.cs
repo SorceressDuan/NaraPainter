@@ -35,10 +35,14 @@ public static class CpuCompositor
     public static bool NeedsFullDocumentPass(CanvasDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
-        foreach (Layer layer in document.Layers)
+
+        // A hidden adjustment - or one inside a hidden folder - contributes nothing, so it does not
+        // force the whole-document path.
+        bool needs = false;
+        LayerOrder.ForEach(document.Layers, (layer, visible, opacity) =>
         {
-            if (layer.IsVisible && layer.IsAdjustment) return true;
-        }
-        return false;
+            if (visible && opacity > 0 && layer.IsAdjustment) needs = true;
+        });
+        return needs;
     }
 }
