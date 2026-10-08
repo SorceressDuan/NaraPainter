@@ -120,6 +120,25 @@ public class TutorialTests
             + string.Join(Environment.NewLine, offenders));
     }
 
+    [Fact]
+    public void NothingElseIsLeftInTheGuideFolder()
+    {
+        // A stray image in there would ship without being shown by any step, which is the sort of
+        // thing nobody notices until the package is three hundred megabytes too big.
+        TutorialCatalog catalog = Catalog();
+        string folder = PictureFolder(catalog);
+
+        var expected = new HashSet<string>(catalog.Steps.Select(step => step.Image), StringComparer.OrdinalIgnoreCase);
+        string[] extra = [.. Directory.EnumerateFiles(folder)
+            .Select(Path.GetFileName)
+            .Where(name => name is not null && !expected.Contains(name!))
+            .Select(name => name!)];
+
+        Assert.True(extra.Length == 0,
+            "The guide folder holds pictures no step uses:" + Environment.NewLine
+            + string.Join(Environment.NewLine, extra));
+    }
+
     /// <summary>Width and height from a PNG's IHDR chunk, which sits at a fixed offset.</summary>
     private static (int Width, int Height) ReadPngSize(string path)
     {

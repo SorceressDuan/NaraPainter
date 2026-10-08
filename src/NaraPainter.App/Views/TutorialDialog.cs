@@ -24,6 +24,10 @@ internal sealed class TutorialDialog
     private readonly Border _picture = new() { CornerRadius = new CornerRadius(4), MinHeight = 120 };
     private readonly Button _back = new() { Content = Strings.TutorialPrevious, MinWidth = 96 };
     private readonly Button _next = new() { Content = Strings.TutorialNext, MinWidth = 96 };
+    private readonly Button _close = new() { Content = Strings.TutorialClose, MinWidth = 96 };
+
+    /// <summary>Closes the dialog, wired by <see cref="ShowAsync"/> so it needs no keyboard or title bar.</summary>
+    private Action? _dismiss;
 
     private int _chapter;
     private int _step;
@@ -35,6 +39,7 @@ internal sealed class TutorialDialog
         _chapters.SelectionChanged += (_, _) => ShowChapter(_chapters.SelectedIndex);
         _back.Click += (_, _) => Step(-1);
         _next.Click += (_, _) => Step(1);
+        _close.Click += (_, _) => _dismiss?.Invoke();
     }
 
     /// <summary>Shows the guide. Does nothing when the guide file could not be read.</summary>
@@ -68,6 +73,10 @@ internal sealed class TutorialDialog
 
         var guide = new TutorialDialog(catalog);
         dialog.Content = guide.Layout(root);
+
+        // A dialog can be dismissed from its own footer, so the title bar's X and Esc are not the only
+        // ways out; both remain available.
+        guide._dismiss = dialog.Hide;
 
         // A dialog is centred on the window, so a guide wider than the window runs off the right-hand
         // side and its buttons cannot be reached. The window is the limit, whatever it has been
@@ -111,6 +120,7 @@ internal sealed class TutorialDialog
         };
         footer.Children.Add(_back);
         footer.Children.Add(_next);
+        footer.Children.Add(_close);
         right.Children.Add(footer);
 
         Grid.SetColumn(right, 1);
