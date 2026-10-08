@@ -42,7 +42,8 @@ public sealed class MaskBrushViewModel : ObservableObject
         set
         {
             if (!SetProperty(ref _isActive, value)) return;
-            if (!value) CancelStroke();
+            if (value) _owner.SpotHeal.IsActive = false;
+            CancelStroke();
             _owner.Status = value ? Strings.MaskBrushOn : Strings.StatusReady;
         }
     }

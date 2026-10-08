@@ -303,6 +303,41 @@
 
             <ContentControl IsEnabled="{Binding HasSelection}" HorizontalContentAlignment="Stretch">
                 <StackPanel Spacing="8">
+                    <TextBlock Text="{x:Bind Text.SpotHealTitle, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                    <ToggleSwitch
+                        IsOn="{Binding SpotHeal.IsActive, Mode=TwoWay}"
+                        OnContent="{x:Bind Text.CommonOn, Mode=OneWay}"
+                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}" />
+
+                    <ComboBox
+                        Header="{x:Bind Text.SpotHealMode, Mode=OneWay}"
+                        ItemsSource="{Binding SpotHeal.ModeNames}"
+                        SelectedIndex="{Binding SpotHeal.ModeIndex, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch" />
+
+                    <controls:AdjustmentSlider
+                        Header="{x:Bind Text.MaskSize, Mode=OneWay}"
+                        Minimum="1"
+                        Maximum="400"
+                        Value="{Binding SpotHeal.Size, Mode=TwoWay}" />
+
+                    <controls:AdjustmentSlider
+                        Header="{x:Bind Text.MaskHardness, Mode=OneWay}"
+                        Minimum="0"
+                        Maximum="1"
+                        Value="{Binding SpotHeal.Hardness, Mode=TwoWay}" />
+
+                    <controls:AdjustmentSlider
+                        Header="{x:Bind Text.MaskOpacity, Mode=OneWay}"
+                        Minimum="0"
+                        Maximum="1"
+                        Value="{Binding SpotHeal.Opacity, Mode=TwoWay}" />
+                </StackPanel>
+            </ContentControl>
+
+            <ContentControl IsEnabled="{Binding HasSelection}" HorizontalContentAlignment="Stretch">
+                <StackPanel Spacing="8">
                     <TextBlock Text="{x:Bind Text.FillContentAware, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
 
                     <controls:AdjustmentSlider

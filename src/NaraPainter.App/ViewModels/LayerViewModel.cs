@@ -44,13 +44,80 @@ public sealed class LayerViewModel : ObservableObject
 
     internal PixelBuffer? Source => _source;
 
+    /// <summary>
+    /// Width of the buffer an edit works from, or zero when there is none. A layer keeps its own size
+    /// after a crop or a canvas resize, so this is not always the document's width.
+    /// </summary>
+    internal int SourceWidth => _source?.Width ?? 0;
+
+    internal int SourceHeight => _source?.Height ?? 0;
+
     public bool IsAdjustment => _layer.IsAdjustment;
+
+    /// <summary>A folder: it holds no pixels, and what it contributes is what is inside it.</summary>
+    public bool IsGroup => _layer.IsGroup;
+
+    private int _depth;
+    private bool _hasChildren;
+    private bool _isRowVisible = true;
+    private bool _isCollapsed;
+
+    /// <summary>How far inside folders this row sits. 0 is the top level.</summary>
+    public int Depth => _depth;
+
+    /// <summary>True when something is inside this folder, which is when the row gets a triangle.</summary>
+    public bool HasChildren => _hasChildren;
+
+    /// <summary>False when a folder above this row is folded, which hides the row without removing it.</summary>
+    public bool IsRowVisible => _isRowVisible;
+
+    /// <summary>True while this folder is folded away. Only meaningful on a folder.</summary>
+    public bool IsCollapsed => _isCollapsed;
+
+    /// <summary>The triangle on a folder: pointing right while it is folded, down while it is open.</summary>
+    public string FolderGlyph => _isCollapsed ? "\uE76C" : "\uE70D";
+
+    /// <summary>Left padding for the row, one step per folder. Bound straight onto a spacer's width.</summary>
+    public double IndentWidth => _depth * IndentStep;
+
+    private const double IndentStep = 20;
+
+    internal void SetPlacement(int depth, bool hasChildren, bool isRowVisible, bool isCollapsed)
+    {
+        if (_depth != depth)
+        {
+            _depth = depth;
+            OnPropertyChanged(nameof(Depth));
+            OnPropertyChanged(nameof(IndentWidth));
+        }
+
+        if (_hasChildren != hasChildren)
+        {
+            _hasChildren = hasChildren;
+            OnPropertyChanged(nameof(HasChildren));
+        }
+
+        if (_isCollapsed != isCollapsed)
+        {
+            _isCollapsed = isCollapsed;
+            OnPropertyChanged(nameof(IsCollapsed));
+            OnPropertyChanged(nameof(FolderGlyph));
+        }
+
+        if (_isRowVisible == isRowVisible) return;
+
+        _isRowVisible = isRowVisible;
+        OnPropertyChanged(nameof(IsRowVisible));
+    }
+
 
     public AdjustmentKind? LayerKind => _layer.Adjustment is null ? null : AdjustmentKinds.Of(_layer.Adjustment);
 
-    public string ContentLabel => _layer.Adjustment is not null
-        ? AdjustmentKinds.Name(AdjustmentKinds.Of(_layer.Adjustment))
-        : _layer.Pixels is null ? Strings.LayersEmpty : $"{_layer.Pixels.Width} × {_layer.Pixels.Height}";
+    public string ContentLabel => _layer.IsGroup
+        ? Strings.LayersGroup
+        : _layer.Adjustment is not null
+            ? AdjustmentKinds.Name(AdjustmentKinds.Of(_layer.Adjustment))
+            : _layer.Pixels is null ? Strings.LayersEmpty : $"{_layer.Pixels.Width} × {_layer.Pixels.Height}";
 
     public string Name
     {

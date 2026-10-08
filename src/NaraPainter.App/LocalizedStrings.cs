@@ -60,6 +60,14 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string StatusLayersReordered => Strings.StatusLayersReordered;
 
+    public string StatusLayersGrouped => Strings.StatusLayersGrouped;
+
+    public string StatusLayersUngrouped => Strings.StatusLayersUngrouped;
+
+    public string StatusLayerMoved => Strings.StatusLayerMoved;
+
+    public string StatusLayersMerged => Strings.StatusLayersMerged;
+
     public string StatusOneLayer => Strings.StatusOneLayer;
 
     public string StatusLayerCount => Strings.StatusLayerCount;
@@ -117,6 +125,14 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string ToolbarMaskBrushHint => Strings.ToolbarMaskBrushHint;
 
+    public string ToolbarSpotHeal => Strings.ToolbarSpotHeal;
+
+    public string ToolbarSpotHealHint => Strings.ToolbarSpotHealHint;
+
+    public string ToolbarText => Strings.ToolbarText;
+
+    public string ToolbarTextHint => Strings.ToolbarTextHint;
+
     public string ToolbarContentAwareFill => Strings.ToolbarContentAwareFill;
 
     public string ToolbarContentAwareFillHint => Strings.ToolbarContentAwareFillHint;
@@ -149,6 +165,20 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string LayersMoveDownHint => Strings.LayersMoveDownHint;
 
     public string LayersEmpty => Strings.LayersEmpty;
+
+    public string LayersGroup => Strings.LayersGroup;
+
+    public string LayersFolderNameFormat => Strings.LayersFolderNameFormat;
+
+    public string LayersGroupHint => Strings.LayersGroupHint;
+
+    public string LayersUngroupHint => Strings.LayersUngroupHint;
+
+    public string LayersDropIntoHint => Strings.LayersDropIntoHint;
+
+    public string LayersMergeDownHint => Strings.LayersMergeDownHint;
+
+    public string LayersMergeGroupHint => Strings.LayersMergeGroupHint;
 
     public string LayersDefaultName => Strings.LayersDefaultName;
 
@@ -361,6 +391,38 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string MaskOpacity => Strings.MaskOpacity;
 
+    // Spot healing.
+    public string SpotHealTitle => Strings.SpotHealTitle;
+
+    public string SpotHealOn => Strings.SpotHealOn;
+
+    public string SpotHealMode => Strings.SpotHealMode;
+
+    public string SpotHealModeContentAware => Strings.SpotHealModeContentAware;
+
+    public string SpotHealModeCreateTexture => Strings.SpotHealModeCreateTexture;
+
+    public string SpotHealModeProximityMatch => Strings.SpotHealModeProximityMatch;
+
+    public string SpotHealSelectPixelLayer => Strings.SpotHealSelectPixelLayer;
+
+    public string SpotHealNothing => Strings.SpotHealNothing;
+
+    public string SpotHealDone => Strings.SpotHealDone;
+
+    // Text layer.
+    public string TextToolOn => Strings.TextToolOn;
+
+    public string TextPrompt => Strings.TextPrompt;
+
+    public string TextDialogTitle => Strings.TextDialogTitle;
+
+    public string TextAdded => Strings.TextAdded;
+
+    public string TextNothing => Strings.TextNothing;
+
+    public string TextLayerDefaultName => Strings.TextLayerDefaultName;
+
     public string MaskFeather => Strings.MaskFeather;
 
     public string MaskFeatherRadius => Strings.MaskFeatherRadius;
@@ -435,6 +497,20 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string UndoContentFill => Strings.UndoContentFill;
 
+    public string UndoSpotHealing => Strings.UndoSpotHealing;
+
+    public string UndoAddTextLayer => Strings.UndoAddTextLayer;
+
+    public string UndoGroupLayers => Strings.UndoGroupLayers;
+
+    public string UndoUngroupLayers => Strings.UndoUngroupLayers;
+
+    public string UndoMoveLayer => Strings.UndoMoveLayer;
+
+    public string UndoMergeDown => Strings.UndoMergeDown;
+
+    public string UndoMergeGroup => Strings.UndoMergeGroup;
+
     // Picker entries, error dialogs and the drag captions.
     public string FormatPng => Strings.FormatPng;
 
@@ -447,6 +523,8 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string FormatTiff => Strings.FormatTiff;
 
     public string DialogOk => Strings.DialogOk;
+
+    public string DialogCancel => Strings.DialogCancel;
 
     public string DialogOpenFailed => Strings.DialogOpenFailed;
 

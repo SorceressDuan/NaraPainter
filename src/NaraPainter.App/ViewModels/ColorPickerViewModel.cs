@@ -26,9 +26,10 @@ public sealed class ColorPickerViewModel : ObservableObject
             if (!SetProperty(ref _isActive, value)) return;
             if (!value) return;
 
-            // The two tools both want the pointer, and the mask brush is the one that can be left on
-            // by accident, so switching to the picker turns it off.
+            // The pointer tools are mutually exclusive, and the mask brush and healing brush are the
+            // ones that can be left on by accident, so switching to the picker turns them off.
             _owner.MaskBrush.IsActive = false;
+            _owner.SpotHeal.IsActive = false;
         }
     }
 

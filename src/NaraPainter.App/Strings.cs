@@ -44,6 +44,14 @@ public static class Strings
 
     public static string StatusLayersReordered => Localization.Get("Status_LayersReordered");
 
+    public static string StatusLayersGrouped => Localization.Get("Status_LayersGrouped");
+
+    public static string StatusLayersUngrouped => Localization.Get("Status_LayersUngrouped");
+
+    public static string StatusLayerMoved => Localization.Get("Status_LayerMoved");
+
+    public static string StatusLayersMerged => Localization.Get("Status_LayersMerged");
+
     public static string StatusOneLayer => Localization.Get("Status_OneLayer");
 
     public static string StatusLayerCount => Localization.Get("Status_LayerCount");
@@ -101,6 +109,14 @@ public static class Strings
 
     public static string ToolbarMaskBrushHint => Localization.Get("Toolbar_MaskBrushHint");
 
+    public static string ToolbarSpotHeal => Localization.Get("Toolbar_SpotHeal");
+
+    public static string ToolbarSpotHealHint => Localization.Get("Toolbar_SpotHealHint");
+
+    public static string ToolbarText => Localization.Get("Toolbar_Text");
+
+    public static string ToolbarTextHint => Localization.Get("Toolbar_TextHint");
+
     public static string ToolbarContentAwareFill => Localization.Get("Toolbar_ContentAwareFill");
 
     public static string ToolbarContentAwareFillHint => Localization.Get("Toolbar_ContentAwareFillHint");
@@ -133,6 +149,20 @@ public static class Strings
     public static string LayersMoveDownHint => Localization.Get("Layers_MoveDownHint");
 
     public static string LayersEmpty => Localization.Get("Layers_Empty");
+
+    public static string LayersGroup => Localization.Get("Layers_Group");
+
+    public static string LayersFolderNameFormat => Localization.Get("Layers_FolderNameFormat");
+
+    public static string LayersGroupHint => Localization.Get("Layers_GroupHint");
+
+    public static string LayersUngroupHint => Localization.Get("Layers_UngroupHint");
+
+    public static string LayersDropIntoHint => Localization.Get("Layers_DropIntoHint");
+
+    public static string LayersMergeDownHint => Localization.Get("Layers_MergeDownHint");
+
+    public static string LayersMergeGroupHint => Localization.Get("Layers_MergeGroupHint");
 
     public static string LayersDefaultName => Localization.Get("Layers_DefaultName");
 
@@ -345,6 +375,38 @@ public static class Strings
 
     public static string MaskOpacity => Localization.Get("Mask_Opacity");
 
+    // Spot healing.
+    public static string SpotHealTitle => Localization.Get("SpotHeal_Title");
+
+    public static string SpotHealOn => Localization.Get("SpotHeal_On");
+
+    public static string SpotHealMode => Localization.Get("SpotHeal_Mode");
+
+    public static string SpotHealModeContentAware => Localization.Get("SpotHeal_ModeContentAware");
+
+    public static string SpotHealModeCreateTexture => Localization.Get("SpotHeal_ModeCreateTexture");
+
+    public static string SpotHealModeProximityMatch => Localization.Get("SpotHeal_ModeProximityMatch");
+
+    public static string SpotHealSelectPixelLayer => Localization.Get("SpotHeal_SelectPixelLayer");
+
+    public static string SpotHealNothing => Localization.Get("SpotHeal_Nothing");
+
+    public static string SpotHealDone => Localization.Get("SpotHeal_Done");
+
+    // Text layer.
+    public static string TextToolOn => Localization.Get("Text_ToolOn");
+
+    public static string TextPrompt => Localization.Get("Text_Prompt");
+
+    public static string TextDialogTitle => Localization.Get("Text_DialogTitle");
+
+    public static string TextAdded => Localization.Get("Text_Added");
+
+    public static string TextNothing => Localization.Get("Text_Nothing");
+
+    public static string TextLayerDefaultName => Localization.Get("Text_LayerDefaultName");
+
     public static string MaskFeather => Localization.Get("Mask_Feather");
 
     public static string MaskFeatherRadius => Localization.Get("Mask_FeatherRadius");
@@ -524,6 +586,20 @@ public static class Strings
 
     public static string UndoContentFill => Localization.Get("Undo_ContentFill");
 
+    public static string UndoSpotHealing => Localization.Get("Undo_SpotHealing");
+
+    public static string UndoAddTextLayer => Localization.Get("Undo_AddTextLayer");
+
+    public static string UndoGroupLayers => Localization.Get("Undo_GroupLayers");
+
+    public static string UndoUngroupLayers => Localization.Get("Undo_UngroupLayers");
+
+    public static string UndoMoveLayer => Localization.Get("Undo_MoveLayer");
+
+    public static string UndoMergeDown => Localization.Get("Undo_MergeDown");
+
+    public static string UndoMergeGroup => Localization.Get("Undo_MergeGroup");
+
     // Picker entries, error dialogs and the drag captions.
     public static string FormatPng => Localization.Get("Format_Png");
 
@@ -536,6 +612,8 @@ public static class Strings
     public static string FormatTiff => Localization.Get("Format_Tiff");
 
     public static string DialogOk => Localization.Get("Dialog_Ok");
+
+    public static string DialogCancel => Localization.Get("Dialog_Cancel");
 
     public static string DialogOpenFailed => Localization.Get("Dialog_OpenFailed");
 

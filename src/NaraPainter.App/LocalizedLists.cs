@@ -21,4 +21,8 @@ public static class LocalizedLists
         Strings.RangeMaster, Strings.RangeReds, Strings.RangeYellows, Strings.RangeGreens,
         Strings.RangeCyans, Strings.RangeBlues, Strings.RangeMagentas
     ];
+
+    /// <summary>Spot healing's three <c>SpotHeal</c> modes, in kernel order.</summary>
+    public static IReadOnlyList<string> SpotHealModes =>
+        [Strings.SpotHealModeContentAware, Strings.SpotHealModeCreateTexture, Strings.SpotHealModeProximityMatch];
 }

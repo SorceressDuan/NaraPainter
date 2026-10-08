@@ -23,88 +23,135 @@
         <ListView
             x:Name="LayerList"
             Grid.Row="1"
-            ItemsSource="{Binding Layers}"
+            ItemsSource="{Binding DisplayRows}"
             SelectedItem="{Binding SelectedLayer, Mode=TwoWay}"
             SelectionMode="Single"
             CanDragItems="True"
             CanReorderItems="True"
             AllowDrop="True"
             ReorderMode="Enabled"
+            ScrollViewer.HorizontalScrollMode="Disabled"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            DragItemsStarting="OnDragItemsStarting"
             DragItemsCompleted="OnDragItemsCompleted">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="Padding" Value="8,6" />
+                    <Setter Property="Padding" Value="8,4" />
+                    <Setter Property="MinHeight" Value="0" />
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="vm:LayerViewModel">
-                    <Grid ColumnSpacing="8" RowSpacing="4">
+                    <Grid
+                        ColumnSpacing="6"
+                        RowSpacing="0"
+                        VerticalAlignment="Top"
+                        AllowDrop="True"
+                        DragOver="OnRowDragOver"
+                        Drop="OnRowDrop">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <CheckBox
-                            Grid.RowSpan="3"
+                            Grid.RowSpan="2"
                             MinWidth="0"
-                            VerticalAlignment="Top"
+                            Margin="0,0,0,0"
+                            VerticalAlignment="Center"
                             IsChecked="{Binding IsVisible, Mode=TwoWay}"
                             ToolTipService.ToolTip="{x:Bind Text.LayersVisibilityHint, Mode=OneWay}" />
 
-                        <Grid Grid.Column="1" ColumnSpacing="6">
+                        <!-- Nesting: a triangle for a folder, then one step of indent per folder above. -->
+                        <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button
+                                Width="16"
+                                Height="16"
+                                Padding="0"
+                                MinWidth="0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="OnToggleFolder"
+                                Visibility="{Binding HasChildren, Converter={StaticResource BoolToVisibility}}">
+                                <FontIcon FontSize="9" Glyph="{Binding FolderGlyph}" />
+                            </Button>
+                            <Border Width="{Binding IndentWidth}" />
+                        </StackPanel>
+
+                        <Grid Grid.Row="0" Grid.Column="2" ColumnSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <TextBox
+                                Height="28"
+                                MinHeight="0"
+                                Margin="0"
+                                VerticalAlignment="Center"
                                 Text="{Binding Name, Mode=TwoWay}"
                                 GotFocus="OnNameGotFocus"
                                 LostFocus="OnNameLostFocus"
                                 BorderThickness="0"
                                 Background="Transparent"
-                                Padding="4,2" />
+                                Padding="4,1" />
 
-                            <Border
+                            <TextBlock
                                 Grid.Column="1"
-                                Padding="6,1"
-                                CornerRadius="8"
                                 VerticalAlignment="Center"
-                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                Visibility="{Binding IsAdjustment, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="{x:Bind Text.LayersAdjustmentBadge, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" />
-                            </Border>
+                                Text="{Binding ContentLabel}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         </Grid>
 
-                        <TextBlock
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            Text="{Binding ContentLabel}"
-                            Style="{StaticResource CaptionTextBlockStyle}"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-
-                        <Grid Grid.Row="2" Grid.Column="1" ColumnSpacing="8">
+                        <!-- The slider takes the free width so a 300px panel still leaves it usable; the
+                             number box and the blend picker sit beside it at fixed sizes. -->
+                        <Grid Grid.Row="1" Grid.Column="2" ColumnSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <controls:AdjustmentSlider
-                                Header="{x:Bind Text.LayersOpacity, Mode=OneWay}"
+                            <Slider
+                                MinWidth="60"
+                                Margin="0,0,2,0"
+                                VerticalAlignment="Center"
                                 Minimum="0"
                                 Maximum="100"
+                                IsThumbToolTipEnabled="False"
                                 Value="{Binding Opacity, Mode=TwoWay}"
-                                EditStarted="OnOpacityEditStarted" />
+                                GotFocus="OnOpacityEditStarted"
+                                ToolTipService.ToolTip="{x:Bind Text.LayersOpacity, Mode=OneWay}" />
+
+                            <NumberBox
+                                Grid.Column="1"
+                                Width="56"
+                                Height="28"
+                                MinWidth="0"
+                                MinHeight="0"
+                                Margin="0"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{Binding Opacity, Mode=TwoWay}"
+                                GotFocus="OnOpacityEditStarted"
+                                ToolTipService.ToolTip="{x:Bind Text.LayersOpacity, Mode=OneWay}" />
 
                             <ComboBox
-                                Grid.Column="1"
-                                VerticalAlignment="Top"
+                                Grid.Column="2"
+                                MinWidth="92"
+                                MaxWidth="104"
+                                Height="28"
+                                MinHeight="0"
+                                Margin="0"
+                                Padding="6,0"
+                                HorizontalAlignment="Stretch"
                                 ItemsSource="{Binding BlendModeNames}"
                                 SelectedIndex="{Binding BlendModeIndex, Mode=TwoWay}" />
                         </Grid>
@@ -122,6 +169,18 @@
             </Button>
             <Button Click="OnDeleteLayer" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersDeleteHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Delete" />
+            </Button>
+            <Button Click="OnGroupLayers" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersGroupHint, Mode=OneWay}">
+                <FontIcon Glyph="&#xE8B7;" FontSize="14" />
+            </Button>
+            <Button Click="OnUngroupLayers" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersUngroupHint, Mode=OneWay}">
+                <FontIcon Glyph="&#xE8B8;" FontSize="14" />
+            </Button>
+            <Button Click="OnMergeDown" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}">
+                <FontIcon Glyph="&#xE8C4;" FontSize="14" />
+            </Button>
+            <Button Click="OnMergeGroup" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}">
+                <FontIcon Glyph="&#xE8C3;" FontSize="14" />
             </Button>
             <Button Click="OnMoveLayerUp" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE74A;" FontSize="14" />

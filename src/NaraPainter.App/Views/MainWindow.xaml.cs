@@ -5,6 +5,7 @@ using NaraPainter.App.ViewModels;
 using NaraPainter.Imaging.Services;
 using NaraPainter.Models.Pixels;
 using NaraPainter.Models.Documents;
+using NaraPainter.Models.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -217,6 +218,11 @@ public sealed partial class MainWindow : Window
 
     private bool _paintingMask;
 
+    private bool _healing;
+
+    /// <summary>Armed by the text tool: the next click on the canvas says where the text goes.</summary>
+    private bool _placingText;
+
     private static DocumentViewModel CreateDocument()
     {
         var codec = new ImageCodec();
@@ -375,7 +381,9 @@ public sealed partial class MainWindow : Window
 
     internal Shortcut[] Shortcuts() =>    [
         new(VirtualKey.O, VirtualKeyModifiers.Control, "Ctrl+O", OnAcceleratorOpen),
-        new(VirtualKey.E, VirtualKeyModifiers.Control, "Ctrl+E", OnAcceleratorExport),
+        // Ctrl+E is merge below, as it is in the original. Export moves to Ctrl+S, which the app did not
+        // bind before because it had no save of its own.
+        new(VirtualKey.S, VirtualKeyModifiers.Control, "Ctrl+S", OnAcceleratorExport),
         new(VirtualKey.Z, VirtualKeyModifiers.Control, "Ctrl+Z", OnAcceleratorUndo),
         new(VirtualKey.Y, VirtualKeyModifiers.Control, "Ctrl+Y", OnAcceleratorRedo),
         new(VirtualKey.N, VirtualKeyModifiers.Control, "Ctrl+N", OnAcceleratorNewLayer),
@@ -393,6 +401,12 @@ public sealed partial class MainWindow : Window
         // program crops at once rather than entering a crop mode, and a bare letter would be too easy
         // to hit while a picture is open.
         new(VirtualKey.I, VirtualKeyModifiers.None, "I", OnAcceleratorColorPicker),
+        new(VirtualKey.J, VirtualKeyModifiers.None, "J", OnAcceleratorSpotHeal),
+        new(VirtualKey.T, VirtualKeyModifiers.Control, "Ctrl+T", OnAcceleratorText),
+        new(VirtualKey.G, VirtualKeyModifiers.Control, "Ctrl+G", OnAcceleratorGroup),
+        new(VirtualKey.G, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+G", OnAcceleratorUngroup),
+        new(VirtualKey.E, VirtualKeyModifiers.Control, "Ctrl+E", OnAcceleratorMergeDown),
+        new(VirtualKey.E, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+E", OnAcceleratorMergeGroup),
         new(VirtualKey.X, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+X", OnAcceleratorCrop),
         new(VirtualKey.L, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+L", OnAcceleratorRotateRight),
         new(VirtualKey.R, VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift, "Ctrl+Shift+R", OnAcceleratorRotateLeft),
@@ -513,6 +527,31 @@ public sealed partial class MainWindow : Window
         args.Handled = true;
         Document.ColorPicker.IsActive = !Document.ColorPicker.IsActive;
         ColorPickerButton.IsChecked = Document.ColorPicker.IsActive;
+    }
+
+    private void OnAcceleratorSpotHeal(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        SetSpotHeal(!Document.SpotHeal.IsActive);
+    }
+
+    /// <summary>
+    /// Switches the healing brush on or off. Turning it on turns the other two pointer tools off, so
+    /// every tool button is re-read from its flag rather than left showing what the click assumed.
+    /// </summary>
+    private void SetSpotHeal(bool active)
+    {
+        Document.SpotHeal.IsActive = active;
+        SyncToolButtons();
+    }
+
+    /// <summary>Pushes the tool flags back out to the toolbar, which does not bind its own state.</summary>
+    private void SyncToolButtons()
+    {
+        SpotHealButton.IsChecked = Document.SpotHeal.IsActive;
+        MaskBrushButton.IsChecked = Document.MaskBrush.IsActive;
+        ColorPickerButton.IsChecked = Document.ColorPicker.IsActive;
+        TextButton.IsChecked = _placingText;
     }
 
     private void OnAcceleratorCrop(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
@@ -700,9 +739,17 @@ public sealed partial class MainWindow : Window
         MaskBrushButton.IsChecked = Document.MaskBrush.IsActive;
     }
 
-    /// <summary>Escape abandons the stroke in progress rather than committing it to the mask.</summary>
+    /// <summary>Escape abandons the stroke in progress rather than committing it to the mask or healer.</summary>
     private void OnAcceleratorCancelStroke(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
+        if (_healing)
+        {
+            args.Handled = true;
+            _healing = false;
+            Document.SpotHeal.CancelStroke();
+            return;
+        }
+
         if (!_paintingMask) return;
 
         args.Handled = true;
@@ -732,6 +779,96 @@ public sealed partial class MainWindow : Window
     {
         // The toggle owns the state; read it back rather than tracking a second copy here.
         Document.MaskBrush.IsActive = MaskBrushButton.IsChecked == true;
+        SyncToolButtons();
+    }
+
+    private void OnSpotHealClick(object sender, RoutedEventArgs e) => SetSpotHeal(SpotHealButton.IsChecked == true);
+
+    private void OnTextClick(object sender, RoutedEventArgs e) => SetPlacingText(TextButton.IsChecked == true);
+
+    /// <summary>
+    /// Arms or disarms text placement. Nothing is drawn until the canvas is clicked, which is where
+    /// the run is anchored.
+    /// </summary>
+    private void SetPlacingText(bool placing)
+    {
+        _placingText = placing;
+        TextButton.IsChecked = placing;
+        if (placing)
+        {
+            Document.MaskBrush.IsActive = false;
+            Document.SpotHeal.IsActive = false;
+            Document.ColorPicker.IsActive = false;
+            SyncToolButtons();
+            TextButton.IsChecked = true;
+            Document.Status = Strings.TextToolOn;
+            return;
+        }
+
+        Document.Status = Strings.StatusReady;
+    }
+
+    private void OnAcceleratorText(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        SetPlacingText(!_placingText);
+    }
+
+    private void OnAcceleratorGroup(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.GroupSelectedLayers();
+    }
+
+    private void OnAcceleratorUngroup(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.UngroupSelectedFolder();
+    }
+
+    private void OnAcceleratorMergeDown(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        MergeDownOrGroup();
+    }
+
+    private void OnAcceleratorMergeGroup(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        Document.MergeGroup();
+    }
+
+    /// <summary>
+    /// One command for both, because the user should not have to know which one applies: a folder merges
+    /// as a group, anything else merges down.
+    /// </summary>
+    private void MergeDownOrGroup()
+    {
+        if (Document.SelectedLayer is { IsGroup: true })
+        {
+            Document.MergeGroup();
+            return;
+        }
+
+        Document.MergeDown();
+    }
+
+    /// <summary>Asks for the string and, if one was typed, adds it as a layer anchored at the click.</summary>
+    private async Task PlaceTextAsync(double documentX, double documentY)
+    {
+        string? typed = await TextDialog.ShowAsync(Content.XamlRoot);
+        if (typed is null)
+        {
+            Document.Status = Strings.TextNothing;
+            return;
+        }
+
+        // The reference point is the top-left corner of the run, kept inside the canvas so a click near
+        // the edge does not put the whole layer out of view.
+        int x = Math.Clamp((int)Math.Round(documentX), 0, Math.Max(0, Document.Document.Width - 1));
+        int y = Math.Clamp((int)Math.Round(documentY), 0, Math.Max(0, Document.Document.Height - 1));
+
+        if (Document.AddTextLayer(TextStyle.Default(typed), x, y) is null) Document.Status = Strings.TextNothing;
     }
 
     private void OnContentAwareFillClick(object sender, RoutedEventArgs e) => Document.ContentFill.Fill();
@@ -755,6 +892,25 @@ public sealed partial class MainWindow : Window
             return;
         }
 
+        // Text is one shot: the click says where the run is anchored, then the dialog asks for it.
+        if (_placingText)
+        {
+            var anchor = ToDocument(point.Position);
+            SetPlacingText(false);
+            _ = PlaceTextAsync(anchor.X, anchor.Y);
+            return;
+        }
+
+        // Healing only collects coverage while the pointer moves; the pixels change on release.
+        if (Document.SpotHeal.IsActive)
+        {
+            var at = ToDocument(point.Position);
+            Document.SpotHeal.BeginStroke(at.X, at.Y);
+            _healing = true;
+            Canvas.CapturePointer(e.Pointer);
+            return;
+        }
+
         if (!Document.MaskBrush.IsActive) return;
 
         var document = ToDocument(point.Position);
@@ -765,6 +921,13 @@ public sealed partial class MainWindow : Window
 
     private void OnCanvasPointerMoved(object sender, PointerRoutedEventArgs e)
     {
+        if (_healing)
+        {
+            var at = ToDocument(e.GetCurrentPoint(Canvas).Position);
+            Document.SpotHeal.ContinueStroke(at.X, at.Y);
+            return;
+        }
+
         if (!_paintingMask) return;
 
         var document = ToDocument(e.GetCurrentPoint(Canvas).Position);
@@ -773,6 +936,14 @@ public sealed partial class MainWindow : Window
 
     private void OnCanvasPointerReleased(object sender, PointerRoutedEventArgs e)
     {
+        if (_healing)
+        {
+            _healing = false;
+            Document.SpotHeal.EndStroke();
+            Canvas.ReleasePointerCapture(e.Pointer);
+            return;
+        }
+
         if (!_paintingMask) return;
 
         _paintingMask = false;
@@ -782,6 +953,13 @@ public sealed partial class MainWindow : Window
 
     private void OnCanvasPointerCaptureLost(object sender, PointerRoutedEventArgs e)
     {
+        if (_healing)
+        {
+            _healing = false;
+            Document.SpotHeal.EndStroke();
+            return;
+        }
+
         if (!_paintingMask) return;
 
         _paintingMask = false;

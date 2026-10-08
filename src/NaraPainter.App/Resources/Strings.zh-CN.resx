@@ -149,6 +149,18 @@
   <data name="Toolbar_MaskBrushHint" xml:space="preserve">
     <value>在选中图层的蒙版上涂抹</value>
   </data>
+  <data name="Toolbar_SpotHeal" xml:space="preserve">
+    <value>污点修复</value>
+  </data>
+  <data name="Toolbar_SpotHealHint" xml:space="preserve">
+    <value>在瑕疵上拖动，用附近的纹理补回来（J）</value>
+  </data>
+  <data name="Toolbar_Text" xml:space="preserve">
+    <value>文字</value>
+  </data>
+  <data name="Toolbar_TextHint" xml:space="preserve">
+    <value>在画布上点击文字要放置的位置（Ctrl+T）</value>
+  </data>
   <data name="Toolbar_ContentAwareFill" xml:space="preserve">
     <value>内容感知填充</value>
   </data>
@@ -198,6 +210,30 @@
   </data>
   <data name="Layers_Empty" xml:space="preserve">
     <value>空图层</value>
+  </data>
+  <data name="Layers_Group" xml:space="preserve">
+    <value>文件夹</value>
+  </data>
+  <data name="Layers_FolderNameFormat" xml:space="preserve">
+    <value>文件夹 {0}</value>
+  </data>
+  <data name="Layers_GroupHint" xml:space="preserve">
+    <value>把选中的图层放进新建文件夹（Ctrl+G）</value>
+  </data>
+  <data name="Layers_UngroupHint" xml:space="preserve">
+    <value>把选中文件夹里的图层取出来并删除该文件夹（Ctrl+Shift+G）</value>
+  </data>
+  <data name="Layers_DropIntoHint" xml:space="preserve">
+    <value>放入 {0}</value>
+  </data>
+  <data name="Status_LayersGrouped" xml:space="preserve">
+    <value>已归入 {0}</value>
+  </data>
+  <data name="Status_LayersUngrouped" xml:space="preserve">
+    <value>已从 {0} 中取出图层</value>
+  </data>
+  <data name="Status_LayerMoved" xml:space="preserve">
+    <value>已移动 {0}</value>
   </data>
   <data name="Layers_DefaultName" xml:space="preserve">
     <value>图层</value>
@@ -546,6 +582,55 @@
     <value>请先选择一个像素图层再涂抹蒙版</value>
   </data>
 
+  <!-- Spot healing. -->
+  <data name="SpotHeal_Title" xml:space="preserve">
+    <value>污点修复</value>
+  </data>
+  <data name="SpotHeal_On" xml:space="preserve">
+    <value>污点修复：在瑕疵上拖动，松手时才写入结果</value>
+  </data>
+  <data name="SpotHeal_Mode" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="SpotHeal_ModeContentAware" xml:space="preserve">
+    <value>内容感知</value>
+  </data>
+  <data name="SpotHeal_ModeCreateTexture" xml:space="preserve">
+    <value>生成纹理</value>
+  </data>
+  <data name="SpotHeal_ModeProximityMatch" xml:space="preserve">
+    <value>邻近匹配</value>
+  </data>
+  <data name="SpotHeal_SelectPixelLayer" xml:space="preserve">
+    <value>请先选择一个像素图层再修复</value>
+  </data>
+  <data name="SpotHeal_Nothing" xml:space="preserve">
+    <value>没有涂抹到任何区域，无需修复</value>
+  </data>
+  <data name="SpotHeal_Done" xml:space="preserve">
+    <value>已修复涂抹的区域</value>
+  </data>
+
+  <!-- Text layer. -->
+  <data name="Text_ToolOn" xml:space="preserve">
+    <value>文字：在画布上点击文字要放置的位置</value>
+  </data>
+  <data name="Text_Prompt" xml:space="preserve">
+    <value>文字</value>
+  </data>
+  <data name="Text_DialogTitle" xml:space="preserve">
+    <value>添加文字图层</value>
+  </data>
+  <data name="Text_Added" xml:space="preserve">
+    <value>已把文字添加为新图层</value>
+  </data>
+  <data name="Text_Nothing" xml:space="preserve">
+    <value>请先输入文字再添加图层</value>
+  </data>
+  <data name="Text_LayerDefaultName" xml:space="preserve">
+    <value>文字</value>
+  </data>
+
   <!-- Content-aware fill. -->
   <data name="Fill_ContentAware" xml:space="preserve">
     <value>内容感知填充</value>
@@ -630,6 +715,36 @@
   <data name="Undo_ContentFill" xml:space="preserve">
     <value>内容感知填充</value>
   </data>
+  <data name="Undo_SpotHealing" xml:space="preserve">
+    <value>污点修复</value>
+  </data>
+  <data name="Undo_AddTextLayer" xml:space="preserve">
+    <value>添加文字</value>
+  </data>
+  <data name="Undo_GroupLayers" xml:space="preserve">
+    <value>图层编组</value>
+  </data>
+  <data name="Undo_UngroupLayers" xml:space="preserve">
+    <value>取消编组</value>
+  </data>
+  <data name="Undo_MoveLayer" xml:space="preserve">
+    <value>移动图层</value>
+  </data>
+  <data name="Undo_MergeDown" xml:space="preserve">
+    <value>向下合并</value>
+  </data>
+  <data name="Undo_MergeGroup" xml:space="preserve">
+    <value>合并组</value>
+  </data>
+  <data name="Status_LayersMerged" xml:space="preserve">
+    <value>已合并为 {0}</value>
+  </data>
+  <data name="Layers_MergeDownHint" xml:space="preserve">
+    <value>把选中图层与它下面的一层合并（Ctrl+E）</value>
+  </data>
+  <data name="Layers_MergeGroupHint" xml:space="preserve">
+    <value>把选中的文件夹和里面所有图层合并（Ctrl+Shift+E）</value>
+  </data>
 
   <!-- Picker entries, error dialogs and the drag captions. -->
   <data name="Format_Png" xml:space="preserve">
@@ -649,6 +764,9 @@
   </data>
   <data name="Dialog_Ok" xml:space="preserve">
     <value>确定</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>取消</value>
   </data>
   <data name="Dialog_OpenFailed" xml:space="preserve">
     <value>打开失败</value>

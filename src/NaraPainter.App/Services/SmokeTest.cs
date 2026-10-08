@@ -7,9 +7,11 @@ using NaraPainter.Imaging.Services;
 using NaraPainter.Models.Adjustments;
 using NaraPainter.Models.Layers;
 using NaraPainter.Models.Pixels;
+using NaraPainter.Models.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Windowing;
 using Windows.System;
 
 namespace NaraPainter.App.Services;
@@ -22,6 +24,10 @@ namespace NaraPainter.App.Services;
 /// </summary>
 public static class SmokeTest
 {
+    /// <summary>The narrowest window the toolbar has to stay usable in, in physical pixels.</summary>
+    private const int ToolbarCheckWidth = 1080;
+
+    private const int ToolbarCheckHeight = 720;
     public static bool IsRequested(string[] commandLine) =>
         commandLine.Any(argument =>
             argument.Equals("--selftest", StringComparison.OrdinalIgnoreCase)
@@ -48,6 +54,7 @@ public static class SmokeTest
             CheckUnreadableFileIsRefused(log);
             CheckUndoMerge(log);
             CheckEditingTools(log);
+        CheckNestedRows(window, log);
             CheckShortcuts(window, log);
 
             DocumentViewModel document = window.Document;
@@ -296,6 +303,82 @@ public static class SmokeTest
         {
             throw new InvalidOperationException($"These labels are not showing in the window: {string.Join(" / ", missing)}");
         }
+
+        await CheckToolbarFits(window, bar, log);
+    }
+
+    /// <summary>
+    /// The toolbar has to fit a window as narrow as the one this check sizes to, without trading away
+    /// the buttons the tools are reached through. The overflow menu is a legitimate fallback, so what
+    /// is asserted is that the first commands stay whole rather than that the bar never overflows:
+    /// a partial last button is the failure that made the healing brush unreachable in the first place.
+    /// </summary>
+    private static async Task CheckToolbarFits(Views.MainWindow window, CommandBar bar, List<string> log)
+    {
+        // Who owns the last word on the layout: through the AppWindow when the window is already sized
+        // the normal way, through a test host when it is not, as elsewhere in this harness.
+        Grid? host = null;
+        if (window.AppWindow is AppWindow appWindow)
+        {
+            appWindow.Resize(new Windows.Graphics.SizeInt32(ToolbarCheckWidth, ToolbarCheckHeight));
+        }
+        else if (window.Content is Grid grid)
+        {
+            host = new Grid { Width = ToolbarCheckWidth, Height = ToolbarCheckHeight };
+            grid.Children.Add(host);
+        }
+
+        try
+        {
+            for (int attempt = 0; attempt < 40; attempt++)
+            {
+                await Task.Delay(50);
+                (window.Content as UIElement)?.UpdateLayout();
+            }
+
+            var visible = new List<string>();
+            var clipped = new List<string>();
+            foreach (ICommandBarElement element in bar.PrimaryCommands)
+            {
+                string? label = element switch
+                {
+                    AppBarButton button => button.Label,
+                    AppBarToggleButton toggle => toggle.Label,
+                    _ => null
+                };
+
+                if (label is null || label.Length == 0) continue;
+                if (element is not FrameworkElement shown || shown.ActualWidth <= 0) continue;
+
+                visible.Add(label);
+                if (shown.ActualWidth < shown.MinWidth || shown.ActualHeight < shown.MinHeight) clipped.Add(label);
+            }
+
+            log.Add($"toolbar width={ToolbarCheckWidth} primary={visible.Count} clipped={clipped.Count} labels={string.Join(" / ", visible)}");
+
+            if (visible.Count == 0)
+            {
+                throw new InvalidOperationException($"The command bar showed no commands at {ToolbarCheckWidth}px wide.");
+            }
+
+            if (clipped.Count > 0)
+            {
+                throw new InvalidOperationException($"These toolbar commands are squeezed below their minimum size at {ToolbarCheckWidth}px: {string.Join(" / ", clipped)}");
+            }
+
+            // The first commands are the ones the bar lays out first, so they are the ones that survive
+            // a narrow window. Losing any of them means the order has drifted.
+            string[] mustFit = [Strings.ToolbarOpen, Strings.ToolbarExport, Strings.ToolbarSpotHeal];
+            string[] gone = [.. mustFit.Where(label => !visible.Contains(label))];
+            if (gone.Length > 0)
+            {
+                throw new InvalidOperationException($"These toolbar commands did not survive a {ToolbarCheckWidth}px window: {string.Join(" / ", gone)}");
+            }
+        }
+        finally
+        {
+            if (host is not null) (window.Content as Grid)?.Children.Remove(host);
+        }
     }
 
     /// <summary>
@@ -506,6 +589,159 @@ public static class SmokeTest
     /// The four editing tools, exercised end to end on a real document: each has to change what it
     /// says it changes and leave exactly one undo step behind.
     /// </summary>
+    /// <summary>
+    /// Builds a nested stack and reports what the panel is given for it. There is no way to make a folder
+    /// by hand from a test, so the nesting is wired straight onto the model here.
+    /// </summary>
+    private static void CheckNestedRows(Views.MainWindow window, List<string> log)
+    {
+        var codec = new ImageCodec();
+        var document = new DocumentViewModel(
+            new ImageImporter(codec), codec,
+            new AdjustmentFilter(), new SelectionMaskBuilder());
+
+        LayerViewModel backing = document.AddLayer();
+        backing.Name = "Backing";
+
+        LayerViewModel inside = document.AddLayer();
+        inside.Name = "In Folder";
+
+        LayerViewModel folder = document.AddLayer();
+        folder.Name = "Folder";
+        folder.Model.IsGroup = true;
+        inside.Model.ParentId = folder.Model.Id;
+        folder.Model.Pixels = null;
+
+        LayerViewModel top = document.AddLayer();
+        top.Name = "Top";
+
+        // Panel order is top first, so this reads the way the list shows it.
+        string rows = string.Join(" | ", document.Layers.Select(
+            row => $"{new string(' ', row.Depth * 2)}{row.Name}(d{row.Depth}{(row.HasChildren ? ",children" : string.Empty)})"));
+        log.Add($"nested rows={document.Layers.Count} {rows}");
+
+        if (document.Layers[0].Depth != 0 || document.Layers[0].HasChildren)
+        {
+            throw new InvalidOperationException($"The top row should be a plain layer at depth 0: {rows}");
+        }
+
+        if (document.Layers[1].Depth != 0 || !document.Layers[1].HasChildren)
+        {
+            throw new InvalidOperationException($"The folder should sit at depth 0 and hold something: {rows}");
+        }
+
+        if (document.Layers[2].Depth != 1)
+        {
+            throw new InvalidOperationException($"The layer inside the folder should be indented once: {rows}");
+        }
+
+        // Grouping a layer, folding the folder, and taking it back apart, each as one undo step.
+        ViewModels.LayerViewModel target = document.Layers[0];
+        ViewModels.LayerViewModel grouped = document.GroupSelectedLayers()
+            ?? throw new InvalidOperationException("Grouping the selected layer produced no folder.");
+
+        if (target.Model.ParentId != grouped.Model.Id || target.Depth != 1)
+        {
+            throw new InvalidOperationException($"Grouping did not nest the layer: {target.Name} depth={target.Depth}");
+        }
+
+        document.ToggleCollapsed(grouped);
+        if (target.IsRowVisible) throw new InvalidOperationException("Folding the folder left its child showing.");
+        document.ToggleCollapsed(grouped);
+
+        document.Undo();
+        if (target.Model.ParentId is not null || target.Depth != 0)
+        {
+            throw new InvalidOperationException("Undoing the group did not put the layer back at the top level.");
+        }
+
+        document.Redo();
+        if (target.Model.ParentId != grouped.Model.Id)
+        {
+            throw new InvalidOperationException("Redoing the group did not nest the layer again.");
+        }
+
+        // The folder is gone once its children have taken its place.
+        if (!document.UngroupSelectedFolder() || document.Layers.Contains(grouped))
+        {
+            throw new InvalidOperationException(
+                $"Ungroup left the folder listed: {document.Layers.Contains(grouped)}, " +
+                $"selection was {document.SelectedLayer?.Name ?? "null"} (group={document.SelectedLayer?.IsGroup}).");
+        }
+
+        if (target.Model.ParentId is not null) throw new InvalidOperationException("Ungroup left the layer nested.");
+
+        document.Undo();
+        if (target.Model.ParentId != grouped.Model.Id)
+        {
+            throw new InvalidOperationException("Undoing the ungroup did not restore the nesting.");
+        }
+
+        log.Add($"grouping folder={grouped.Name} nested=ok fold=ok undo=ok ungroup=ok");
+
+        MeasureLayerRows(window, log);
+    }
+
+    /// <summary>
+    /// Reports how tall and how wide a layer row actually renders. The panel is meant to show several
+    /// layers at once and to fit each row's controls without clipping, and neither is visible to a
+    /// headless check that only looks at the view model.
+    /// </summary>
+    private static void MeasureLayerRows(Views.MainWindow window, List<string> log)
+    {
+        ListView? list = FindDescendant<ListView>(window.Content);
+        if (list is null)
+        {
+            log.Add("rows unmeasured: the layer list is not in the window tree");
+            return;
+        }
+
+        if (list.ContainerFromIndex(0) is not FrameworkElement row)
+        {
+            log.Add($"rows unmeasured: no container yet (list={list.ActualWidth:0} wide)");
+            return;
+        }
+
+        // A row is stretched to the list, so its own width says nothing on its own. If anything inside
+        // it wanted more room, that child would be the widest thing under it and would sit past the
+        // list's edge; anything wider than the list is content that is being cut off.
+        double widest = 0;
+        string widestName = "?";
+        CollectWidest(row, ref widest, ref widestName);
+
+        // No count of rows per screen: the self test runs in a window only as tall as its content, so
+        // that number would say nothing about how the panel looks to a person.
+        log.Add(
+            $"rows height={row.ActualHeight:0.#} listWidth={list.ActualWidth:0.#} " +
+            $"widestChild={widest:0.#}({widestName}) clipped={widest > list.ActualWidth}");
+    }
+
+    private static void CollectWidest(DependencyObject node, ref double widest, ref string name)
+    {
+        if (node is FrameworkElement element && element.ActualWidth > widest)
+        {
+            widest = element.ActualWidth;
+            name = element.GetType().Name;
+        }
+
+        int children = VisualTreeHelper.GetChildrenCount(node);
+        for (int i = 0; i < children; i++) CollectWidest(VisualTreeHelper.GetChild(node, i), ref widest, ref name);
+    }
+
+    private static T? FindDescendant<T>(DependencyObject? node) where T : DependencyObject
+    {
+        if (node is T match) return match;
+
+        int children = node is null ? 0 : VisualTreeHelper.GetChildrenCount(node);
+        for (int i = 0; i < children; i++)
+        {
+            T? found = FindDescendant<T>(VisualTreeHelper.GetChild(node, i));
+            if (found is not null) return found;
+        }
+
+        return null;
+    }
+
     private static void CheckEditingTools(List<string> log)
     {
         var codec = new ImageCodec();
@@ -523,6 +759,38 @@ public static class SmokeTest
         int width = withEdge.Width;
         int height = withEdge.Height;
         var recorded = new List<string>();
+
+        // The healing brush works on release: the drag only collects coverage, so the step it records is
+        // the one the pointer-up produces. It runs first, while the layer still fills the canvas and its
+        // coordinates match the pointer's.
+        int healX = width / 2;
+        int healY = height / 2;
+        AddBlemish(layer, healX, healY, 5, 230, 20, 20);
+
+        byte[] beforeHeal = (byte[])layer.Source!.Data.Clone();
+        document.SpotHeal.Size = 24;
+        document.SpotHeal.Hardness = 1;
+        document.SpotHeal.Opacity = 1;
+        document.SpotHeal.BeginStroke(healX, healY);
+        document.SpotHeal.ContinueStroke(healX + 2, healY + 1);
+        document.SpotHeal.EndStroke();
+        recorded.Add(document.History.UndoName ?? string.Empty);
+        if (recorded[^1].Length == 0)
+        {
+            throw new InvalidOperationException($"The healing brush recorded no undo step; status was '{document.Status}'.");
+        }
+
+        if (layer.Source!.Data.SequenceEqual(beforeHeal))
+        {
+            throw new InvalidOperationException($"The healing brush left every pixel alone; status was '{document.Status}'.");
+        }
+
+        // The red square has to be gone from the middle of the stroke.
+        Rgba32 healedCentre = layer.Source[healX, healY];
+        if (healedCentre.R - healedCentre.G >= 30)
+        {
+            throw new InvalidOperationException($"The blemish is still at the centre of the stroke: {healedCentre}.");
+        }
 
         document.Transform.Rotate(QuarterTurn.Clockwise);
         recorded.Add(document.History.UndoName ?? string.Empty);
@@ -557,6 +825,24 @@ public static class SmokeTest
 
         document.Transform.Sharpen(2, 1.5);
         recorded.Add(document.History.UndoName ?? string.Empty);
+        if (recorded[^1].Length == 0)
+        {
+            throw new InvalidOperationException($"The sharpener recorded no undo step; status was '{document.Status}'.");
+        }
+
+        // A text layer is drawn through Win2D rather than the CPU path, so it is worth proving here
+        // that the offscreen device works in the packaged app and not only in the tests.
+        int beforeText = document.Layers.Count;
+        if (document.AddTextLayer(TextStyle.Default("Nara"), 20, 20) is null)
+        {
+            throw new InvalidOperationException($"The text tool added no layer; status was '{document.Status}'.");
+        }
+
+        recorded.Add(document.History.UndoName ?? string.Empty);
+        if (document.Layers.Count != beforeText + 1)
+        {
+            throw new InvalidOperationException($"The text layer did not reach the panel: {document.Layers.Count} rows for {beforeText} before.");
+        }
 
         // Each tool has to have recorded a step of its own, named after what it did.
         if (recorded.Any(name => name.Length == 0))
@@ -582,7 +868,7 @@ public static class SmokeTest
             throw new InvalidOperationException($"The eyedropper reported '{document.ColorPicker.Hex}'.");
         }
 
-        log.Add($"tools rotate=ok flip=ok crop=ok blur=ok sharpen=ok steps={recorded.Count} pick={document.ColorPicker.Hex}");
+        log.Add($"tools rotate=ok flip=ok crop=ok blur=ok sharpen=ok heal=ok text=ok steps={recorded.Count} pick={document.ColorPicker.Hex}");
     }
 
     /// <summary>
@@ -624,7 +910,7 @@ public static class SmokeTest
 
         // Bare keys are the tool switches and Escape, and nothing else: every other gesture has to
         // carry a modifier, or typing a layer name would fire commands instead of inserting letters.
-        string[] bareAllowed = ["M", "I", "Escape"];
+        string[] bareAllowed = ["M", "I", "J", "Escape"];
         string[] bare = [.. shortcuts
             .Where(shortcut => shortcut.Modifiers == VirtualKeyModifiers.None)
             .Select(shortcut => shortcut.Key.ToString())];
@@ -733,6 +1019,32 @@ public static class SmokeTest
         }
 
         return buffer;
+    }
+
+    /// <summary>
+    /// Paints a small contrasting square on a copy of the layer, so the healing brush has a blemish to
+    /// take out. Healing a uniform area correctly leaves it alone, which is not what this check wants.
+    /// </summary>
+    private static void AddBlemish(LayerViewModel layer, int centreX, int centreY, int half, byte red, byte green, byte blue)
+    {
+        if (layer.Source is not { } source) return;
+
+        PixelBuffer blemished = source.Clone();
+        for (int y = centreY - half; y <= centreY + half; y++)
+        {
+            for (int x = centreX - half; x <= centreX + half; x++)
+            {
+                if ((uint)x >= (uint)blemished.Width || (uint)y >= (uint)blemished.Height) continue;
+
+                int i = blemished.Offset(x, y);
+                blemished.Data[i] = red;
+                blemished.Data[i + 1] = green;
+                blemished.Data[i + 2] = blue;
+                blemished.Data[i + 3] = 255;
+            }
+        }
+
+        layer.ReplacePixels(blemished);
     }
 
     private static void Fill(LayerViewModel layer, byte red, byte green, byte blue, byte alpha)

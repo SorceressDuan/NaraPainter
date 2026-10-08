@@ -151,6 +151,18 @@
   <data name="Toolbar_MaskBrushHint" xml:space="preserve">
     <value>Paint on the selected layer's mask</value>
   </data>
+  <data name="Toolbar_SpotHeal" xml:space="preserve">
+    <value>Spot Healing</value>
+  </data>
+  <data name="Toolbar_SpotHealHint" xml:space="preserve">
+    <value>Drag over a blemish to rebuild it from nearby texture (J)</value>
+  </data>
+  <data name="Toolbar_Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Toolbar_TextHint" xml:space="preserve">
+    <value>Click where the text should go (Ctrl+T)</value>
+  </data>
   <data name="Toolbar_ContentAwareFill" xml:space="preserve">
     <value>Content-Aware Fill</value>
   </data>
@@ -200,6 +212,30 @@
   </data>
   <data name="Layers_Empty" xml:space="preserve">
     <value>Empty</value>
+  </data>
+  <data name="Layers_Group" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Layers_FolderNameFormat" xml:space="preserve">
+    <value>Folder {0}</value>
+  </data>
+  <data name="Layers_GroupHint" xml:space="preserve">
+    <value>Put the selected layer in a new folder (Ctrl+G)</value>
+  </data>
+  <data name="Layers_UngroupHint" xml:space="preserve">
+    <value>Take the layers out of the selected folder and remove it (Ctrl+Shift+G)</value>
+  </data>
+  <data name="Layers_DropIntoHint" xml:space="preserve">
+    <value>Put inside {0}</value>
+  </data>
+  <data name="Status_LayersGrouped" xml:space="preserve">
+    <value>Grouped into {0}</value>
+  </data>
+  <data name="Status_LayersUngrouped" xml:space="preserve">
+    <value>Took the layers out of {0}</value>
+  </data>
+  <data name="Status_LayerMoved" xml:space="preserve">
+    <value>Moved {0}</value>
   </data>
   <data name="Layers_DefaultName" xml:space="preserve">
     <value>Layer</value>
@@ -548,6 +584,55 @@
     <value>Select a pixel layer before painting a mask</value>
   </data>
 
+  <!-- Spot healing. -->
+  <data name="SpotHeal_Title" xml:space="preserve">
+    <value>Spot Healing</value>
+  </data>
+  <data name="SpotHeal_On" xml:space="preserve">
+    <value>Spot healing: drag over a blemish, the fix lands when you let go</value>
+  </data>
+  <data name="SpotHeal_Mode" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="SpotHeal_ModeContentAware" xml:space="preserve">
+    <value>Content-Aware</value>
+  </data>
+  <data name="SpotHeal_ModeCreateTexture" xml:space="preserve">
+    <value>Create Texture</value>
+  </data>
+  <data name="SpotHeal_ModeProximityMatch" xml:space="preserve">
+    <value>Proximity Match</value>
+  </data>
+  <data name="SpotHeal_SelectPixelLayer" xml:space="preserve">
+    <value>Select a pixel layer before healing</value>
+  </data>
+  <data name="SpotHeal_Nothing" xml:space="preserve">
+    <value>Nothing was painted, so there is nothing to heal</value>
+  </data>
+  <data name="SpotHeal_Done" xml:space="preserve">
+    <value>Healed the painted area</value>
+  </data>
+
+  <!-- Text layer. -->
+  <data name="Text_ToolOn" xml:space="preserve">
+    <value>Text: click on the canvas where the text should go</value>
+  </data>
+  <data name="Text_Prompt" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Text_DialogTitle" xml:space="preserve">
+    <value>Add a text layer</value>
+  </data>
+  <data name="Text_Added" xml:space="preserve">
+    <value>Added the text as a new layer</value>
+  </data>
+  <data name="Text_Nothing" xml:space="preserve">
+    <value>Type something before adding the layer</value>
+  </data>
+  <data name="Text_LayerDefaultName" xml:space="preserve">
+    <value>Text</value>
+  </data>
+
   <!-- Content-aware fill. -->
   <data name="Fill_ContentAware" xml:space="preserve">
     <value>Content-Aware Fill</value>
@@ -632,6 +717,36 @@
   <data name="Undo_ContentFill" xml:space="preserve">
     <value>Content-Aware Fill</value>
   </data>
+  <data name="Undo_SpotHealing" xml:space="preserve">
+    <value>Spot Healing</value>
+  </data>
+  <data name="Undo_AddTextLayer" xml:space="preserve">
+    <value>Add Text</value>
+  </data>
+  <data name="Undo_GroupLayers" xml:space="preserve">
+    <value>Group Layers</value>
+  </data>
+  <data name="Undo_UngroupLayers" xml:space="preserve">
+    <value>Ungroup Layers</value>
+  </data>
+  <data name="Undo_MoveLayer" xml:space="preserve">
+    <value>Move Layer</value>
+  </data>
+  <data name="Undo_MergeDown" xml:space="preserve">
+    <value>Merge Down</value>
+  </data>
+  <data name="Undo_MergeGroup" xml:space="preserve">
+    <value>Merge Group</value>
+  </data>
+  <data name="Status_LayersMerged" xml:space="preserve">
+    <value>Merged into {0}</value>
+  </data>
+  <data name="Layers_MergeDownHint" xml:space="preserve">
+    <value>Merge the selected layer with the one below it (Ctrl+E)</value>
+  </data>
+  <data name="Layers_MergeGroupHint" xml:space="preserve">
+    <value>Merge the selected folder and everything inside it (Ctrl+Shift+E)</value>
+  </data>
 
   <!-- Picker entries, error dialogs and the drag captions. -->
   <data name="Format_Png" xml:space="preserve">
@@ -651,6 +766,9 @@
   </data>
   <data name="Dialog_Ok" xml:space="preserve">
     <value>OK</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
   <data name="Dialog_OpenFailed" xml:space="preserve">
     <value>Open failed</value>
