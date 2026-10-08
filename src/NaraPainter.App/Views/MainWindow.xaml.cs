@@ -396,6 +396,7 @@ public sealed partial class MainWindow : Window
         new(VirtualKey.Number1, VirtualKeyModifiers.Control, "Ctrl+1", OnAcceleratorActualSize),
         new(VirtualKey.M, VirtualKeyModifiers.None, "M", OnAcceleratorMaskBrush),
         new(VirtualKey.Escape, VirtualKeyModifiers.None, "Esc", OnAcceleratorCancelStroke),
+        new(VirtualKey.F1, VirtualKeyModifiers.None, "F1", OnAcceleratorTutorial),
 
         // The tools added after the first release. C is deliberately avoided for the crop: this
         // program crops at once rather than entering a crop mode, and a bare letter would be too easy
@@ -439,6 +440,14 @@ public sealed partial class MainWindow : Window
     }
 
     private async void OnAboutClick(object sender, RoutedEventArgs e) => await AboutDialog.ShowAsync(Content.XamlRoot);
+
+    private async void OnTutorialClick(object sender, RoutedEventArgs e) => await TutorialDialog.ShowAsync(Content.XamlRoot);
+
+    private void OnAcceleratorTutorial(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        _ = TutorialDialog.ShowAsync(Content.XamlRoot);
+    }
 
     /// <summary>
     /// Asks for a new canvas size and applies it. The two fields stay in step by default, because

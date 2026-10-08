@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "imageDirectory": "Assets/Tutorial/images",
+  "chapters": [
+    {
+      "id": "open",
+      "titleKey": "Tutorial_OpenTitle",
+      "steps": [
+        {
+          "textKey": "Tutorial_OpenStep1",
+          "image": "open-01.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_OpenStep2",
+          "image": "open-02.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_OpenStep3",
+          "image": "open-03.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        }
+      ]
+    },
+    {
+      "id": "layers",
+      "titleKey": "Tutorial_LayersTitle",
+      "steps": [
+        {
+          "textKey": "Tutorial_LayersStep1",
+          "image": "layers-01.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_LayersStep2",
+          "image": "layers-02.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_LayersStep3",
+          "image": "layers-03.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_LayersStep4",
+          "image": "layers-04.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_LayersStep5",
+          "image": "layers-05.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        }
+      ]
+    },
+    {
+      "id": "heal",
+      "titleKey": "Tutorial_HealTitle",
+      "steps": [
+        {
+          "textKey": "Tutorial_HealStep1",
+          "image": "heal-01.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_HealStep2",
+          "image": "heal-02.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_HealStep3",
+          "image": "heal-03.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_HealStep4",
+          "image": "heal-04.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        }
+      ]
+    },
+    {
+      "id": "export",
+      "titleKey": "Tutorial_ExportTitle",
+      "steps": [
+        {
+          "textKey": "Tutorial_ExportStep1",
+          "image": "export-01.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_ExportStep2",
+          "image": "export-02.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_ExportStep3",
+          "image": "export-03.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        },
+        {
+          "textKey": "Tutorial_ExportStep4",
+          "image": "export-04.png",
+          "imageWidth": 800,
+          "imageHeight": 600
+        }
+      ]
+    }
+  ]
+}
