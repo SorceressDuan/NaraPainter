@@ -49,6 +49,7 @@
                         VerticalAlignment="Top"
                         AllowDrop="True"
                         DragOver="OnRowDragOver"
+                        DragLeave="OnRowDragLeave"
                         Drop="OnRowDrop">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -60,13 +61,24 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
+                        <!-- Where the dragged row would land: a line along an edge, or a wash over the
+                             whole row for "inside this folder". Filled in and shown by the drag-over
+                             handler, and collapsed the rest of the time. -->
+                        <Border
+                            x:Name="DropMarker"
+                            Grid.RowSpan="2"
+                            Grid.ColumnSpan="3"
+                            IsHitTestVisible="False"
+                            Visibility="Collapsed" />
+
                         <CheckBox
                             Grid.RowSpan="2"
                             MinWidth="0"
                             Margin="0,0,0,0"
                             VerticalAlignment="Center"
                             IsChecked="{Binding IsVisible, Mode=TwoWay}"
-                            ToolTipService.ToolTip="{x:Bind Text.LayersVisibilityHint, Mode=OneWay}" />
+                            AutomationProperties.Name="{x:Bind Text.LayersVisibilityHintDetailed, Mode=OneWay}"
+                            ToolTipService.ToolTip="{x:Bind Text.LayersVisibilityHintDetailed, Mode=OneWay}" />
 
                         <!-- Nesting: a triangle for a folder, then one step of indent per folder above. -->
                         <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -78,6 +90,8 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Click="OnToggleFolder"
+                                AutomationProperties.Name="{x:Bind Text.LayersFoldHint, Mode=OneWay}"
+                                ToolTipService.ToolTip="{x:Bind Text.LayersFoldHint, Mode=OneWay}"
                                 Visibility="{Binding HasChildren, Converter={StaticResource BoolToVisibility}}">
                                 <FontIcon FontSize="9" Glyph="{Binding FolderGlyph}" />
                             </Button>
@@ -161,31 +175,31 @@
         </ListView>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4">
-            <Button Click="OnAddLayer" ToolTipService.ToolTip="{x:Bind Text.LayersAddHint, Mode=OneWay}">
+            <Button Click="OnAddLayer" AutomationProperties.Name="{x:Bind Text.LayersAddHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersAddHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Add" />
             </Button>
-            <Button Click="OnDuplicateLayer" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}">
+            <Button Click="OnDuplicateLayer" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Copy" />
             </Button>
-            <Button Click="OnDeleteLayer" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersDeleteHint, Mode=OneWay}">
+            <Button Click="OnDeleteLayer" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersDeleteHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersDeleteHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Delete" />
             </Button>
-            <Button Click="OnGroupLayers" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersGroupHint, Mode=OneWay}">
+            <Button Click="OnGroupLayers" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersGroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersGroupHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8B7;" FontSize="14" />
             </Button>
-            <Button Click="OnUngroupLayers" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersUngroupHint, Mode=OneWay}">
+            <Button Click="OnUngroupLayers" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersUngroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersUngroupHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8B8;" FontSize="14" />
             </Button>
-            <Button Click="OnMergeDown" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}">
+            <Button Click="OnMergeDown" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8C4;" FontSize="14" />
             </Button>
-            <Button Click="OnMergeGroup" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}">
+            <Button Click="OnMergeGroup" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8C3;" FontSize="14" />
             </Button>
-            <Button Click="OnMoveLayerUp" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}">
+            <Button Click="OnMoveLayerUp" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE74A;" FontSize="14" />
             </Button>
-            <Button Click="OnMoveLayerDown" IsEnabled="{Binding HasSelection}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}">
+            <Button Click="OnMoveLayerDown" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE74B;" FontSize="14" />
             </Button>
         </StackPanel>

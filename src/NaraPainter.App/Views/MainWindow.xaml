@@ -265,9 +265,16 @@
                     Spacing="6"
                     VerticalAlignment="Center">
                     <Button
+                        Content="{x:Bind Text.TutorialButton, Mode=OneWay}"
+                        Padding="8,2"
+                        FontFamily="{StaticResource AppFontFamily}"
+                        ToolTipService.ToolTip="{x:Bind Text.TutorialButtonHint, Mode=OneWay}"
+                        Click="OnTutorialClick" />
+                    <Button
                         Content="{x:Bind Text.AboutTitle, Mode=OneWay}"
                         Padding="8,2"
                         FontFamily="{StaticResource AppFontFamily}"
+                        ToolTipService.ToolTip="{x:Bind Text.StatusBarAboutHint, Mode=OneWay}"
                         Click="OnAboutClick" />
                     <TextBlock
                         Text="{x:Bind Text.LanguageLabel, Mode=OneWay}"
@@ -278,6 +285,7 @@
                         x:Name="LanguagePicker"
                         MinWidth="132"
                         FontFamily="{StaticResource AppFontFamily}"
+                        ToolTipService.ToolTip="{x:Bind Text.StatusBarLanguageHint, Mode=OneWay}"
                         SelectionChanged="OnLanguageChanged" />
                 </StackPanel>
 
@@ -339,6 +347,7 @@
                         Content="{x:Bind Text.ColorPickerCopy, Mode=OneWay}"
                         Padding="8,2"
                         FontFamily="{StaticResource AppFontFamily}"
+                        ToolTipService.ToolTip="{x:Bind Text.ColorPickerCopyHint, Mode=OneWay}"
                         Click="OnCopyColorClick" />
                 </StackPanel>
             </Grid>

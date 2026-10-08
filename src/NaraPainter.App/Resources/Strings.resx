@@ -83,7 +83,34 @@
     <value>Export</value>
   </data>
   <data name="Toolbar_ExportHint" xml:space="preserve">
-    <value>Export the flattened image (Ctrl+E)</value>
+    <value>Export the flattened image (Ctrl+S)</value>
+  </data>
+  <data name="StatusBar_AboutHint" xml:space="preserve">
+    <value>Version information and the open-source notice</value>
+  </data>
+  <data name="StatusBar_LanguageHint" xml:space="preserve">
+    <value>Switch the interface language, applied at once</value>
+  </data>
+  <data name="ColorPicker_CopyHint" xml:space="preserve">
+    <value>Copy the sampled colour as #RRGGBB</value>
+  </data>
+  <data name="Properties_ToolToggleHint" xml:space="preserve">
+    <value>Turn this tool on or off</value>
+  </data>
+  <data name="Properties_HelpHint" xml:space="preserve">
+    <value>Open the how-to guide</value>
+  </data>
+  <data name="Layers_VisibilityHintDetailed" xml:space="preserve">
+    <value>Show or hide this layer</value>
+  </data>
+  <data name="Layers_FoldHint" xml:space="preserve">
+    <value>Fold or unfold this folder</value>
+  </data>
+  <data name="Layers_NameHint" xml:space="preserve">
+    <value>Double-click to rename</value>
+  </data>
+  <data name="Layers_BlendHint" xml:space="preserve">
+    <value>How this layer blends with the ones below it</value>
   </data>
   <data name="Toolbar_Undo" xml:space="preserve">
     <value>Undo</value>
@@ -101,7 +128,7 @@
     <value>New Layer</value>
   </data>
   <data name="Toolbar_NewLayerHint" xml:space="preserve">
-    <value>Add a layer (Ctrl+Shift+N)</value>
+    <value>Add a layer (Ctrl+N)</value>
   </data>
   <data name="Toolbar_Duplicate" xml:space="preserve">
     <value>Duplicate</value>
@@ -196,10 +223,10 @@
     <value>Opacity</value>
   </data>
   <data name="Layers_AddHint" xml:space="preserve">
-    <value>New layer</value>
+    <value>New layer (Ctrl+N)</value>
   </data>
   <data name="Layers_DuplicateHint" xml:space="preserve">
-    <value>Duplicate layer</value>
+    <value>Duplicate layer (Ctrl+J)</value>
   </data>
   <data name="Layers_DeleteHint" xml:space="preserve">
     <value>Delete layer</value>
@@ -225,6 +252,9 @@
   <data name="Layers_UngroupHint" xml:space="preserve">
     <value>Take the layers out of the selected folder and remove it (Ctrl+Shift+G)</value>
   </data>
+  <data name="Layers_DropBetweenHint" xml:space="preserve">
+    <value>Move next to {0}</value>
+  </data>
   <data name="Layers_DropIntoHint" xml:space="preserve">
     <value>Put inside {0}</value>
   </data>
@@ -236,6 +266,9 @@
   </data>
   <data name="Status_LayerMoved" xml:space="preserve">
     <value>Moved {0}</value>
+  </data>
+  <data name="Status_LayerMovedInto" xml:space="preserve">
+    <value>Moved {0} into {1}</value>
   </data>
   <data name="Layers_DefaultName" xml:space="preserve">
     <value>Layer</value>
@@ -937,5 +970,92 @@
   </data>
   <data name="Export_Scale" xml:space="preserve">
     <value>Scale %</value>
+  </data>
+  <data name="Tutorial_Title" xml:space="preserve">
+    <value>How to use</value>
+  </data>
+  <data name="Tutorial_Button" xml:space="preserve">
+    <value>Guide</value>
+  </data>
+  <data name="Tutorial_ButtonHint" xml:space="preserve">
+    <value>Open the illustrated guide (F1)</value>
+  </data>
+  <data name="Tutorial_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Tutorial_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Tutorial_Previous" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="Tutorial_StepFormat" xml:space="preserve">
+    <value>Step {0} of {1}</value>
+  </data>
+  <data name="Tutorial_ImageMissingFormat" xml:space="preserve">
+    <value>Picture placeholder {0} × {1}</value>
+  </data>
+  <data name="Tutorial_Unavailable" xml:space="preserve">
+    <value>The guide could not be read. Reinstall, or check Assets\Tutorial\tutorial.json.</value>
+  </data>
+  <data name="Tutorial_OpenTitle" xml:space="preserve">
+    <value>Opening a picture</value>
+  </data>
+  <data name="Tutorial_OpenStep1" xml:space="preserve">
+    <value>Click Open at the top left of the toolbar, or press Ctrl+O.</value>
+  </data>
+  <data name="Tutorial_OpenStep2" xml:space="preserve">
+    <value>Pick a PNG, JPEG, WebP, BMP or TIFF. It arrives as a layer on the left.</value>
+  </data>
+  <data name="Tutorial_OpenStep3" xml:space="preserve">
+    <value>You can also drag a file straight in from Explorer. Opened the wrong one? Press Ctrl+Z.</value>
+  </data>
+  <data name="Tutorial_LayersTitle" xml:space="preserve">
+    <value>Layers and folders</value>
+  </data>
+  <data name="Tutorial_LayersStep1" xml:space="preserve">
+    <value>Click + at the bottom left of the layers panel, or press Ctrl+N.</value>
+  </data>
+  <data name="Tutorial_LayersStep2" xml:space="preserve">
+    <value>Every row can be renamed and given its own opacity and blend mode. Double-click a name to change it.</value>
+  </data>
+  <data name="Tutorial_LayersStep3" xml:space="preserve">
+    <value>With a layer selected, Ctrl+G puts it in a new folder. The triangle on the folder folds it away.</value>
+  </data>
+  <data name="Tutorial_LayersStep4" xml:space="preserve">
+    <value>Drag a row to move it: onto a row's edge to land above or below, onto a folder's middle to go inside.</value>
+  </data>
+  <data name="Tutorial_LayersStep5" xml:space="preserve">
+    <value>Ctrl+E merges a layer downwards, or a whole folder when one is selected. One Ctrl+Z puts it back.</value>
+  </data>
+  <data name="Tutorial_HealTitle" xml:space="preserve">
+    <value>Spot healing</value>
+  </data>
+  <data name="Tutorial_HealStep1" xml:space="preserve">
+    <value>Press J to turn spot healing on. Size, hardness and opacity are in the panel on the right.</value>
+  </data>
+  <data name="Tutorial_HealStep2" xml:space="preserve">
+    <value>Hold the mouse down and drag across the blemish to mark the area to repair.</value>
+  </data>
+  <data name="Tutorial_HealStep3" xml:space="preserve">
+    <value>On release the area is filled in from the texture around it. No selection needed first.</value>
+  </data>
+  <data name="Tutorial_HealStep4" xml:space="preserve">
+    <value>Not happy? Ctrl+Z. A whole stroke counts as one step, so one undo clears it.</value>
+  </data>
+  <data name="Tutorial_ExportTitle" xml:space="preserve">
+    <value>Exporting</value>
+  </data>
+  <data name="Tutorial_ExportStep1" xml:space="preserve">
+    <value>Press Ctrl+S, or click Export in the toolbar.</value>
+  </data>
+  <data name="Tutorial_ExportStep2" xml:space="preserve">
+    <value>Choose a format: PNG, JPEG, BMP, WebP or TIFF. JPEG for the web, PNG when alpha matters.</value>
+  </data>
+  <data name="Tutorial_ExportStep3" xml:space="preserve">
+    <value>JPEG takes a quality setting, and the export can be resized without changing the canvas first.</value>
+  </data>
+  <data name="Tutorial_ExportStep4" xml:space="preserve">
+    <value>Pick where to save it and confirm. The status bar reports how it went.</value>
   </data>
 </root>

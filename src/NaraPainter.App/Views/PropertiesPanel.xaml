@@ -262,7 +262,8 @@
                     <ToggleSwitch
                         IsOn="{Binding MaskBrush.IsActive, Mode=TwoWay}"
                         OnContent="{x:Bind Text.CommonOn, Mode=OneWay}"
-                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}" />
+                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}"
+                        ToolTipService.ToolTip="{x:Bind Text.PropertiesToolToggleHint, Mode=OneWay}" />
 
                     <controls:AdjustmentSlider
                         Header="{x:Bind Text.MaskSize, Mode=OneWay}"
@@ -285,7 +286,8 @@
                     <ToggleSwitch
                         IsOn="{Binding MaskBrush.Erase, Mode=TwoWay}"
                         OnContent="{x:Bind Text.MaskErase, Mode=OneWay}"
-                        OffContent="{x:Bind Text.MaskPaint, Mode=OneWay}" />
+                        OffContent="{x:Bind Text.MaskPaint, Mode=OneWay}"
+                        ToolTipService.ToolTip="{x:Bind Text.PropertiesToolToggleHint, Mode=OneWay}" />
 
                     <controls:AdjustmentSlider
                         Header="{x:Bind Text.MaskFeatherRadius, Mode=OneWay}"
@@ -308,7 +310,8 @@
                     <ToggleSwitch
                         IsOn="{Binding SpotHeal.IsActive, Mode=TwoWay}"
                         OnContent="{x:Bind Text.CommonOn, Mode=OneWay}"
-                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}" />
+                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}"
+                        ToolTipService.ToolTip="{x:Bind Text.PropertiesToolToggleHint, Mode=OneWay}" />
 
                     <ComboBox
                         Header="{x:Bind Text.SpotHealMode, Mode=OneWay}"
@@ -350,7 +353,8 @@
                         Header="{x:Bind Text.FillUseNikolai, Mode=OneWay}"
                         IsOn="{Binding ContentFill.UseNikolai, Mode=TwoWay}"
                         OnContent="{x:Bind Text.CommonOn, Mode=OneWay}"
-                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}" />
+                        OffContent="{x:Bind Text.CommonOff, Mode=OneWay}"
+                        ToolTipService.ToolTip="{x:Bind Text.PropertiesToolToggleHint, Mode=OneWay}" />
 
                     <Button
                         Content="{x:Bind Text.FillRun, Mode=OneWay}"

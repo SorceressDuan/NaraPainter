@@ -81,7 +81,34 @@
     <value>导出</value>
   </data>
   <data name="Toolbar_ExportHint" xml:space="preserve">
-    <value>导出合成后的图片 (Ctrl+E)</value>
+    <value>导出合成后的图片 (Ctrl+S)</value>
+  </data>
+  <data name="StatusBar_AboutHint" xml:space="preserve">
+    <value>版本信息与开源声明</value>
+  </data>
+  <data name="StatusBar_LanguageHint" xml:space="preserve">
+    <value>切换界面语言，立即生效</value>
+  </data>
+  <data name="ColorPicker_CopyHint" xml:space="preserve">
+    <value>把刚才取到的颜色复制成 #RRGGBB</value>
+  </data>
+  <data name="Properties_ToolToggleHint" xml:space="preserve">
+    <value>打开或关闭这个工具</value>
+  </data>
+  <data name="Properties_HelpHint" xml:space="preserve">
+    <value>打开使用说明</value>
+  </data>
+  <data name="Layers_VisibilityHintDetailed" xml:space="preserve">
+    <value>显示或隐藏这个图层</value>
+  </data>
+  <data name="Layers_FoldHint" xml:space="preserve">
+    <value>折叠或展开这个文件夹</value>
+  </data>
+  <data name="Layers_NameHint" xml:space="preserve">
+    <value>双击改名</value>
+  </data>
+  <data name="Layers_BlendHint" xml:space="preserve">
+    <value>这一层与下面图层的混合方式</value>
   </data>
   <data name="Toolbar_Undo" xml:space="preserve">
     <value>撤销</value>
@@ -99,7 +126,7 @@
     <value>新建图层</value>
   </data>
   <data name="Toolbar_NewLayerHint" xml:space="preserve">
-    <value>新建图层 (Ctrl+Shift+N)</value>
+    <value>新建图层 (Ctrl+N)</value>
   </data>
   <data name="Toolbar_Duplicate" xml:space="preserve">
     <value>复制图层</value>
@@ -153,13 +180,13 @@
     <value>污点修复</value>
   </data>
   <data name="Toolbar_SpotHealHint" xml:space="preserve">
-    <value>在瑕疵上拖动，用附近的纹理补回来（J）</value>
+    <value>在瑕疵上拖动，用附近的纹理补回来 (J)</value>
   </data>
   <data name="Toolbar_Text" xml:space="preserve">
     <value>文字</value>
   </data>
   <data name="Toolbar_TextHint" xml:space="preserve">
-    <value>在画布上点击文字要放置的位置（Ctrl+T）</value>
+    <value>在画布上点击文字要放置的位置 (Ctrl+T)</value>
   </data>
   <data name="Toolbar_ContentAwareFill" xml:space="preserve">
     <value>内容感知填充</value>
@@ -194,10 +221,10 @@
     <value>不透明度</value>
   </data>
   <data name="Layers_AddHint" xml:space="preserve">
-    <value>新建图层</value>
+    <value>新建图层 (Ctrl+N)</value>
   </data>
   <data name="Layers_DuplicateHint" xml:space="preserve">
-    <value>复制图层</value>
+    <value>复制图层 (Ctrl+J)</value>
   </data>
   <data name="Layers_DeleteHint" xml:space="preserve">
     <value>删除图层</value>
@@ -218,10 +245,13 @@
     <value>文件夹 {0}</value>
   </data>
   <data name="Layers_GroupHint" xml:space="preserve">
-    <value>把选中的图层放进新建文件夹（Ctrl+G）</value>
+    <value>把选中的图层放进新建文件夹 (Ctrl+G)</value>
   </data>
   <data name="Layers_UngroupHint" xml:space="preserve">
-    <value>把选中文件夹里的图层取出来并删除该文件夹（Ctrl+Shift+G）</value>
+    <value>把选中文件夹里的图层取出来并删除该文件夹 (Ctrl+Shift+G)</value>
+  </data>
+  <data name="Layers_DropBetweenHint" xml:space="preserve">
+    <value>移到 {0} 旁边</value>
   </data>
   <data name="Layers_DropIntoHint" xml:space="preserve">
     <value>放入 {0}</value>
@@ -234,6 +264,9 @@
   </data>
   <data name="Status_LayerMoved" xml:space="preserve">
     <value>已移动 {0}</value>
+  </data>
+  <data name="Status_LayerMovedInto" xml:space="preserve">
+    <value>已把 {0} 放进 {1}</value>
   </data>
   <data name="Layers_DefaultName" xml:space="preserve">
     <value>图层</value>
@@ -740,10 +773,10 @@
     <value>已合并为 {0}</value>
   </data>
   <data name="Layers_MergeDownHint" xml:space="preserve">
-    <value>把选中图层与它下面的一层合并（Ctrl+E）</value>
+    <value>把选中图层与它下面的一层合并 (Ctrl+E)</value>
   </data>
   <data name="Layers_MergeGroupHint" xml:space="preserve">
-    <value>把选中的文件夹和里面所有图层合并（Ctrl+Shift+E）</value>
+    <value>把选中的文件夹和里面所有图层合并 (Ctrl+Shift+E)</value>
   </data>
 
   <!-- Picker entries, error dialogs and the drag captions. -->
@@ -935,5 +968,92 @@
   </data>
   <data name="Export_Scale" xml:space="preserve">
     <value>缩放 %</value>
+  </data>
+  <data name="Tutorial_Title" xml:space="preserve">
+    <value>使用说明</value>
+  </data>
+  <data name="Tutorial_Button" xml:space="preserve">
+    <value>教程</value>
+  </data>
+  <data name="Tutorial_ButtonHint" xml:space="preserve">
+    <value>打开图文使用说明 (F1)</value>
+  </data>
+  <data name="Tutorial_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Tutorial_Next" xml:space="preserve">
+    <value>下一步</value>
+  </data>
+  <data name="Tutorial_Previous" xml:space="preserve">
+    <value>上一步</value>
+  </data>
+  <data name="Tutorial_StepFormat" xml:space="preserve">
+    <value>第 {0} / {1} 步</value>
+  </data>
+  <data name="Tutorial_ImageMissingFormat" xml:space="preserve">
+    <value>示意图占位 {0} × {1}</value>
+  </data>
+  <data name="Tutorial_Unavailable" xml:space="preserve">
+    <value>说明文件读取失败，请重新安装或检查 Assets\Tutorial\tutorial.json。</value>
+  </data>
+  <data name="Tutorial_OpenTitle" xml:space="preserve">
+    <value>打开图片</value>
+  </data>
+  <data name="Tutorial_OpenStep1" xml:space="preserve">
+    <value>点工具栏左上角的「打开」按钮，或者直接按 Ctrl+O。</value>
+  </data>
+  <data name="Tutorial_OpenStep2" xml:space="preserve">
+    <value>选一张 PNG、JPEG、WebP、BMP 或 TIFF。图片会作为一个图层出现在左边。</value>
+  </data>
+  <data name="Tutorial_OpenStep3" xml:space="preserve">
+    <value>也可以把文件直接从资源管理器拖进窗口。打开错了就按 Ctrl+Z 撤销。</value>
+  </data>
+  <data name="Tutorial_LayersTitle" xml:space="preserve">
+    <value>图层与编组</value>
+  </data>
+  <data name="Tutorial_LayersStep1" xml:space="preserve">
+    <value>点图层面板左下角的「+」新建图层，或者按 Ctrl+N。</value>
+  </data>
+  <data name="Tutorial_LayersStep2" xml:space="preserve">
+    <value>每一行都能改名、调不透明度、换混合模式。双击名字就能改。</value>
+  </data>
+  <data name="Tutorial_LayersStep3" xml:space="preserve">
+    <value>选中一层按 Ctrl+G 放进新建的文件夹，点文件夹左边的三角可以折叠。</value>
+  </data>
+  <data name="Tutorial_LayersStep4" xml:space="preserve">
+    <value>拖动图层可以放进文件夹：拖到行的上下缘是插到上/下方，拖到文件夹中间是放进去。</value>
+  </data>
+  <data name="Tutorial_LayersStep5" xml:space="preserve">
+    <value>按 Ctrl+E 把选中图层向下合并，文件夹则整组合并。一步 Ctrl+Z 就能还原。</value>
+  </data>
+  <data name="Tutorial_HealTitle" xml:space="preserve">
+    <value>污点修复</value>
+  </data>
+  <data name="Tutorial_HealStep1" xml:space="preserve">
+    <value>按 J 打开污点修复。右侧属性面板里可以调笔刷大小、硬度和不透明度。</value>
+  </data>
+  <data name="Tutorial_HealStep2" xml:space="preserve">
+    <value>在要去掉的瑕疵上按住鼠标拖动，划出要修的范围。</value>
+  </data>
+  <data name="Tutorial_HealStep3" xml:space="preserve">
+    <value>松手时程序会用周围的纹理把这块补回来，不需要先做选区。</value>
+  </data>
+  <data name="Tutorial_HealStep4" xml:space="preserve">
+    <value>不满意就按 Ctrl+Z，整条笔画算一步，一次就能全撤掉。</value>
+  </data>
+  <data name="Tutorial_ExportTitle" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="Tutorial_ExportStep1" xml:space="preserve">
+    <value>按 Ctrl+S，或者点工具栏的「导出」按钮。</value>
+  </data>
+  <data name="Tutorial_ExportStep2" xml:space="preserve">
+    <value>选格式：PNG、JPEG、BMP、WebP 或 TIFF。做网页用 JPEG，要透明通道用 PNG。</value>
+  </data>
+  <data name="Tutorial_ExportStep3" xml:space="preserve">
+    <value>JPEG 可以调质量；导出时也能顺便改尺寸，不用先改画布。</value>
+  </data>
+  <data name="Tutorial_ExportStep4" xml:space="preserve">
+    <value>选好保存位置，点确定。状态栏会显示导出结果。</value>
   </data>
 </root>

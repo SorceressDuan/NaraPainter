@@ -50,6 +50,8 @@ public static class Strings
 
     public static string StatusLayerMoved => Localization.Get("Status_LayerMoved");
 
+    public static string StatusLayerMovedInto => Localization.Get("Status_LayerMovedInto");
+
     public static string StatusLayersMerged => Localization.Get("Status_LayersMerged");
 
     public static string StatusOneLayer => Localization.Get("Status_OneLayer");
@@ -134,6 +136,14 @@ public static class Strings
 
     public static string LayersVisibilityHint => Localization.Get("Layers_VisibilityHint");
 
+    public static string LayersVisibilityHintDetailed => Localization.Get("Layers_VisibilityHintDetailed");
+
+    public static string LayersFoldHint => Localization.Get("Layers_FoldHint");
+
+    public static string LayersNameHint => Localization.Get("Layers_NameHint");
+
+    public static string LayersBlendHint => Localization.Get("Layers_BlendHint");
+
     public static string LayersAdjustmentBadge => Localization.Get("Layers_AdjustmentBadge");
 
     public static string LayersOpacity => Localization.Get("Layers_Opacity");
@@ -159,6 +169,8 @@ public static class Strings
     public static string LayersUngroupHint => Localization.Get("Layers_UngroupHint");
 
     public static string LayersDropIntoHint => Localization.Get("Layers_DropIntoHint");
+
+    public static string LayersDropBetweenHint => Localization.Get("Layers_DropBetweenHint");
 
     public static string LayersMergeDownHint => Localization.Get("Layers_MergeDownHint");
 
@@ -212,6 +224,10 @@ public static class Strings
     public static string PropertiesClearMask => Localization.Get("Properties_ClearMask");
 
     public static string PropertiesReset => Localization.Get("Properties_Reset");
+
+    public static string PropertiesToolToggleHint => Localization.Get("Properties_ToolToggleHint");
+
+    public static string PropertiesHelpHint => Localization.Get("Properties_HelpHint");
 
     public static string PropertiesAddPoint => Localization.Get("Properties_AddPoint");
 
@@ -451,6 +467,10 @@ public static class Strings
 
     public static string AboutTitle => Localization.Get("About_Title");
 
+    public static string StatusBarAboutHint => Localization.Get("StatusBar_AboutHint");
+
+    public static string StatusBarLanguageHint => Localization.Get("StatusBar_LanguageHint");
+
     public static string AboutVersion => Localization.Get("About_Version");
 
     public static string AboutLicense => Localization.Get("About_License");
@@ -524,6 +544,8 @@ public static class Strings
     public static string ToolbarColorPicker => Localization.Get("Toolbar_ColorPicker");
 
     public static string ColorPickerCopy => Localization.Get("ColorPicker_Copy");
+
+    public static string ColorPickerCopyHint => Localization.Get("ColorPicker_CopyHint");
 
     public static string ColorPickerCopied => Localization.Get("ColorPicker_Copied");
 
@@ -649,4 +671,64 @@ public static class Strings
         BlendModeHardMix, BlendModeDifference, BlendModeExclusion, BlendModeSubtract, BlendModeDivide,
         BlendModeHue, BlendModeSaturation, BlendModeColor, BlendModeLuminosity
     ];
+
+    // The guide's wording. The step order and the picture names live in the JSON, so only the words
+    // are here; see docs/TUTORIAL_PLAN.md.
+    public static string TutorialTitle => Localization.Get("Tutorial_Title");
+
+    public static string TutorialButton => Localization.Get("Tutorial_Button");
+
+    public static string TutorialButtonHint => Localization.Get("Tutorial_ButtonHint");
+
+    public static string TutorialClose => Localization.Get("Tutorial_Close");
+
+    public static string TutorialNext => Localization.Get("Tutorial_Next");
+
+    public static string TutorialPrevious => Localization.Get("Tutorial_Previous");
+
+    public static string TutorialStepFormat => Localization.Get("Tutorial_StepFormat");
+
+    public static string TutorialImageMissingFormat => Localization.Get("Tutorial_ImageMissingFormat");
+
+    public static string TutorialUnavailable => Localization.Get("Tutorial_Unavailable");
+
+    public static string TutorialOpenTitle => Localization.Get("Tutorial_OpenTitle");
+
+    public static string TutorialOpenStep1 => Localization.Get("Tutorial_OpenStep1");
+
+    public static string TutorialOpenStep2 => Localization.Get("Tutorial_OpenStep2");
+
+    public static string TutorialOpenStep3 => Localization.Get("Tutorial_OpenStep3");
+
+    public static string TutorialLayersTitle => Localization.Get("Tutorial_LayersTitle");
+
+    public static string TutorialLayersStep1 => Localization.Get("Tutorial_LayersStep1");
+
+    public static string TutorialLayersStep2 => Localization.Get("Tutorial_LayersStep2");
+
+    public static string TutorialLayersStep3 => Localization.Get("Tutorial_LayersStep3");
+
+    public static string TutorialLayersStep4 => Localization.Get("Tutorial_LayersStep4");
+
+    public static string TutorialLayersStep5 => Localization.Get("Tutorial_LayersStep5");
+
+    public static string TutorialHealTitle => Localization.Get("Tutorial_HealTitle");
+
+    public static string TutorialHealStep1 => Localization.Get("Tutorial_HealStep1");
+
+    public static string TutorialHealStep2 => Localization.Get("Tutorial_HealStep2");
+
+    public static string TutorialHealStep3 => Localization.Get("Tutorial_HealStep3");
+
+    public static string TutorialHealStep4 => Localization.Get("Tutorial_HealStep4");
+
+    public static string TutorialExportTitle => Localization.Get("Tutorial_ExportTitle");
+
+    public static string TutorialExportStep1 => Localization.Get("Tutorial_ExportStep1");
+
+    public static string TutorialExportStep2 => Localization.Get("Tutorial_ExportStep2");
+
+    public static string TutorialExportStep3 => Localization.Get("Tutorial_ExportStep3");
+
+    public static string TutorialExportStep4 => Localization.Get("Tutorial_ExportStep4");
 }

@@ -66,6 +66,8 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string StatusLayerMoved => Strings.StatusLayerMoved;
 
+    public string StatusLayerMovedInto => Strings.StatusLayerMovedInto;
+
     public string StatusLayersMerged => Strings.StatusLayersMerged;
 
     public string StatusOneLayer => Strings.StatusOneLayer;
@@ -150,6 +152,14 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string LayersVisibilityHint => Strings.LayersVisibilityHint;
 
+    public string LayersVisibilityHintDetailed => Strings.LayersVisibilityHintDetailed;
+
+    public string LayersFoldHint => Strings.LayersFoldHint;
+
+    public string LayersNameHint => Strings.LayersNameHint;
+
+    public string LayersBlendHint => Strings.LayersBlendHint;
+
     public string LayersAdjustmentBadge => Strings.LayersAdjustmentBadge;
 
     public string LayersOpacity => Strings.LayersOpacity;
@@ -175,6 +185,8 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string LayersUngroupHint => Strings.LayersUngroupHint;
 
     public string LayersDropIntoHint => Strings.LayersDropIntoHint;
+
+    public string LayersDropBetweenHint => Strings.LayersDropBetweenHint;
 
     public string LayersMergeDownHint => Strings.LayersMergeDownHint;
 
@@ -228,6 +240,10 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     public string PropertiesClearMask => Strings.PropertiesClearMask;
 
     public string PropertiesReset => Strings.PropertiesReset;
+
+    public string PropertiesToolToggleHint => Strings.PropertiesToolToggleHint;
+
+    public string PropertiesHelpHint => Strings.PropertiesHelpHint;
 
     public string PropertiesAddPoint => Strings.PropertiesAddPoint;
 
@@ -534,6 +550,10 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string AboutTitle => Strings.AboutTitle;
 
+    public string StatusBarAboutHint => Strings.StatusBarAboutHint;
+
+    public string StatusBarLanguageHint => Strings.StatusBarLanguageHint;
+
     public string DialogOpenFailedDetail => Strings.DialogOpenFailedDetail;
 
     public string DialogExportFailedDetail => Strings.DialogExportFailedDetail;
@@ -600,6 +620,8 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string ColorPickerCopy => Strings.ColorPickerCopy;
 
+    public string ColorPickerCopyHint => Strings.ColorPickerCopyHint;
+
     public string ColorPickerCopied => Strings.ColorPickerCopied;
 
     public string UndoCropLayer => Strings.UndoCropLayer;
@@ -643,4 +665,62 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
     {
         foreach (string name in Names) PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+
+    public string TutorialTitle => Strings.TutorialTitle;
+
+    public string TutorialButton => Strings.TutorialButton;
+
+    public string TutorialButtonHint => Strings.TutorialButtonHint;
+
+    public string TutorialClose => Strings.TutorialClose;
+
+    public string TutorialNext => Strings.TutorialNext;
+
+    public string TutorialPrevious => Strings.TutorialPrevious;
+
+    public string TutorialStepFormat => Strings.TutorialStepFormat;
+
+    public string TutorialImageMissingFormat => Strings.TutorialImageMissingFormat;
+
+    public string TutorialUnavailable => Strings.TutorialUnavailable;
+
+    public string TutorialOpenTitle => Strings.TutorialOpenTitle;
+
+    public string TutorialOpenStep1 => Strings.TutorialOpenStep1;
+
+    public string TutorialOpenStep2 => Strings.TutorialOpenStep2;
+
+    public string TutorialOpenStep3 => Strings.TutorialOpenStep3;
+
+    public string TutorialLayersTitle => Strings.TutorialLayersTitle;
+
+    public string TutorialLayersStep1 => Strings.TutorialLayersStep1;
+
+    public string TutorialLayersStep2 => Strings.TutorialLayersStep2;
+
+    public string TutorialLayersStep3 => Strings.TutorialLayersStep3;
+
+    public string TutorialLayersStep4 => Strings.TutorialLayersStep4;
+
+    public string TutorialLayersStep5 => Strings.TutorialLayersStep5;
+
+    public string TutorialHealTitle => Strings.TutorialHealTitle;
+
+    public string TutorialHealStep1 => Strings.TutorialHealStep1;
+
+    public string TutorialHealStep2 => Strings.TutorialHealStep2;
+
+    public string TutorialHealStep3 => Strings.TutorialHealStep3;
+
+    public string TutorialHealStep4 => Strings.TutorialHealStep4;
+
+    public string TutorialExportTitle => Strings.TutorialExportTitle;
+
+    public string TutorialExportStep1 => Strings.TutorialExportStep1;
+
+    public string TutorialExportStep2 => Strings.TutorialExportStep2;
+
+    public string TutorialExportStep3 => Strings.TutorialExportStep3;
+
+    public string TutorialExportStep4 => Strings.TutorialExportStep4;
 }
