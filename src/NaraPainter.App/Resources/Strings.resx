@@ -134,7 +134,7 @@
     <value>Duplicate</value>
   </data>
   <data name="Toolbar_DuplicateHint" xml:space="preserve">
-    <value>Duplicate the selected layer</value>
+    <value>Duplicate the selected layer (Ctrl+J)</value>
   </data>
   <data name="Toolbar_DeleteLayer" xml:space="preserve">
     <value>Delete Layer</value>
@@ -152,31 +152,31 @@
     <value>Zoom Out</value>
   </data>
   <data name="Toolbar_ZoomOutHint" xml:space="preserve">
-    <value>Zoom out</value>
+    <value>Zoom out (Ctrl+-)</value>
   </data>
   <data name="Toolbar_ZoomIn" xml:space="preserve">
     <value>Zoom In</value>
   </data>
   <data name="Toolbar_ZoomInHint" xml:space="preserve">
-    <value>Zoom in</value>
+    <value>Zoom in (Ctrl++)</value>
   </data>
   <data name="Toolbar_Fit" xml:space="preserve">
     <value>Fit</value>
   </data>
   <data name="Toolbar_FitHint" xml:space="preserve">
-    <value>Fit the canvas to the window</value>
+    <value>Fit the canvas to the window (Ctrl+0)</value>
   </data>
   <data name="Toolbar_ActualSize" xml:space="preserve">
     <value>100%</value>
   </data>
   <data name="Toolbar_ActualSizeHint" xml:space="preserve">
-    <value>Show the canvas at 100%</value>
+    <value>Show the canvas at 100% (Ctrl+1)</value>
   </data>
   <data name="Toolbar_MaskBrush" xml:space="preserve">
     <value>Mask Brush</value>
   </data>
   <data name="Toolbar_MaskBrushHint" xml:space="preserve">
-    <value>Paint on the selected layer's mask</value>
+    <value>Paint on the selected layer's mask (M)</value>
   </data>
   <data name="Toolbar_SpotHeal" xml:space="preserve">
     <value>Spot Healing</value>
@@ -619,7 +619,7 @@
 
   <!-- Spot healing. -->
   <data name="SpotHeal_ToggleHint" xml:space="preserve">
-    <value>Turn it on with the toolbar button or J</value>
+    <value>Turn this tool on with the toolbar button (J)</value>
   </data>
   <data name="SpotHeal_Title" xml:space="preserve">
     <value>Spot Healing</value>
@@ -1060,5 +1060,14 @@
   </data>
   <data name="Tutorial_ExportStep4" xml:space="preserve">
     <value>Pick where to save it and confirm. The status bar reports how it went.</value>
+  </data>
+  <data name="Toolbar_ColorPickerHint" xml:space="preserve">
+    <value>Pick a colour from the canvas (I)</value>
+  </data>
+  <data name="Toolbar_TransformHint" xml:space="preserve">
+    <value>Rotate, flip, crop and resize the canvas (Ctrl+Shift+X)</value>
+  </data>
+  <data name="Toolbar_FiltersHint" xml:space="preserve">
+    <value>Gaussian blur and USM sharpening (Ctrl+Shift+B / Ctrl+Shift+U)</value>
   </data>
 </root>

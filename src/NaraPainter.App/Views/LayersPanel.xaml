@@ -174,32 +174,36 @@
             </ListView.ItemTemplate>
         </ListView>
 
+        <!-- The buttons that need a selected layer go faint without one rather than disabled: a
+             disabled control receives no pointer messages, so its tooltip never opens and there is
+             nothing left to explain the grey button. The handlers already do nothing without a
+             selection. -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="4">
             <Button Click="OnAddLayer" AutomationProperties.Name="{x:Bind Text.LayersAddHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersAddHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Add" />
             </Button>
-            <Button Click="OnDuplicateLayer" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}">
+            <Button Click="OnDuplicateLayer" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersDuplicateHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Copy" />
             </Button>
-            <Button Click="OnDeleteLayer" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersDeleteHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersDeleteHint, Mode=OneWay}">
+            <Button Click="OnDeleteLayer" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersDeleteHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersDeleteHint, Mode=OneWay}">
                 <SymbolIcon Symbol="Delete" />
             </Button>
-            <Button Click="OnGroupLayers" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersGroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersGroupHint, Mode=OneWay}">
+            <Button Click="OnGroupLayers" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersGroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersGroupHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8B7;" FontSize="14" />
             </Button>
-            <Button Click="OnUngroupLayers" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersUngroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersUngroupHint, Mode=OneWay}">
+            <Button Click="OnUngroupLayers" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersUngroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersUngroupHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8B8;" FontSize="14" />
             </Button>
-            <Button Click="OnMergeDown" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}">
+            <Button Click="OnMergeDown" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeDownHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8C4;" FontSize="14" />
             </Button>
-            <Button Click="OnMergeGroup" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}">
+            <Button Click="OnMergeGroup" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMergeGroupHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE8C3;" FontSize="14" />
             </Button>
-            <Button Click="OnMoveLayerUp" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}">
+            <Button Click="OnMoveLayerUp" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveUpHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE74A;" FontSize="14" />
             </Button>
-            <Button Click="OnMoveLayerDown" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}">
+            <Button Click="OnMoveLayerDown" Opacity="{Binding HasSelection, Converter={StaticResource EnabledToOpacity}}" AutomationProperties.Name="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind Text.LayersMoveDownHint, Mode=OneWay}">
                 <FontIcon Glyph="&#xE74B;" FontSize="14" />
             </Button>
         </StackPanel>

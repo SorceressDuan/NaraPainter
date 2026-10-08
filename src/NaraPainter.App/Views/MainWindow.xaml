@@ -40,22 +40,23 @@
 
             </AppBarButton>
             <AppBarSeparator />
+            <!-- These go faint rather than disabled when the document has nothing for them to act on.
+                 A disabled control receives no pointer messages, so ToolTipService never opens its
+                 tooltip and a new user gets no explanation for the grey button. Fading an enabled one
+                 keeps the hint readable; the handlers behind them already do nothing when there is
+                 nothing to do. -->
             <AppBarButton
                 Icon="Undo"
                 Label="{x:Bind Text.ToolbarUndo, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarUndoHint, Mode=OneWay}"
                 Click="OnUndoClick"
-                IsEnabled="{x:Bind Document.CanUndo, Mode=OneWay}">
-
-            </AppBarButton>
+                Opacity="{Binding Document.CanUndo, Converter={StaticResource EnabledToOpacity}}" />
             <AppBarButton
                 Icon="Redo"
                 Label="{x:Bind Text.ToolbarRedo, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarRedoHint, Mode=OneWay}"
                 Click="OnRedoClick"
-                IsEnabled="{x:Bind Document.CanRedo, Mode=OneWay}">
-
-            </AppBarButton>
+                Opacity="{Binding Document.CanRedo, Converter={StaticResource EnabledToOpacity}}" />
             <AppBarSeparator />
             <AppBarButton
                 Icon="Add"
@@ -69,13 +70,13 @@
                 Label="{x:Bind Text.ToolbarDuplicate, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarDuplicateHint, Mode=OneWay}"
                 Click="OnDuplicateLayerClick"
-                IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
+                Opacity="{Binding Document.HasSelection, Converter={StaticResource EnabledToOpacity}}" />
             <AppBarButton
                 Icon="Delete"
                 Label="{x:Bind Text.ToolbarDeleteLayer, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarDeleteHint, Mode=OneWay}"
                 Click="OnDeleteLayerClick"
-                IsEnabled="{x:Bind Document.HasSelection, Mode=OneWay}" />
+                Opacity="{Binding Document.HasSelection, Converter={StaticResource EnabledToOpacity}}" />
             <AppBarButton
                 Icon="Edit"
                 Label="{x:Bind Text.ToolbarAdjustmentLayer, Mode=OneWay}"

@@ -56,7 +56,8 @@
                         Maximum="100"
                         Value="{Binding Adjustment.Contrast, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
-                    <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" HorizontalAlignment="Right" Click="OnResetBrightnessContrast" />
+                    <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" HorizontalAlignment="Right" Click="OnResetBrightnessContrast"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesReset, Mode=OneWay}" />
                 </StackPanel>
             </Expander>
 
@@ -90,7 +91,8 @@
                         Value="{Binding Adjustment.Lightness, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
                     <CheckBox Content="{x:Bind Text.PropertiesColorize, Mode=OneWay}" IsChecked="{Binding Adjustment.Colorize, Mode=TwoWay}" />
-                    <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" HorizontalAlignment="Right" Click="OnResetHueSaturation" />
+                    <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" HorizontalAlignment="Right" Click="OnResetHueSaturation"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesReset, Mode=OneWay}" />
                 </StackPanel>
             </Expander>
 
@@ -136,7 +138,8 @@
                         Maximum="255"
                         Value="{Binding Adjustment.LevelOutputWhite, Mode=TwoWay}"
                         EditStarted="OnAdjustmentEditStarted" />
-                    <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" HorizontalAlignment="Right" Click="OnResetLevels" />
+                    <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" HorizontalAlignment="Right" Click="OnResetLevels"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesReset, Mode=OneWay}" />
                 </StackPanel>
             </Expander>
 
@@ -197,9 +200,12 @@
                     </ListView>
 
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Content="{x:Bind Text.PropertiesAddPoint, Mode=OneWay}" Click="OnAddCurvePoint" />
-                        <Button Content="{x:Bind Text.PropertiesRemovePoint, Mode=OneWay}" Click="OnRemoveCurvePoint" IsEnabled="{Binding Adjustment.CanRemoveCurvePoint}" />
-                        <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" Click="OnResetCurves" />
+                        <Button Content="{x:Bind Text.PropertiesAddPoint, Mode=OneWay}" Click="OnAddCurvePoint"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesAddPoint, Mode=OneWay}" />
+                        <Button Content="{x:Bind Text.PropertiesRemovePoint, Mode=OneWay}" Click="OnRemoveCurvePoint" Opacity="{Binding Adjustment.CanRemoveCurvePoint, Converter={StaticResource EnabledToOpacity}}"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesRemovePoint, Mode=OneWay}" />
+                        <Button Content="{x:Bind Text.PropertiesReset, Mode=OneWay}" Click="OnResetCurves"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesReset, Mode=OneWay}" />
                     </StackPanel>
                 </StackPanel>
             </Expander>
@@ -236,9 +242,12 @@
                         Value="{Binding Selection.Feather, Mode=TwoWay}" />
 
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Content="{x:Bind Text.PropertiesApplyAsMask, Mode=OneWay}" Click="OnApplyMask" />
-                        <Button Content="{x:Bind Text.PropertiesSelectAll, Mode=OneWay}" Click="OnSelectAll" />
-                        <Button Content="{x:Bind Text.PropertiesClearMask, Mode=OneWay}" Click="OnClearMask" IsEnabled="{Binding Selection.HasMask}" />
+                        <Button Content="{x:Bind Text.PropertiesApplyAsMask, Mode=OneWay}" Click="OnApplyMask"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesApplyAsMask, Mode=OneWay}" />
+                        <Button Content="{x:Bind Text.PropertiesSelectAll, Mode=OneWay}" Click="OnSelectAll"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesSelectAll, Mode=OneWay}" />
+                        <Button Content="{x:Bind Text.PropertiesClearMask, Mode=OneWay}" Click="OnClearMask" Opacity="{Binding Selection.HasMask, Converter={StaticResource EnabledToOpacity}}"
+                            ToolTipService.ToolTip="{x:Bind Text.PropertiesClearMask, Mode=OneWay}" />
                     </StackPanel>
 
                     <TextBlock
@@ -296,9 +305,12 @@
                         Value="{Binding MaskBrush.FeatherRadius, Mode=TwoWay}" />
 
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                        <Button Content="{x:Bind Text.MaskFeather, Mode=OneWay}" Click="OnFeatherMask" />
-                        <Button Content="{x:Bind Text.MaskInvert, Mode=OneWay}" Click="OnInvertMask" />
-                        <Button Content="{x:Bind Text.SelectionClear, Mode=OneWay}" Click="OnClearSelection" />
+                        <Button Content="{x:Bind Text.MaskFeather, Mode=OneWay}" Click="OnFeatherMask"
+                            ToolTipService.ToolTip="{x:Bind Text.MaskFeather, Mode=OneWay}" />
+                        <Button Content="{x:Bind Text.MaskInvert, Mode=OneWay}" Click="OnInvertMask"
+                            ToolTipService.ToolTip="{x:Bind Text.MaskInvert, Mode=OneWay}" />
+                        <Button Content="{x:Bind Text.SelectionClear, Mode=OneWay}" Click="OnClearSelection"
+                            ToolTipService.ToolTip="{x:Bind Text.SelectionClear, Mode=OneWay}" />
                     </StackPanel>
                 </StackPanel>
             </ContentControl>

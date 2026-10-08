@@ -129,6 +129,12 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string ToolbarSpotHeal => Strings.ToolbarSpotHeal;
 
+    public string ToolbarTransformHint => Strings.ToolbarTransformHint;
+
+    public string ToolbarColorPickerHint => Strings.ToolbarColorPickerHint;
+
+    public string ToolbarFiltersHint => Strings.ToolbarFiltersHint;
+
     public string ToolbarSpotHealHint => Strings.ToolbarSpotHealHint;
 
     public string ToolbarText => Strings.ToolbarText;

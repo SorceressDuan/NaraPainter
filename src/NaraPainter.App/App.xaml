@@ -9,6 +9,7 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+            <converters:EnabledToOpacityConverter x:Key="EnabledToOpacity" />
 
             <!--
                 One family, not a comma-separated chain: WinUI 3 does not document WPF's fallback-list

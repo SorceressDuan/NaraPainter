@@ -195,7 +195,7 @@ public sealed partial class MainWindow : Window
 
     /// <summary>
     /// Names the menu items of a flyout in order, skipping its separators, and appends the gesture each
-    /// one is bound to.
+    /// one is bound to. The gesture goes in brackets so a menu reads the same way a tooltip does.
     /// </summary>
     private void Label(MenuFlyout flyout, string[] labels, string[] actions)
     {
@@ -205,7 +205,7 @@ public sealed partial class MainWindow : Window
             if (entry is not MenuFlyoutItem item || index >= labels.Length) continue;
 
             string hint = index < actions.Length ? HintFor(actions[index]) : string.Empty;
-            item.Text = hint.Length > 0 ? $"{labels[index]}    {hint}" : labels[index];
+            item.Text = hint.Length > 0 ? $"{labels[index]} ({hint})" : labels[index];
             index++;
         }
     }

@@ -563,13 +563,14 @@ public static class Strings
 
     public static string ExportScale => Localization.Get("Export_Scale");
 
-    // Shortcut reminders, appended to the tooltips of the buttons and menus they belong to. Kept as
-    // fixed text rather than read from the accelerator table: a static accessor cannot see a window.
-    public static string ToolbarColorPickerHint => "I";
+    // The three that open a menu rather than acting at once. They name several gestures each, so the
+    // wording stays here while the text lives with every other string. Shape is the same as the rest:
+    // what it does, then the keys in brackets.
+    public static string ToolbarColorPickerHint => Localization.Get("Toolbar_ColorPickerHint");
 
-    public static string ToolbarTransformHint => "Ctrl+Shift+L / R / H / V, Ctrl+Alt+C, Ctrl+Shift+X";
+    public static string ToolbarTransformHint => Localization.Get("Toolbar_TransformHint");
 
-    public static string ToolbarFiltersHint => "Ctrl+Shift+B, Ctrl+Shift+U";
+    public static string ToolbarFiltersHint => Localization.Get("Toolbar_FiltersHint");
     public static string UndoOpenImage => Localization.Get("Undo_OpenImage");
 
     public static string UndoNewLayer => Localization.Get("Undo_NewLayer");

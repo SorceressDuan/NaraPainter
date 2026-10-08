@@ -132,7 +132,7 @@
     <value>复制图层</value>
   </data>
   <data name="Toolbar_DuplicateHint" xml:space="preserve">
-    <value>复制选中的图层</value>
+    <value>复制选中的图层 (Ctrl+J)</value>
   </data>
   <data name="Toolbar_DeleteLayer" xml:space="preserve">
     <value>删除图层</value>
@@ -150,31 +150,31 @@
     <value>缩小</value>
   </data>
   <data name="Toolbar_ZoomOutHint" xml:space="preserve">
-    <value>缩小画布</value>
+    <value>缩小画布 (Ctrl+-)</value>
   </data>
   <data name="Toolbar_ZoomIn" xml:space="preserve">
     <value>放大</value>
   </data>
   <data name="Toolbar_ZoomInHint" xml:space="preserve">
-    <value>放大画布</value>
+    <value>放大画布 (Ctrl++)</value>
   </data>
   <data name="Toolbar_Fit" xml:space="preserve">
     <value>适应窗口</value>
   </data>
   <data name="Toolbar_FitHint" xml:space="preserve">
-    <value>让画布适应窗口</value>
+    <value>让画布适应窗口 (Ctrl+0)</value>
   </data>
   <data name="Toolbar_ActualSize" xml:space="preserve">
     <value>100%</value>
   </data>
   <data name="Toolbar_ActualSizeHint" xml:space="preserve">
-    <value>以 100% 显示画布</value>
+    <value>以 100% 显示画布 (Ctrl+1)</value>
   </data>
   <data name="Toolbar_MaskBrush" xml:space="preserve">
     <value>蒙版画笔</value>
   </data>
   <data name="Toolbar_MaskBrushHint" xml:space="preserve">
-    <value>在选中图层的蒙版上涂抹</value>
+    <value>在选中图层的蒙版上涂抹 (M)</value>
   </data>
   <data name="Toolbar_SpotHeal" xml:space="preserve">
     <value>污点修复</value>
@@ -617,7 +617,7 @@
 
   <!-- Spot healing. -->
   <data name="SpotHeal_ToggleHint" xml:space="preserve">
-    <value>用工具栏的按钮或 J 键开关</value>
+    <value>用工具栏按钮开关这个工具 (J)</value>
   </data>
   <data name="SpotHeal_Title" xml:space="preserve">
     <value>污点修复</value>
@@ -1058,5 +1058,14 @@
   </data>
   <data name="Tutorial_ExportStep4" xml:space="preserve">
     <value>选好保存位置，点确定。状态栏会显示导出结果。</value>
+  </data>
+  <data name="Toolbar_ColorPickerHint" xml:space="preserve">
+    <value>取画布上一点的颜色 (I)</value>
+  </data>
+  <data name="Toolbar_TransformHint" xml:space="preserve">
+    <value>旋转、翻转、裁剪与改画布尺寸 (Ctrl+Shift+X)</value>
+  </data>
+  <data name="Toolbar_FiltersHint" xml:space="preserve">
+    <value>高斯模糊与 USM 锐化 (Ctrl+Shift+B / Ctrl+Shift+U)</value>
   </data>
 </root>
