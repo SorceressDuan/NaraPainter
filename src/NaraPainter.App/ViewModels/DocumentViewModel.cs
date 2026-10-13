@@ -915,9 +915,38 @@ public sealed class DocumentViewModel : ObservableObject
         Status = Localization.Interpolate(Strings.StatusExported, Path.GetFileName(path), pixels.Width, pixels.Height);
     }
 
-    public void Undo() => History.Undo();
+    public void Undo()
+    {
+        if (!History.CanUndo)
+        {
+            // The button is drawn faded when there is nothing to undo, but a faded control still takes
+            // a click, and silence after a click reads as the app having ignored it.
+            Status = Strings.StatusNothingToUndo;
+            return;
+        }
 
-    public void Redo() => History.Redo();
+        History.Undo();
+    }
+
+    public void Redo()
+    {
+        if (!History.CanRedo)
+        {
+            Status = Strings.StatusNothingToRedo;
+            return;
+        }
+
+        History.Redo();
+    }
+
+    /// <summary>Tells the user why a click on a faded button did nothing, instead of leaving silence.</summary>
+    public void ReportNoSelection()
+    {
+        Status = _selectedLayer is { IsGroup: true } ? Strings.StatusNoFolderSelected : Strings.StatusNeedSelection;
+    }
+
+    /// <summary>Tells the user the row they tried to move is already at the top or bottom.</summary>
+    public void ReportCannotMove() => Status = Strings.StatusCannotMove;
 
     /// <summary>
     /// Re-reads every label that comes from the resources. Nothing calls this yet: the app follows the

@@ -770,9 +770,27 @@ public sealed partial class MainWindow : Window
 
     private void OnNewLayerClick(object sender, RoutedEventArgs e) => Document.AddLayer();
 
-    private void OnDuplicateLayerClick(object sender, RoutedEventArgs e) => Document.DuplicateLayer(Document.SelectedLayer);
+    private void OnDuplicateLayerClick(object sender, RoutedEventArgs e)
+    {
+        if (Document.SelectedLayer is null)
+        {
+            Document.ReportNoSelection();
+            return;
+        }
 
-    private void OnDeleteLayerClick(object sender, RoutedEventArgs e) => Document.DeleteLayer(Document.SelectedLayer);
+        Document.DuplicateLayer(Document.SelectedLayer);
+    }
+
+    private void OnDeleteLayerClick(object sender, RoutedEventArgs e)
+    {
+        if (Document.SelectedLayer is null)
+        {
+            Document.ReportNoSelection();
+            return;
+        }
+
+        Document.DeleteLayer(Document.SelectedLayer);
+    }
 
     private void OnAddAdjustmentLayerClick(object sender, RoutedEventArgs e)
     {
@@ -826,24 +844,28 @@ public sealed partial class MainWindow : Window
     private void OnAcceleratorGroup(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
+        if (Document.SelectedLayer is null) { Document.ReportNoSelection(); return; }
         Document.GroupSelectedLayers();
     }
 
     private void OnAcceleratorUngroup(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
+        if (Document.SelectedLayer is not { IsGroup: true }) { Document.ReportNoSelection(); return; }
         Document.UngroupSelectedFolder();
     }
 
     private void OnAcceleratorMergeDown(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
+        if (Document.SelectedLayer is null) { Document.ReportNoSelection(); return; }
         MergeDownOrGroup();
     }
 
     private void OnAcceleratorMergeGroup(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         args.Handled = true;
+        if (Document.SelectedLayer is not { IsGroup: true }) { Document.ReportNoSelection(); return; }
         Document.MergeGroup();
     }
 

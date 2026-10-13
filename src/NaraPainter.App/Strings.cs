@@ -54,6 +54,12 @@ public static class Strings
 
     public static string StatusLayersMerged => Localization.Get("Status_LayersMerged");
 
+    public static string StatusNothingToUndo => Localization.Get("Status_NothingToUndo");
+    public static string StatusNothingToRedo => Localization.Get("Status_NothingToRedo");
+    public static string StatusNeedSelection => Localization.Get("Status_NeedSelection");
+    public static string StatusNoFolderSelected => Localization.Get("Status_NoFolderSelected");
+    public static string StatusCannotMove => Localization.Get("Status_CannotMove");
+
     public static string StatusOneLayer => Localization.Get("Status_OneLayer");
 
     public static string StatusLayerCount => Localization.Get("Status_LayerCount");

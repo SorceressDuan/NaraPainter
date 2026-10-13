@@ -17,8 +17,10 @@
              window narrow enough to be common: at the 48px an icon-only AppBarButton needs, the whole
              bar fits inside 1080px, and the labels still read in the tooltips and to a screen reader.
              IsDynamicOverflowEnabled is the fallback for anything narrower: commands trade places with
-             the overflow menu by DynamicOverflowOrder, so the four low ones go first and the pixel
-             tools last. -->
+             the overflow menu by DynamicOverflowOrder, lowest number first. The menu commands
+             (adjustment, fill, filters, transform) go before the continuous pixel tools, so the
+             narrowest window still keeps healing, the mask brush, the eyedropper and text on the
+             bar. -->
         <CommandBar
             Grid.Row="0"
             DefaultLabelPosition="Collapsed"
@@ -99,20 +101,20 @@
                 Icon="Edit"
                 Label="{x:Bind Text.ToolbarMaskBrush, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarMaskBrushHint, Mode=OneWay}"
-                DynamicOverflowOrder="2"
+                DynamicOverflowOrder="8"
                 Click="OnMaskBrushClick" />
             <AppBarToggleButton
                 x:Name="SpotHealButton"
                 Icon="Repair"
                 Label="{x:Bind Text.ToolbarSpotHeal, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarSpotHealHint, Mode=OneWay}"
-                DynamicOverflowOrder="1"
+                DynamicOverflowOrder="9"
                 Click="OnSpotHealClick" />
             <AppBarButton
                 Icon="Repair"
                 Label="{x:Bind Text.ToolbarContentAwareFill, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarContentAwareFillHint, Mode=OneWay}"
-                DynamicOverflowOrder="4"
+                DynamicOverflowOrder="6"
                 Click="OnContentAwareFillClick">
                 <AppBarButton.Flyout>
                     <MenuFlyout x:Name="FillFlyout">
@@ -129,7 +131,7 @@
                 Icon="Rotate"
                 Label="{x:Bind Text.ToolbarTransform, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind app:Strings.ToolbarTransformHint}"
-                DynamicOverflowOrder="5">
+                DynamicOverflowOrder="6">
                 <AppBarButton.Flyout>
                     <!-- Flyouts are outside the page's visual tree, so these are labelled in
                          code-behind; see LabelFlyouts. -->
@@ -156,13 +158,13 @@
                 Icon="Font"
                 Label="{x:Bind Text.ToolbarText, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind Text.ToolbarTextHint, Mode=OneWay}"
-                DynamicOverflowOrder="3"
+                DynamicOverflowOrder="7"
                 Click="OnTextClick" />
             <AppBarButton
                 Icon="Filter"
                 Label="{x:Bind Text.ToolbarFilters, Mode=OneWay}"
                 ToolTipService.ToolTip="{x:Bind app:Strings.ToolbarFiltersHint}"
-                DynamicOverflowOrder="6">
+                DynamicOverflowOrder="5">
                 <AppBarButton.Flyout>
                     <MenuFlyout x:Name="FilterFlyout">
                         <MenuFlyoutItem Click="OnGaussianBlurClick" />

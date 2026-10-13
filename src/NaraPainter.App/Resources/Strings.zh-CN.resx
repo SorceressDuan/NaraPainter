@@ -132,13 +132,13 @@
     <value>复制图层</value>
   </data>
   <data name="Toolbar_DuplicateHint" xml:space="preserve">
-    <value>复制选中的图层 (Ctrl+J)</value>
+    <value>复制图层 (Ctrl+J)</value>
   </data>
   <data name="Toolbar_DeleteLayer" xml:space="preserve">
     <value>删除图层</value>
   </data>
   <data name="Toolbar_DeleteHint" xml:space="preserve">
-    <value>删除选中的图层</value>
+    <value>删除图层</value>
   </data>
   <data name="Toolbar_AdjustmentLayer" xml:space="preserve">
     <value>调整图层</value>
@@ -1067,5 +1067,20 @@
   </data>
   <data name="Toolbar_FiltersHint" xml:space="preserve">
     <value>高斯模糊与 USM 锐化 (Ctrl+Shift+B / Ctrl+Shift+U)</value>
+  </data>
+  <data name="Status_NothingToUndo" xml:space="preserve">
+    <value>没有可撤销的操作</value>
+  </data>
+  <data name="Status_NothingToRedo" xml:space="preserve">
+    <value>没有可重做的操作</value>
+  </data>
+  <data name="Status_NeedSelection" xml:space="preserve">
+    <value>请先在图层面板选中一个图层</value>
+  </data>
+  <data name="Status_NoFolderSelected" xml:space="preserve">
+    <value>请先选中一个文件夹</value>
+  </data>
+  <data name="Status_CannotMove" xml:space="preserve">
+    <value>这个图层已经到边了</value>
   </data>
 </root>

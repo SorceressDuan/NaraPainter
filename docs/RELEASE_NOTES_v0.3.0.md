@@ -4,7 +4,9 @@
 这个移植版之前没有的功能。同时把撤销栈从「逐项记录」改成「整份快照」，
 让结构性的操作（建组、解组、删除、合并）也能一步还原。
 
-**下载**：`NaraPainter-0.3.0-win-x64.zip`（149.69 MB）
+**下载**：NaraPainter-0.3.0-win-x64.zip（149.73 MB）
+
+- SHA-256：`5BAC3023F5993ACF13ECEEE1CBDC8AFA80C0A1CB69A58C58C55BF470E2F331F5`
 
 - 解压后双击 `launcher\NaraPainter.exe` 启动；想放桌面就再双击 `创建桌面快捷方式.bat`
 - 便携版，**无需安装 .NET 或 Windows App SDK**

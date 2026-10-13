@@ -134,13 +134,13 @@
     <value>Duplicate</value>
   </data>
   <data name="Toolbar_DuplicateHint" xml:space="preserve">
-    <value>Duplicate the selected layer (Ctrl+J)</value>
+    <value>Duplicate layer (Ctrl+J)</value>
   </data>
   <data name="Toolbar_DeleteLayer" xml:space="preserve">
     <value>Delete Layer</value>
   </data>
   <data name="Toolbar_DeleteHint" xml:space="preserve">
-    <value>Delete the selected layer</value>
+    <value>Delete layer</value>
   </data>
   <data name="Toolbar_AdjustmentLayer" xml:space="preserve">
     <value>Adjustment Layer</value>
@@ -1069,5 +1069,20 @@
   </data>
   <data name="Toolbar_FiltersHint" xml:space="preserve">
     <value>Gaussian blur and USM sharpening (Ctrl+Shift+B / Ctrl+Shift+U)</value>
+  </data>
+  <data name="Status_NothingToUndo" xml:space="preserve">
+    <value>Nothing to undo</value>
+  </data>
+  <data name="Status_NothingToRedo" xml:space="preserve">
+    <value>Nothing to redo</value>
+  </data>
+  <data name="Status_NeedSelection" xml:space="preserve">
+    <value>Select a layer in the panel first</value>
+  </data>
+  <data name="Status_NoFolderSelected" xml:space="preserve">
+    <value>Select a folder first</value>
+  </data>
+  <data name="Status_CannotMove" xml:space="preserve">
+    <value>This layer is already at the edge</value>
   </data>
 </root>

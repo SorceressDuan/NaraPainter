@@ -1,5 +1,9 @@
 # 第二阶段技术方案：文字工具与图层编组
 
+> **状态：两项均已实现。** 文字工具见 `TextDialog` / `TextRasterizer`，编组见
+> `LayerOrder` / `DocumentViewModel` 的建组、解组与拖拽。本文保留原方案的取舍依据；
+> 实际实现过程中的偏差记录在 `PROGRESS_v0.3.0.md`。
+
 上游 Swift 源码在 `legacy/`，本轮**只做方案，不写代码**。两份方案的共同前提是
 [MISSING_FEATURES.md](MISSING_FEATURES.md) 里的定位不变：轻量级编辑器，不做 PSD 往返。
 

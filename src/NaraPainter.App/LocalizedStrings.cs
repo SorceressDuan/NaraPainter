@@ -68,6 +68,12 @@ public sealed class LocalizedStrings : INotifyPropertyChanged
 
     public string StatusLayerMovedInto => Strings.StatusLayerMovedInto;
 
+    public string StatusNothingToUndo => Strings.StatusNothingToUndo;
+    public string StatusNothingToRedo => Strings.StatusNothingToRedo;
+    public string StatusNeedSelection => Strings.StatusNeedSelection;
+    public string StatusNoFolderSelected => Strings.StatusNoFolderSelected;
+    public string StatusCannotMove => Strings.StatusCannotMove;
+
     public string StatusLayersMerged => Strings.StatusLayersMerged;
 
     public string StatusOneLayer => Strings.StatusOneLayer;

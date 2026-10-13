@@ -31,30 +31,50 @@ public sealed partial class LayersPanel : UserControl
 
     private void OnDuplicateLayer(object sender, RoutedEventArgs e)
     {
-        if (_document is not null) _document.DuplicateLayer(_document.SelectedLayer);
+        if (_document is null) return;
+        if (_document.SelectedLayer is null) { _document.ReportNoSelection(); return; }
+        _document.DuplicateLayer(_document.SelectedLayer);
     }
 
     private void OnDeleteLayer(object sender, RoutedEventArgs e)
     {
-        if (_document is not null) _document.DeleteLayer(_document.SelectedLayer);
+        if (_document is null) return;
+        if (_document.SelectedLayer is null) { _document.ReportNoSelection(); return; }
+        _document.DeleteLayer(_document.SelectedLayer);
     }
 
     private void OnMoveLayerUp(object sender, RoutedEventArgs e) => Move(-1);
 
     private void OnMoveLayerDown(object sender, RoutedEventArgs e) => Move(1);
 
-    private void OnGroupLayers(object sender, RoutedEventArgs e) => _document?.GroupSelectedLayers();
+    private void OnGroupLayers(object sender, RoutedEventArgs e)
+    {
+        if (_document is null) return;
+        if (_document.SelectedLayer is null) { _document.ReportNoSelection(); return; }
+        _document.GroupSelectedLayers();
+    }
 
-    private void OnUngroupLayers(object sender, RoutedEventArgs e) => _document?.UngroupSelectedFolder();
+    private void OnUngroupLayers(object sender, RoutedEventArgs e)
+    {
+        if (_document is null) return;
+        if (_document.SelectedLayer is not { IsGroup: true }) { _document.ReportNoSelection(); return; }
+        _document.UngroupSelectedFolder();
+    }
 
     private void OnMergeDown(object sender, RoutedEventArgs e)
     {
         if (_document is null) return;
+        if (_document.SelectedLayer is null) { _document.ReportNoSelection(); return; }
         if (_document.SelectedLayer is { IsGroup: true }) _document.MergeGroup();
         else _document.MergeDown();
     }
 
-    private void OnMergeGroup(object sender, RoutedEventArgs e) => _document?.MergeGroup();
+    private void OnMergeGroup(object sender, RoutedEventArgs e)
+    {
+        if (_document is null) return;
+        if (_document.SelectedLayer is not { IsGroup: true }) { _document.ReportNoSelection(); return; }
+        _document.MergeGroup();
+    }
 
     /// <summary>Folds or opens the folder whose row carries the triangle.</summary>
     private void OnToggleFolder(object sender, RoutedEventArgs e)
@@ -240,12 +260,21 @@ public sealed partial class LayersPanel : UserControl
 
     private void Move(int panelDelta)
     {
-        if (_document?.SelectedLayer is not { } layer) return;
+        if (_document?.SelectedLayer is not { } layer)
+        {
+            _document?.ReportNoSelection();
+            return;
+        }
 
         var order = _document.Layers.ToList();
         int index = order.IndexOf(layer);
         int target = index + panelDelta;
-        if (index < 0 || target < 0 || target >= order.Count) return;
+        if (index < 0 || target < 0 || target >= order.Count)
+        {
+            // The row is already at the top or the bottom of the stack.
+            _document.ReportCannotMove();
+            return;
+        }
 
         (order[index], order[target]) = (order[target], order[index]);
         _document.ReorderLayers(order);
